@@ -1,4 +1,4 @@
-# hellway
+# Hellway
 
 Atary 2600 game in early alpha stage. 
 
