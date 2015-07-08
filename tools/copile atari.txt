@@ -1,0 +1,1 @@
+dasm clock003.asm -f3 -oclock.bin
