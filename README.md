@@ -19,3 +19,6 @@ Road map:
 The source code is in the file opb.asm, the game is the opb.bin, use your favorite Atari emulator to run it.
 
 Fell free to contribute! It would make me very happy :)
+
+
+A very special thanks to all the https://www.atariage.com/ community!
