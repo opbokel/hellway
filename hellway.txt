@@ -1,0 +1,855 @@
+------- FILE hellway.asm LEVEL 1 PASS 2
+      1  10000 ????						; move a happy face with GRP0CacheStuffer
+      2  10000 ????						;OPB game!
+      3  10000 ????				       processor	6502
+------- FILE vcs.h LEVEL 2 PASS 2
+      0  10000 ????				       include	vcs.h
+      1  10000 ????						; VCS.H
+      2  10000 ????						; Version 1.06, 06/SEP/2020
+      3  10000 ????
+      4  10000 ????		00 6a	    VERSION_VCS =	106
+      5  10000 ????
+      6  10000 ????						; THIS IS *THE* "STANDARD" VCS.H
+      7  10000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
+      8  10000 ????						; The latest version can be found at https://dasm-assembler.github.io/
+      9  10000 ????						;
+     10  10000 ????						; This file defines hardware registers and memory mapping for the
+     11  10000 ????						; Atari 2600. It is distributed as a companion machine-specific support package
+     12  10000 ????						; for the DASM compiler. Updates to this file, DASM, and associated tools are
+     13  10000 ????						; available at at https://dasm-assembler.github.io/
+     14  10000 ????						;
+     15  10000 ????						; Many thanks to the people who have contributed. If you find an issue with the
+     16  10000 ????						; contents, or would like ot add something, please report as an issue at...
+     17  10000 ????						; https://github.com/dasm-assembler/dasm/issues
+     18  10000 ????
+     19  10000 ????						;
+     20  10000 ????						; Latest Revisions...
+     21  10000 ????						; 1.06  05/SEP/2020	 Modified header/license and links to new versions
+     22  10000 ????						; 1.05  13/NOV/2003	  - Correction to 1.04 - now functions as requested by MR.
+     23  10000 ????						;			  - Added VERSION_VCS equate (which will reflect 100x version #)
+     24  10000 ????						;			    This will allow conditional code to verify VCS.H being
+     25  10000 ????						;			    used for code assembly.
+     26  10000 ????						; 1.04  12/NOV/2003	 Added TIA_BASE_WRITE_ADDRESS and TIA_BASE_READ_ADDRESS for
+     27  10000 ????						;			 convenient disassembly/reassembly compatibility for hardware
+     28  10000 ????						;			 mirrored reading/writing differences.	This is more a 
+     29  10000 ????						;			 readability issue, and binary compatibility with disassembled
+     30  10000 ????						;			 and reassembled sources.  Per Manuel Rotschkar's suggestion.
+     31  10000 ????						; 1.03  12/MAY/2003	 Added SEG segment at end of file to fix old-code compatibility
+     32  10000 ????						;			 which was broken by the use of segments in this file, as
+     33  10000 ????						;			 reported by Manuel Polik on [stella] 11/MAY/2003
+     34  10000 ????						; 1.02  22/MAR/2003	 Added TIMINT($285)
+     35  10000 ????						; 1.01				Constant offset added to allow use for 3F-style bankswitching
+     36  10000 ????						;						 - define TIA_BASE_ADDRESS as $40 for Tigervision carts, otherwise
+     37  10000 ????						;						   it is safe to leave it undefined, and the base address will
+     38  10000 ????						;						   be set to 0.  Thanks to Eckhard Stolberg for the suggestion.
+     39  10000 ????						;			    Note, may use -DLABEL=EXPRESSION to define TIA_BASE_ADDRESS
+     40  10000 ????						;			  - register definitions are now generated through assignment
+     41  10000 ????						;			    in uninitialised segments.	This allows a changeable base
+     42  10000 ????						;			    address architecture.
+     43  10000 ????						; 1.0	22/MAR/2003		Initial release
+     44  10000 ????
+     45  10000 ????
+     46  10000 ????						;-------------------------------------------------------------------------------
+     47  10000 ????
+     48  10000 ????						; TIA_BASE_ADDRESS
+     49  10000 ????						; The TIA_BASE_ADDRESS defines the base address of access to TIA registers.
+     50  10000 ????						; Normally 0, the base address should (externally, before including this file)
+     51  10000 ????						; be set to $40 when creating 3F-bankswitched (and other?) cartridges.
+     52  10000 ????						; The reason is that this bankswitching scheme treats any access to locations
+     53  10000 ????						; < $40 as a bankswitch.
+     54  10000 ????
+     55  10000 ????			   -	       IFNCONST	TIA_BASE_ADDRESS
+     56  10000 ????			   -TIA_BASE_ADDRESS =	0
+     57  10000 ????				       ENDIF
+     58  10000 ????
+     59  10000 ????						; Note: The address may be defined on the command-line using the -D switch, eg:
+     60  10000 ????						; dasm.exe code.asm -DTIA_BASE_ADDRESS=$40 -f3 -v5 -ocode.bin
+     61  10000 ????						; *OR* by declaring the label before including this file, eg:
+     62  10000 ????						; TIA_BASE_ADDRESS = $40
+     63  10000 ????						;   include "vcs.h"
+     64  10000 ????
+     65  10000 ????						; Alternate read/write address capability - allows for some disassembly compatibility
+     66  10000 ????						; usage ; to allow reassembly to binary perfect copies).  This is essentially catering
+     67  10000 ????						; for the mirrored ROM hardware registers.
+     68  10000 ????
+     69  10000 ????						; Usage: As per above, define the TIA_BASE_READ_ADDRESS and/or TIA_BASE_WRITE_ADDRESS
+     70  10000 ????						; using the -D command-line switch, as required.  If the addresses are not defined, 
+     71  10000 ????						; they defaut to the TIA_BASE_ADDRESS.
+     72  10000 ????
+     73  10000 ????			   -	       IFNCONST	TIA_BASE_READ_ADDRESS
+     74  10000 ????			   -TIA_BASE_READ_ADDRESS =	TIA_BASE_ADDRESS
+     75  10000 ????				       ENDIF
+     76  10000 ????
+     77  10000 ????			   -	       IFNCONST	TIA_BASE_WRITE_ADDRESS
+     78  10000 ????			   -TIA_BASE_WRITE_ADDRESS =	TIA_BASE_ADDRESS
+     79  10000 ????				       ENDIF
+     80  10000 ????
+     81  10000 ????						;-------------------------------------------------------------------------------
+     82  10000 ????
+     83 U002d ????				      SEG.U	TIA_REGISTERS_WRITE
+     84 U0000					      ORG	TIA_BASE_WRITE_ADDRESS
+     85 U0000
+     86 U0000							; DO NOT CHANGE THE RELATIVE ORDERING OF REGISTERS!
+     87 U0000
+     88 U0000		       00	   VSYNC      ds	1	; $00	 0000 00x0   Vertical Sync Set-Clear
+     89 U0001		       00	   VBLANK     ds	1	; $01	 xx00 00x0   Vertical Blank Set-Clear
+     90 U0002		       00	   WSYNC      ds	1	; $02	 ---- ----   Wait for Horizontal Blank
+     91 U0003		       00	   RSYNC      ds	1	; $03	 ---- ----   Reset Horizontal Sync Counter
+     92 U0004		       00	   NUSIZ0     ds	1	; $04	 00xx 0xxx   Number-Size player/missle 0
+     93 U0005		       00	   NUSIZ1     ds	1	; $05	 00xx 0xxx   Number-Size player/missle 1
+     94 U0006		       00	   COLUP0     ds	1	; $06	 xxxx xxx0   Color-Luminance Player 0
+     95 U0007		       00	   COLUP1     ds	1	; $07	 xxxx xxx0   Color-Luminance Player 1
+     96 U0008		       00	   COLUPF     ds	1	; $08	 xxxx xxx0   Color-Luminance Playfield
+     97 U0009		       00	   COLUBK     ds	1	; $09	 xxxx xxx0   Color-Luminance Background
+     98 U000a		       00	   CTRLPF     ds	1	; $0A	 00xx 0xxx   Control Playfield, Ball, Collisions
+     99 U000b		       00	   REFP0      ds	1	; $0B	 0000 x000   Reflection Player 0
+    100 U000c		       00	   REFP1      ds	1	; $0C	 0000 x000   Reflection Player 1
+    101 U000d		       00	   PF0	      ds	1	; $0D	 xxxx 0000   Playfield Register Byte 0
+    102 U000e		       00	   PF1	      ds	1	; $0E	 xxxx xxxx   Playfield Register Byte 1
+    103 U000f		       00	   PF2	      ds	1	; $0F	 xxxx xxxx   Playfield Register Byte 2
+    104 U0010		       00	   RESP0      ds	1	; $10	 ---- ----   Reset Player 0
+    105 U0011		       00	   RESP1      ds	1	; $11	 ---- ----   Reset Player 1
+    106 U0012		       00	   RESM0      ds	1	; $12	 ---- ----   Reset Missle 0
+    107 U0013		       00	   RESM1      ds	1	; $13	 ---- ----   Reset Missle 1
+    108 U0014		       00	   RESBL      ds	1	; $14	 ---- ----   Reset Ball
+    109 U0015		       00	   AUDC0      ds	1	; $15	 0000 xxxx   Audio Control 0
+    110 U0016		       00	   AUDC1      ds	1	; $16	 0000 xxxx   Audio Control 1
+    111 U0017		       00	   AUDF0      ds	1	; $17	 000x xxxx   Audio Frequency 0
+    112 U0018		       00	   AUDF1      ds	1	; $18	 000x xxxx   Audio Frequency 1
+    113 U0019		       00	   AUDV0      ds	1	; $19	 0000 xxxx   Audio Volume 0
+    114 U001a		       00	   AUDV1      ds	1	; $1A	 0000 xxxx   Audio Volume 1
+    115 U001b		       00	   GRP0       ds	1	; $1B	 xxxx xxxx   Graphics Register Player 0
+    116 U001c		       00	   GRP1       ds	1	; $1C	 xxxx xxxx   Graphics Register Player 1
+    117 U001d		       00	   ENAM0      ds	1	; $1D	 0000 00x0   Graphics Enable Missle 0
+    118 U001e		       00	   ENAM1      ds	1	; $1E	 0000 00x0   Graphics Enable Missle 1
+    119 U001f		       00	   ENABL      ds	1	; $1F	 0000 00x0   Graphics Enable Ball
+    120 U0020		       00	   HMP0       ds	1	; $20	 xxxx 0000   Horizontal Motion Player 0
+    121 U0021		       00	   HMP1       ds	1	; $21	 xxxx 0000   Horizontal Motion Player 1
+    122 U0022		       00	   HMM0       ds	1	; $22	 xxxx 0000   Horizontal Motion Missle 0
+    123 U0023		       00	   HMM1       ds	1	; $23	 xxxx 0000   Horizontal Motion Missle 1
+    124 U0024		       00	   HMBL       ds	1	; $24	 xxxx 0000   Horizontal Motion Ball
+    125 U0025		       00	   VDELP0     ds	1	; $25	 0000 000x   Vertical Delay Player 0
+    126 U0026		       00	   VDELP1     ds	1	; $26	 0000 000x   Vertical Delay Player 1
+    127 U0027		       00	   VDELBL     ds	1	; $27	 0000 000x   Vertical Delay Ball
+    128 U0028		       00	   RESMP0     ds	1	; $28	 0000 00x0   Reset Missle 0 to Player 0
+    129 U0029		       00	   RESMP1     ds	1	; $29	 0000 00x0   Reset Missle 1 to Player 1
+    130 U002a		       00	   HMOVE      ds	1	; $2A	 ---- ----   Apply Horizontal Motion
+    131 U002b		       00	   HMCLR      ds	1	; $2B	 ---- ----   Clear Horizontal Move Registers
+    132 U002c		       00	   CXCLR      ds	1	; $2C	 ---- ----   Clear Collision Latches
+    133 U002d
+    134 U002d							;-------------------------------------------------------------------------------
+    135 U002d
+    136 U000e ????				      SEG.U	TIA_REGISTERS_READ
+    137 U0000					      ORG	TIA_BASE_READ_ADDRESS
+    138 U0000
+    139 U0000							;											bit 7	 bit 6
+    140 U0000		       00	   CXM0P      ds	1	; $00	     xx00 0000	     Read Collision  M0-P1   M0-P0
+    141 U0001		       00	   CXM1P      ds	1	; $01	     xx00 0000			     M1-P0   M1-P1
+    142 U0002		       00	   CXP0FB     ds	1	; $02	     xx00 0000			     P0-PF   P0-BL
+    143 U0003		       00	   CXP1FB     ds	1	; $03	     xx00 0000			     P1-PF   P1-BL
+    144 U0004		       00	   CXM0FB     ds	1	; $04	     xx00 0000			     M0-PF   M0-BL
+    145 U0005		       00	   CXM1FB     ds	1	; $05	     xx00 0000			     M1-PF   M1-BL
+    146 U0006		       00	   CXBLPF     ds	1	; $06	     x000 0000			     BL-PF   -----
+    147 U0007		       00	   CXPPMM     ds	1	; $07	     xx00 0000			     P0-P1   M0-M1
+    148 U0008		       00	   INPT0      ds	1	; $08	     x000 0000	     Read Pot Port 0
+    149 U0009		       00	   INPT1      ds	1	; $09	     x000 0000	     Read Pot Port 1
+    150 U000a		       00	   INPT2      ds	1	; $0A	     x000 0000	     Read Pot Port 2
+    151 U000b		       00	   INPT3      ds	1	; $0B	     x000 0000	     Read Pot Port 3
+    152 U000c		       00	   INPT4      ds	1	; $0C		x000 0000	 Read Input (Trigger) 0
+    153 U000d		       00	   INPT5      ds	1	; $0D		x000 0000	 Read Input (Trigger) 1
+    154 U000e
+    155 U000e							;-------------------------------------------------------------------------------
+    156 U000e
+    157 U0298 ????				      SEG.U	RIOT
+    158 U0280					      ORG	$280
+    159 U0280
+    160 U0280							; RIOT MEMORY MAP
+    161 U0280
+    162 U0280		       00	   SWCHA      ds	1	; $280      Port A data register for joysticks:
+    163 U0281							;			Bits 4-7 for player 1.  Bits 0-3 for player 2.
+    164 U0281
+    165 U0281		       00	   SWACNT     ds	1	; $281      Port A data direction register (DDR)
+    166 U0282		       00	   SWCHB      ds	1	; $282		Port B data (console switches)
+    167 U0283		       00	   SWBCNT     ds	1	; $283      Port B DDR
+    168 U0284		       00	   INTIM      ds	1	; $284		Timer output
+    169 U0285
+    170 U0285		       00	   TIMINT     ds	1	; $285
+    171 U0286
+    172 U0286							; Unused/undefined registers ($285-$294)
+    173 U0286
+    174 U0286		       00		      ds	1	; $286
+    175 U0287		       00		      ds	1	; $287
+    176 U0288		       00		      ds	1	; $288
+    177 U0289		       00		      ds	1	; $289
+    178 U028a		       00		      ds	1	; $28A
+    179 U028b		       00		      ds	1	; $28B
+    180 U028c		       00		      ds	1	; $28C
+    181 U028d		       00		      ds	1	; $28D
+    182 U028e		       00		      ds	1	; $28E
+    183 U028f		       00		      ds	1	; $28F
+    184 U0290		       00		      ds	1	; $290
+    185 U0291		       00		      ds	1	; $291
+    186 U0292		       00		      ds	1	; $292
+    187 U0293		       00		      ds	1	; $293
+    188 U0294
+    189 U0294		       00	   TIM1T      ds	1	; $294		set 1 clock interval
+    190 U0295		       00	   TIM8T      ds	1	; $295      set 8 clock interval
+    191 U0296		       00	   TIM64T     ds	1	; $296      set 64 clock interval
+    192 U0297		       00	   T1024T     ds	1	; $297      set 1024 clock interval
+    193 U0298
+    194 U0298							;-------------------------------------------------------------------------------
+    195 U0298							; The following required for back-compatibility with code which does not use
+    196 U0298							; segments.
+    197 U0298
+    198  10000 ????				       SEG
+    199  10000 ????
+    200  10000 ????						; EOF
+------- FILE hellway.asm
+------- FILE macro.h LEVEL 2 PASS 2
+      0  10000 ????				       include	macro.h
+      1  10000 ????						; MACRO.H
+      2  10000 ????						; Version 1.09, 05/SEP/2020
+      3  10000 ????
+      4  10000 ????		00 6d	    VERSION_MACRO =	109
+      5  10000 ????
+      6  10000 ????						;
+      7  10000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
+      8  10000 ????						; The latest version can be found at https://dasm-assembler.github.io/
+      9  10000 ????						;
+     10  10000 ????						; This file defines DASM macros useful for development for the Atari 2600.
+     11  10000 ????						; It is distributed as a companion machine-specific support package
+     12  10000 ????						; for the DASM compiler.
+     13  10000 ????						;
+     14  10000 ????						; Many thanks to the people who have contributed. If you find an issue with the
+     15  10000 ????						; contents, or would like ot add something, please report as an issue at...
+     16  10000 ????						; https://github.com/dasm-assembler/dasm/issues
+     17  10000 ????
+     18  10000 ????
+     19  10000 ????						; Latest Revisions...
+     20  10000 ????						; 1.09  05/SEP/2020	 - updated license/links
+     21  10000 ????
+     22  10000 ????						; 1.08  13/JUL/2020	 - added use of LXA to CLEAN_START
+     23  10000 ????						; 1.07  19/JAN/2020	 - correction to comment VERTICAL_SYNC
+     24  10000 ????						; 1.06  03/SEP/2004	 - nice revision of VERTICAL_SYNC (Edwin Blink)
+     25  10000 ????						; 1.05  14/NOV/2003	 - Added VERSION_MACRO equate (which will reflect 100x version #)
+     26  10000 ????						;			   This will allow conditional code to verify MACRO.H being
+     27  10000 ????						;			   used for code assembly.
+     28  10000 ????						; 1.04  13/NOV/2003	 - SET_POINTER macro added (16-bit address load)
+     29  10000 ????						;
+     30  10000 ????						; 1.03  23/JUN/2003	 - CLEAN_START macro added - clears TIA, RAM, registers
+     31  10000 ????						;
+     32  10000 ????						; 1.02  14/JUN/2003	 - VERTICAL_SYNC macro added
+     33  10000 ????						;			   (standardised macro for vertical synch code)
+     34  10000 ????						; 1.01  22/MAR/2003	 - SLEEP macro added. 
+     35  10000 ????						;			 - NO_ILLEGAL_OPCODES switch implemented
+     36  10000 ????						; 1.0	22/MAR/2003		Initial release
+     37  10000 ????
+     38  10000 ????						; Note: These macros use illegal opcodes.  To disable illegal opcode usage, 
+     39  10000 ????						;   define the symbol NO_ILLEGAL_OPCODES (-DNO_ILLEGAL_OPCODES=1 on command-line).
+     40  10000 ????						;   If you do not allow illegal opcode usage, you must include this file 
+     41  10000 ????						;   *after* including VCS.H (as the non-illegal opcodes access hardware
+     42  10000 ????						;   registers and require them to be defined first).
+     43  10000 ????
+     44  10000 ????						; Available macros...
+     45  10000 ????						;   SLEEP n		 - sleep for n cycles
+     46  10000 ????						;   VERTICAL_SYNC	 - correct 3 scanline vertical synch code
+     47  10000 ????						;   CLEAN_START	 - set machine to known state on startup
+     48  10000 ????						;   SET_POINTER	 - load a 16-bit absolute to a 16-bit variable
+     49  10000 ????
+     50  10000 ????						;-------------------------------------------------------------------------------
+     51  10000 ????						; SLEEP duration
+     52  10000 ????						; Original author: Thomas Jentzsch
+     53  10000 ????						; Inserts code which takes the specified number of cycles to execute.	This is
+     54  10000 ????						; useful for code where precise timing is required.
+     55  10000 ????						; ILLEGAL-OPCODE VERSION DOES NOT AFFECT FLAGS OR REGISTERS.
+     56  10000 ????						; LEGAL OPCODE VERSION MAY AFFECT FLAGS
+     57  10000 ????						; Uses illegal opcode (DASM 2.20.01 onwards).
+     58  10000 ????
+     59  10000 ????				       MAC	sleep
+     60  10000 ????			    .CYCLES    SET	{1}
+     61  10000 ????
+     62  10000 ????				       IF	.CYCLES < 2
+     63  10000 ????				       ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+     64  10000 ????				       ERR
+     65  10000 ????				       ENDIF
+     66  10000 ????
+     67  10000 ????				       IF	.CYCLES & 1
+     68  10000 ????				       IFNCONST	NO_ILLEGAL_OPCODES
+     69  10000 ????				       nop	0
+     70  10000 ????				       ELSE
+     71  10000 ????				       bit	VSYNC
+     72  10000 ????				       ENDIF
+     73  10000 ????			    .CYCLES    SET	.CYCLES - 3
+     74  10000 ????				       ENDIF
+     75  10000 ????
+     76  10000 ????				       REPEAT	.CYCLES / 2
+     77  10000 ????				       nop
+     78  10000 ????				       REPEND
+     79  10000 ????				       ENDM		;usage: SLEEP n (n>1)
+     80  10000 ????
+     81  10000 ????						;-------------------------------------------------------------------------------
+     82  10000 ????						; VERTICAL_SYNC
+     83  10000 ????						; revised version by Edwin Blink -- saves bytes!
+     84  10000 ????						; Inserts the code required for a proper 3 scanline vertical sync sequence
+     85  10000 ????						; Note: Alters the accumulator
+     86  10000 ????
+     87  10000 ????						; OUT: A = 0
+     88  10000 ????
+     89  10000 ????				       MAC	vertical_sync
+     90  10000 ????				       lda	#%1110	; each '1' bits generate a VSYNC ON line (bits 1..3)
+     91  10000 ????			    .VSLP1     sta	WSYNC	; 1st '0' bit resets Vsync, 2nd '0' bit exit loop
+     92  10000 ????				       sta	VSYNC
+     93  10000 ????				       lsr
+     94  10000 ????				       bne	.VSLP1	; branch until VYSNC has been reset
+     95  10000 ????				       ENDM
+     96  10000 ????
+     97  10000 ????						;-------------------------------------------------------------------------------
+     98  10000 ????						; CLEAN_START
+     99  10000 ????						; Original author: Andrew Davie
+    100  10000 ????						; Standardised start-up code, clears stack, all TIA registers and RAM to 0
+    101  10000 ????						; Sets stack pointer to $FF, and all registers to 0
+    102  10000 ????						; Sets decimal mode off, sets interrupt flag (kind of un-necessary)
+    103  10000 ????						; Use as very first section of code on boot (ie: at reset)
+    104  10000 ????						; Code written to minimise total ROM usage - uses weird 6502 knowledge :)
+    105  10000 ????
+    106  10000 ????				       MAC	clean_start
+    107  10000 ????				       sei
+    108  10000 ????				       cld
+    109  10000 ????
+    110  10000 ????				       IFNCONST	NO_ILLEGAL_OPCODES
+    111  10000 ????				       lxa	#0
+    112  10000 ????				       ELSE
+    113  10000 ????				       ldx	#0
+    114  10000 ????				       txa
+    115  10000 ????				       ENDIF
+    116  10000 ????				       tay
+    117  10000 ????			    .CLEAR_STACK dex
+    118  10000 ????				       txs
+    119  10000 ????				       pha
+    120  10000 ????				       bne	.CLEAR_STACK	; SP=$FF, X = A = Y = 0
+    121  10000 ????
+    122  10000 ????				       ENDM
+    123  10000 ????
+    124  10000 ????						;-------------------------------------------------------
+    125  10000 ????						; SET_POINTER
+    126  10000 ????						; Original author: Manuel Rotschkar
+    127  10000 ????						;
+    128  10000 ????						; Sets a 2 byte RAM pointer to an absolute address.
+    129  10000 ????						;
+    130  10000 ????						; Usage: SET_POINTER pointer, address
+    131  10000 ????						; Example: SET_POINTER SpritePTR, SpriteData
+    132  10000 ????						;
+    133  10000 ????						; Note: Alters the accumulator, NZ flags
+    134  10000 ????						; IN 1: 2 byte RAM location reserved for pointer
+    135  10000 ????						; IN 2: absolute address
+    136  10000 ????
+    137  10000 ????				       MAC	set_pointer
+    138  10000 ????			    .POINTER   SET	{1}
+    139  10000 ????			    .ADDRESS   SET	{2}
+    140  10000 ????
+    141  10000 ????				       LDA	#<.ADDRESS	; Get Lowbyte of Address
+    142  10000 ????				       STA	.POINTER	; Store in pointer
+    143  10000 ????				       LDA	#>.ADDRESS	; Get Hibyte of Address
+    144  10000 ????				       STA	.POINTER+1	; Store in pointer+1
+    145  10000 ????
+    146  10000 ????				       ENDM
+    147  10000 ????
+    148  10000 ????						;-------------------------------------------------------
+    149  10000 ????						; BOUNDARY byte#
+    150  10000 ????						; Original author: Denis Debro (borrowed from Bob Smith / Thomas)
+    151  10000 ????						;
+    152  10000 ????						; Push data to a certain position inside a page and keep count of how
+    153  10000 ????						; many free bytes the programmer will have.
+    154  10000 ????						;
+    155  10000 ????						; eg: BOUNDARY 5    ; position at byte #5 in page
+    156  10000 ????
+    157  10000 ????			    .FREE_BYTES SET	0
+    158  10000 ????				       MAC	boundary
+    159  10000 ????				       REPEAT	256
+    160  10000 ????				       IF	<. % {1} = 0
+    161  10000 ????				       MEXIT
+    162  10000 ????				       ELSE
+    163  10000 ????			    .FREE_BYTES SET	.FREE_BYTES + 1
+    164  10000 ????				       .byte	$00
+    165  10000 ????				       ENDIF
+    166  10000 ????				       REPEND
+    167  10000 ????				       ENDM
+    168  10000 ????
+    169  10000 ????
+    170  10000 ????						; EOF
+------- FILE hellway.asm
+      6  f000					      org	$F000
+      7  f000
+      8  f000							;contants
+      9  f000		       00 20	   ScreenSize =	32	;(192)
+     10  f000		       00 04	   CarSize    =	4
+     11  f000		       00 07	   TrafficLineCount =	7
+     12  f000
+     13  f000							;memory	
+     14  f000		       00 80	   Car0Y      =	$80
+     15  f000		       00 81	   Car0Line   =	$81
+     16  f000		       00 82	   GRP0Cache  =	$82
+     17  f000		       00 83	   FrameCount0 =	$83	;
+     18  f000		       00 84	   FrameCount1 =	$84	;
+     19  f000		       00 85	   PF0Cache   =	$85
+     20  f000		       00 86	   PF1Cache   =	$86
+     21  f000		       00 87	   PF2Cache   =	$87
+     22  f000		       00 88	   TrafficOffset0 =	$88	;
+     23  f000		       00 89	   TrafficOffset1 =	$89	;
+     24  f000		       00 8a	   TrafficOffset2 =	$8A	;
+     25  f000		       00 8b	   TrafficOffset3 =	$8B	;
+     26  f000		       00 8c	   TrafficOffset4 =	$8C	;
+     27  f000		       00 8d	   TrafficOffset5 =	$8D	;
+     28  f000		       00 8e	   TrafficOffset6 =	$8E	; border
+     29  f000
+     30  f000		       00 8f	   TrafficOffset7 =	$8F	; not used, probably will change background
+     31  f000
+     32  f000		       00 90	   Car0Speed  =	$90
+     33  f000		       00 91	   Traffic0SpeedAc =	$91
+     34  f000		       00 92	   Traffic1SpeedAc =	$92
+     35  f000		       00 93	   Traffic2SpeedAc =	$93
+     36  f000		       00 94	   Traffic3SpeedAc =	$94
+     37  f000		       00 95	   Traffic4SpeedAc =	$95
+     38  f000		       00 96	   Traffic5SpeedAc =	$96
+     39  f000		       00 97	   Traffic6SpeedAc =	$97
+     40  f000
+     41  f000		       00 98	   TmpVar0    =	$98
+     42  f000
+     43  f000
+     44  f000		       00 e0	   TrafficCacheStart =	$FF - ScreenSize + 1	;$E0
+     45  f000		       00 ff	   TrafficCacheEnd =	$FF
+     46  f000
+     47  f000							;generic start up stuff...
+     48  f000				   Start
+     49  f000		       78		      SEI
+     50  f001		       d8		      CLD
+     51  f002		       a2 ff		      LDX	#$FF
+     52  f004		       9a		      TXS
+     53  f005		       a9 00		      LDA	#0
+     54  f007				   ClearMem
+     55  f007		       95 00		      STA	0,X
+     56  f009		       ca		      DEX
+     57  f00a		       d0 fb		      BNE	ClearMem
+     58  f00c
+     59  f00c		       a9 00		      LDA	#$00	;start with a black background
+     60  f00e		       85 09		      STA	COLUBK
+     61  f010		       a9 1c		      LDA	#$1C	;lets go for bright yellow, for the car
+     62  f012		       85 06		      STA	COLUP0
+     63  f014							;Setting some variables...
+     64  f014		       a9 1e		      LDA	#30
+     65  f016		       85 80		      STA	Car0Y	;Initial Y Position
+     66  f018
+     67  f018
+     68  f018		       a9 ff		      LDA	#$ff
+     69  f01a		       85 e1		      STA	$E1
+     70  f01c		       85 e2		      STA	$E2
+     71  f01e		       85 e3		      STA	$E3
+     72  f020							; STA $E4
+     73  f020							; STA $E5
+     74  f020							; STA $E6
+     75  f020							; STA $E7
+     76  f020							; LDA #$80
+     77  f020							; STA $E8
+     78  f020							; STA $E9
+     79  f020							; STA $EA
+     80  f020							; STA $EB
+     81  f020
+     82  f020							; LDA #16
+     83  f020							; STA TrafficOffset0
+     84  f020							; STA TrafficOffset1
+     85  f020							; STA TrafficOffset2
+     86  f020							; STA TrafficOffset3
+     87  f020							; STA TrafficOffset4
+     88  f020							; STA TrafficOffset5
+     89  f020							; STA TrafficOffset6
+     90  f020
+     91  f020							;Traffic colour
+     92  f020		       a5 32		      LDA	$32
+     93  f022		       85 08		      STA	COLUPF
+     94  f024
+     95  f024							;mirror the playfield
+     96  f024		       a9 01		      LDA	#%00000001
+     97  f026		       85 0a		      STA	CTRLPF
+     98  f028
+     99  f028							;VSYNC time
+    100  f028				   MainLoop
+    101  f028		       a9 02		      LDA	#2
+    102  f02a		       85 00		      STA	VSYNC
+    103  f02c		       85 02		      STA	WSYNC
+    104  f02e		       85 02		      STA	WSYNC
+    105  f030							;Cool, can put code here! It removed the black line on top 
+    106  f030		       85 2a		      STA	HMOVE
+    107  f032		       85 02		      STA	WSYNC
+    108  f034		       a9 2b		      LDA	#43
+    109  f036		       8d 96 02 	      STA	TIM64T
+    110  f039		       a9 00		      LDA	#0
+    111  f03b		       85 00		      STA	VSYNC
+    112  f03d
+    113  f03d
+    114  f03d							; for up and down, we INC or DEC
+    115  f03d							; the Y Position
+    116  f03d
+    117  f03d		       a9 10		      LDA	#%00010000	;Down?
+    118  f03f		       2c 80 02 	      BIT	SWCHA
+    119  f042		       d0 02		      BNE	SkipMoveDown
+    120  f044		       e6 80		      INC	Car0Y
+    121  f046							; INC Car0Y
+    122  f046							; INC Car0Y
+    123  f046							; INC Car0Y
+    124  f046				   SkipMoveDown
+    125  f046							; LDA FrameCount0
+    126  f046							; BNE SkipMoveUp
+    127  f046		       a9 20		      LDA	#%00100000	;Up?
+    128  f048		       2c 80 02 	      BIT	SWCHA
+    129  f04b		       d0 02		      BNE	SkipMoveUp
+    130  f04d		       c6 80		      DEC	Car0Y
+    131  f04f							; DEC Car0Y
+    132  f04f							; DEC Car0Y
+    133  f04f							; DEC Car0Y
+    134  f04f				   SkipMoveUp
+    135  f04f
+    136  f04f							; for left and right, we're gonna 
+    137  f04f							; set the horizontal speed, and then do
+    138  f04f							; a single HMOVE.  We'll use X to hold the
+    139  f04f							; horizontal speed, then store it in the 
+    140  f04f							; appropriate register
+    141  f04f
+    142  f04f							;assum horiz speed will be zero
+    143  f04f		       a2 00		      LDX	#0
+    144  f051
+    145  f051		       a9 40		      LDA	#%01000000	;Left?
+    146  f053		       2c 80 02 	      BIT	SWCHA
+    147  f056		       d0 02		      BNE	SkipMoveLeft
+    148  f058		       a2 10		      LDX	#$10	;a 1 in the left nibble means go left
+    149  f05a				   SkipMoveLeft
+    150  f05a
+    151  f05a		       a9 80		      LDA	#%10000000	;Right?
+    152  f05c		       2c 80 02 	      BIT	SWCHA
+    153  f05f		       d0 02		      BNE	SkipMoveRight
+    154  f061		       a2 f0		      LDX	#$F0	;a -1 in the left nibble means go right...
+    155  f063				   SkipMoveRight
+    156  f063
+    157  f063		       86 20		      STX	HMP0	;set the move for player 0, not the missile like last time...
+    158  f065
+    159  f065				   IncreaseCar0Speed
+    160  f065		       a5 0c		      LDA	INPT4
+    161  f067		       30 02		      BMI	SkipIncreaseCar0Speed	;not pressed the fire button in negative in bit 7
+    162  f069		       e6 90		      INC	Car0Speed	;
+    163  f06b				   SkipIncreaseCar0Speed
+    164  f06b
+    165  f06b							; LDX #2 ;number of times will process the line update
+    166  f06b							; UpdateLines
+    167  f06b							; CLC
+    168  f06b							; LDA Traffic6SpeedAc
+    169  f06b							; ADC Car0Speed
+    170  f06b							; STA Traffic6SpeedAc
+    171  f06b							; BCC SkipCar6LineUpdate
+    172  f06b							; INC TrafficOffset6
+    173  f06b							; DEX
+    174  f06b							; BNE UpdateLines
+    175  f06b							; SkipCar6LineUpdate
+    176  f06b
+    177  f06b		       a0 02		      LDY	#2
+    178  f06d				   RepeatUpdateLines		;to be able to rum more than one line at a time
+    179  f06d		       a2 07		      LDX	#TrafficLineCount
+    180  f06f				   UpdateLines
+    181  f06f		       a5 90		      LDA	Car0Speed
+    182  f071		       dd a8 f1 	      CMP	TrafficSpeeds-1,X
+    183  f074		       90 10		      BCC	CarWithLessSpeed	;See 6502 specs, jump if the car is slower than traffic
+    184  f076				   CarWithMoreSpeed
+    185  f076		       38		      SEC
+    186  f077		       fd a8 f1 	      SBC	TrafficSpeeds-1,X
+    187  f07a		       18		      CLC
+    188  f07b		       75 90		      ADC	Traffic0SpeedAc-1,X
+    189  f07d		       95 90		      STA	Traffic0SpeedAc-1,X
+    190  f07f		       90 14		      BCC	PrepareNextUpdateLoop
+    191  f081		       f6 87		      INC	TrafficOffset0-1,X
+    192  f083		       4c 95 f0 	      JMP	PrepareNextUpdateLoop
+    193  f086				   CarWithLessSpeed
+    194  f086		       bd a8 f1 	      LDA	TrafficSpeeds-1,X
+    195  f089		       38		      SEC
+    196  f08a		       e5 90		      SBC	Car0Speed
+    197  f08c		       18		      CLC
+    198  f08d		       75 90		      ADC	Traffic0SpeedAc-1,X
+    199  f08f		       95 90		      STA	Traffic0SpeedAc-1,X
+    200  f091		       90 02		      BCC	PrepareNextUpdateLoop
+    201  f093		       d6 87		      DEC	TrafficOffset0-1,X
+    202  f095				   PrepareNextUpdateLoop
+    203  f095		       ca		      DEX
+    204  f096		       d0 d7		      BNE	UpdateLines
+    205  f098		       88		      DEY
+    206  f099		       d0 d2		      BNE	RepeatUpdateLines
+    207  f09b
+    208  f09b				   CountFrame
+    209  f09b							; INC TrafficOffset0
+    210  f09b							; DEC TrafficOffset2
+    211  f09b							; DEC TrafficOffset3
+    212  f09b							; DEC TrafficOffset3
+    213  f09b		       e6 83		      INC	FrameCount0
+    214  f09d		       d0 02		      BNE	SkipIncFC1	;When it is zero again should increase the MSB
+    215  f09f		       e6 84		      INC	FrameCount1
+    216  f0a1							;INC Car0Y
+    217  f0a1							; DEC TrafficOffset1
+    218  f0a1							; DEC TrafficOffset4
+    219  f0a1							; INC TrafficOffset5
+    220  f0a1				   SkipIncFC1
+    221  f0a1
+    222  f0a1							;moves the trafic, will be dinamic
+    223  f0a1							; INC TrafficOffset0
+    224  f0a1							; INC TrafficOffset1
+    225  f0a1							; INC TrafficOffset1
+    226  f0a1							;INC TrafficOffset2
+    227  f0a1							;INC TrafficOffset2
+    228  f0a1							; DEC TrafficOffset2
+    229  f0a1							; INC TrafficOffset3
+    230  f0a1
+    231  f0a1							;keep rotating on 0 - screensize - 1
+    232  f0a1
+    233  f0a1		       a2 07		      LDX	#TrafficLineCount
+    234  f0a3				   KeepTrafficPointerInRange
+    235  f0a3		       b5 87		      LDA	TrafficOffset0 - 1,X	;4
+    236  f0a5		       29 1f		      AND	#ScreenSize - 1	;2
+    237  f0a7		       95 87		      STA	TrafficOffset0 - 1,X
+    238  f0a9		       ca		      DEX
+    239  f0aa		       d0 f7		      BNE	KeepTrafficPointerInRange
+    240  f0ac
+    241  f0ac				   TestCollision		;
+    242  f0ac							; see if car0 and playfield collide, and change the background color if so
+    243  f0ac		       a9 80		      LDA	#%10000000
+    244  f0ae		       24 02		      BIT	CXP0FB
+    245  f0b0		       f0 04		      BEQ	NoCollision	;skip if not hitting...
+    246  f0b2		       a5 83		      LDA	FrameCount0	;must be a hit! Change rand color bg
+    247  f0b4		       85 09		      STA	COLUBK	;and store as the bgcolor
+    248  f0b6				   NoCollision
+    249  f0b6		       85 2c		      STA	CXCLR	;reset the collision detection for next frame
+    250  f0b8							; LDA #0		 ;zero out the buffer
+    251  f0b8							; STA PlayerBuffer ;just in case
+    252  f0b8
+    253  f0b8							; After here we are going to update the screen, No more heavy code
+    254  f0b8				   WaitForVblankEnd
+    255  f0b8		       ad 84 02 	      LDA	INTIM
+    256  f0bb		       d0 fb		      BNE	WaitForVblankEnd
+    257  f0bd
+    258  f0bd		       a0 1f		      LDY	#ScreenSize - 1	;#63 ; 	
+    259  f0bf		       85 02		      STA	WSYNC
+    260  f0c1
+    261  f0c1		       85 01		      STA	VBLANK
+    262  f0c3
+    263  f0c3							;main scanline loop...
+    264  f0c3				   ScanLoop
+    265  f0c3		       85 02		      STA	WSYNC	;10 from the end of the scan loop
+    266  f0c5
+    267  f0c5				   DrawCache		;24
+    268  f0c5
+    269  f0c5		       a5 82		      LDA	GRP0Cache	;3 ;buffer was set during last scanline
+    270  f0c7		       85 1b		      STA	GRP0	;3   ;put it as graphics now
+    271  f0c9
+    272  f0c9		       a5 85		      LDA	PF0Cache	;3
+    273  f0cb		       85 0d		      STA	PF0	;3
+    274  f0cd
+    275  f0cd		       a5 86		      LDA	PF1Cache	;3
+    276  f0cf		       85 0e		      STA	PF1	;3
+    277  f0d1
+    278  f0d1		       a5 87		      LDA	PF2Cache	;3
+    279  f0d3		       85 0f		      STA	PF2	;3
+    280  f0d5
+    281  f0d5
+    282  f0d5				   ClearCache		;11
+    283  f0d5		       a9 00		      LDA	#$0	;2 ;Clear cache
+    284  f0d7		       85 86		      STA	PF1Cache	;3
+    285  f0d9		       85 87		      STA	PF2Cache	; 3
+    286  f0db		       85 85		      STA	PF0Cache	; 3
+    287  f0dd
+    288  f0dd				   DrawCar0		;14 max
+    289  f0dd		       a6 88		      LDX	TrafficOffset0	;3
+    290  f0df		       b5 e0		      LDA	TrafficCacheStart,X	;4
+    291  f0e1		       10 04		      BPL	SkipCar0Draw	;2 if car 1 is on, it is always negative	
+    292  f0e3		       a9 c0		      LDA	#%11000000	;2
+    293  f0e5		       85 86		      STA	PF1Cache	;3
+    294  f0e7				   SkipCar0Draw
+    295  f0e7
+    296  f0e7				   DrawCar1		;19 max
+    297  f0e7		       a6 89		      LDX	TrafficOffset1	;3
+    298  f0e9		       b5 e0		      LDA	TrafficCacheStart,X	;4
+    299  f0eb		       29 40		      AND	#%01000000	;2
+    300  f0ed		       f0 06		      BEQ	SkipCar1Draw	;2
+    301  f0ef		       a5 86		      LDA	PF1Cache	;3
+    302  f0f1		       09 18		      ORA	#%00011000	;2
+    303  f0f3		       85 86		      STA	PF1Cache	;3
+    304  f0f5				   SkipCar1Draw
+    305  f0f5
+    306  f0f5		       85 02		      STA	WSYNC	;71
+    307  f0f7
+    308  f0f7				   DrawCar2		;19
+    309  f0f7		       a6 8a		      LDX	TrafficOffset2	;3
+    310  f0f9		       b5 e0		      LDA	TrafficCacheStart,X	;4
+    311  f0fb		       29 40		      AND	#%001000000	;2
+    312  f0fd		       f0 06		      BEQ	SkipCar2Draw	;2
+    313  f0ff		       a5 86		      LDA	PF1Cache	;3
+    314  f101		       09 03		      ORA	#%00000011	;2
+    315  f103		       85 86		      STA	PF1Cache	;3	
+    316  f105				   SkipCar2Draw
+    317  f105
+    318  f105				   DrawCar3		;16
+    319  f105		       a6 8b		      LDX	TrafficOffset3	;3
+    320  f107		       b5 e0		      LDA	TrafficCacheStart,X	;4
+    321  f109		       29 10		      AND	#%00010000	;2
+    322  f10b		       f0 04		      BEQ	SkipCar3Draw	;2
+    323  f10d		       a9 06		      LDA	#%00000110	;2(MSB first) it was two easy...
+    324  f10f		       85 87		      STA	PF2Cache	;3	
+    325  f111				   SkipCar3Draw
+    326  f111
+    327  f111
+    328  f111				   DrawCar4		;19
+    329  f111		       a6 8c		      LDX	TrafficOffset4
+    330  f113		       b5 e0		      LDA	TrafficCacheStart,X
+    331  f115		       29 08		      AND	#%00001000
+    332  f117		       f0 06		      BEQ	SkipCar4Draw
+    333  f119		       a5 87		      LDA	PF2Cache
+    334  f11b		       09 30		      ORA	#%00110000	;(MSB first) it was two easy...
+    335  f11d		       85 87		      STA	PF2Cache
+    336  f11f				   SkipCar4Draw
+    337  f11f
+    338  f11f				   DrawCar5		;19
+    339  f11f		       a6 8d		      LDX	TrafficOffset5
+    340  f121		       b5 e0		      LDA	TrafficCacheStart,X
+    341  f123		       29 04		      AND	#%00000100
+    342  f125		       f0 06		      BEQ	SkipCar5Draw
+    343  f127		       a5 87		      LDA	PF2Cache
+    344  f129		       09 80		      ORA	#%10000000	;(MSB first) it was two easy...
+    345  f12b		       85 87		      STA	PF2Cache
+    346  f12d				   SkipCar5Draw
+    347  f12d
+    348  f12d		       85 02		      STA	WSYNC	;73
+    349  f12f
+    350  f12f							;12 max cicle pointer
+    351  f12f		       c6 88		      DEC	TrafficOffset0	;5/2
+    352  f131		       10 04		      BPL	SkipTrafficOffset0Reset	; 2/2
+    353  f133		       a9 1f		      LDA	#ScreenSize - 1	; 2/2
+    354  f135		       85 88		      STA	TrafficOffset0	;3/2
+    355  f137				   SkipTrafficOffset0Reset
+    356  f137
+    357  f137							;12
+    358  f137		       c6 89		      DEC	TrafficOffset1
+    359  f139		       10 04		      BPL	SkipTrafficOffset1Reset
+    360  f13b		       a9 1f		      LDA	#ScreenSize - 1
+    361  f13d		       85 89		      STA	TrafficOffset1
+    362  f13f				   SkipTrafficOffset1Reset
+    363  f13f
+    364  f13f		       c6 8a		      DEC	TrafficOffset2
+    365  f141		       10 04		      BPL	SkipTrafficOffset2Reset
+    366  f143		       a9 1f		      LDA	#ScreenSize - 1
+    367  f145		       85 8a		      STA	TrafficOffset2
+    368  f147				   SkipTrafficOffset2Reset
+    369  f147
+    370  f147		       c6 8b		      DEC	TrafficOffset3
+    371  f149		       10 04		      BPL	SkipTrafficOffset3Reset
+    372  f14b		       a9 1f		      LDA	#ScreenSize - 1
+    373  f14d		       85 8b		      STA	TrafficOffset3
+    374  f14f				   SkipTrafficOffset3Reset
+    375  f14f
+    376  f14f		       c6 8c		      DEC	TrafficOffset4	;5
+    377  f151		       10 04		      BPL	SkipTrafficOffset4Reset	;2
+    378  f153		       a9 1f		      LDA	#ScreenSize - 1	;2
+    379  f155		       85 8c		      STA	TrafficOffset4	;3
+    380  f157				   SkipTrafficOffset4Reset
+    381  f157
+    382  f157		       c6 8d		      DEC	TrafficOffset5
+    383  f159		       10 04		      BPL	SkipTrafficOffset5Reset
+    384  f15b		       a9 1f		      LDA	#ScreenSize - 1
+    385  f15d		       85 8d		      STA	TrafficOffset5
+    386  f15f				   SkipTrafficOffset5Reset
+    387  f15f
+    388  f15f
+    389  f15f		       85 02		      STA	WSYNC	;75
+    390  f161
+    391  f161				   DrawCar6		;16
+    392  f161							; LDX TrafficOffset6 ;3
+    393  f161							; LDA TrafficCacheStart,X ;4
+    394  f161							; AND #%00000010 ;2
+    395  f161							; BEQ SkipCar6Draw ;2
+    396  f161							; LDA #%01110000 ;2(MSB first) it was two easy...
+    397  f161							; STA PF0Cache ;3	
+    398  f161		       a5 8e		      LDA	TrafficOffset6	;3
+    399  f163		       0a		      ASL		;2
+    400  f164		       0a		      ASL		;2
+    401  f165		       0a		      ASL		;2
+    402  f166							;ASL ;2
+    403  f166		       29 70		      AND	#%01110000	;2
+    404  f168		       85 85		      STA	PF0Cache	;3
+    405  f16a				   SkipCar6Draw
+    406  f16a
+    407  f16a							;12
+    408  f16a		       c6 8e		      DEC	TrafficOffset6
+    409  f16c		       10 04		      BPL	SkipTrafficOffset6Reset
+    410  f16e		       a9 1f		      LDA	#ScreenSize - 1
+    411  f170		       85 8e		      STA	TrafficOffset6
+    412  f172				   SkipTrafficOffset6Reset		;--
+    413  f172
+    414  f172
+    415  f172				   BeginDrawCar0Block		;21 to EndDrawCar0Block 21 to finish player (never check if start enable if already on, this is the wrse path)
+    416  f172		       a6 81		      LDX	Car0Line	;3 check the visible player line...
+    417  f174		       f0 0a		      BEQ	FinishPlayer	;2	skip the drawing if its zero...
+    418  f176				   IsPlayerOn
+    419  f176		       bd a4 f1 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
+    420  f179							;section below... it's off by 1 though, since at zero
+    421  f179							;we stop drawing
+    422  f179		       85 82		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
+    423  f17b		       c6 81		      DEC	Car0Line	;5	;and decrement the line count
+    424  f17d		       4c 88 f1 	      JMP	SkipActivatePlayer	;3 save some cpu time
+    425  f180				   FinishPlayer
+    426  f180
+    427  f180				   CheckActivatePlayer		;10 max
+    428  f180		       c4 80		      CPY	Car0Y	;3
+    429  f182		       d0 04		      BNE	SkipActivatePlayer	;2
+    430  f184		       a9 04		      LDA	#CarSize	;2
+    431  f186		       85 81		      STA	Car0Line	;3
+    432  f188				   SkipActivatePlayer		;EndDrawCar0Block
+    433  f188
+    434  f188		       85 02		      STA	WSYNC	;49
+    435  f18a
+    436  f18a		       85 02		      STA	WSYNC	;3
+    437  f18c
+    438  f18c				   WhileScanLoop
+    439  f18c		       88		      DEY		;2
+    440  f18d		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
+    441  f18f		       4c c3 f0 	      JMP	ScanLoop	;3
+    442  f192				   FinishScanLoop
+    443  f192
+    444  f192				   PrepareOverscan
+    445  f192		       a9 02		      LDA	#2
+    446  f194		       85 02		      STA	WSYNC
+    447  f196		       85 01		      STA	VBLANK
+    448  f198
+    449  f198		       a9 25		      LDA	#37
+    450  f19a		       8d 96 02 	      STA	TIM64T
+    451  f19d							;LDA #0
+    452  f19d							;STA VSYNC		
+    453  f19d
+    454  f19d							;Do more logic
+    455  f19d
+    456  f19d				   OverScanWait
+    457  f19d		       ad 84 02 	      LDA	INTIM
+    458  f1a0		       d0 fb		      BNE	OverScanWait
+    459  f1a2		       4c 28 f0 	      JMP	MainLoop
+    460  f1a5
+    461  f1a5				   CarSprite
+    462  f1a5		       00		      .byte.b	#%00000000
+    463  f1a6		       bd		      .byte.b	#%10111101
+    464  f1a7		       3c		      .byte.b	#%00111100
+    465  f1a8		       bd		      .byte.b	#%10111101
+    466  f1a9							;.byte #%00111100
+    467  f1a9							;.byte #%00111100
+    468  f1a9
+    469  f1a9				   TrafficSpeeds		;maybe move to ram for dynamic changes and speed of 0 page access
+    470  f1a9		       28		      .byte.b	#40	;car 0
+    471  f1aa		       50		      .byte.b	#80
+    472  f1ab		       78		      .byte.b	#120
+    473  f1ac		       a0		      .byte.b	#160
+    474  f1ad		       be		      .byte.b	#190
+    475  f1ae		       dc		      .byte.b	#220	;car 5
+    476  f1af		       00		      .byte.b	#0	;car 6 border
+    477  f1b0
+    478  fffc					      org	$FFFC
+    479  fffc		       00 f0		      .word.w	Start
+    480  fffe		       00 f0		      .word.w	Start
