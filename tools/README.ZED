@@ -1,8 +1,0 @@
-Note from ZED
--------------
-
-This is modified from Cadaver's port to Watcom C.
-I added a Makefile for gcc and hacked asm.h to compile without errors
-on Linux.
-
-mailto:zed@inf.bme.hu

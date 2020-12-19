@@ -1,8 +1,0 @@
-Note from CADAVER
------------------
-
-This is my 32-bit port of DASM for MS-DOS. I had to make this because the 16bit
-version ran out of memory when compiling Metal Warrior :-)
-The makefile is for WATCOM C compiler, but I think DJGPP should work also...
-
-        Cadaver's email: loorni@student.oulu.fi
