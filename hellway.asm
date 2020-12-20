@@ -9,10 +9,16 @@
 ScreenSize = 64;(192)
 CarSize = 4
 TrafficLineCount = 1
+CarIntialY = 8
+CarMaxSpeed = 255
+CarMinSpeed = 0
+BackgroundColor = $00 ;Black
+BackgroundColor2 = $06 ;Grey
+Player1Color = $1C ;Yellow
 	
 ;memory	
 Car0Y = $80
-Car0Line = $81
+Car0Line = $81 ; Never changes at this point!
 GRP0Cache = $82
 FrameCount0 = $83;
 FrameCount1 = $84;
@@ -21,8 +27,8 @@ PF1Cache = $86
 PF2Cache = $87
 TrafficOffset0 = $88; Border
 Car0Speed = $89
-Traffic0SpeedAc = $90
-
+TrafficSpeed0 = $8A
+COLUBKCache = $8B
 
 ;generic start up stuff...
 Start
@@ -36,14 +42,17 @@ ClearMem
 	DEX		
 	BNE ClearMem	
 	
-	LDA #$00   ;start with a black background
-	STA COLUBK	
-	LDA #$1C   ;lets go for bright yellow, for the car
-	STA COLUP0
 ;Setting some variables...
-	LDA #8
+	LDA #BackgroundColor   ;start with a black background
+	STA COLUBK	
+	LDA #Player1Color
+	STA COLUP0
+
+	LDA #CarIntialY
 	STA Car0Y	;Initial Y Position
-		
+
+	LDA #CarMinSpeed
+	STA Car0Speed	
 	
 	;Traffic colour
 	LDA $32 
@@ -75,6 +84,8 @@ MainLoop
 ; appropriate register
 
 ;assum horiz speed will be zero
+
+;Begin read controlers
 	LDX #0	
 	
 	LDA #%01000000	;Left?
@@ -91,60 +102,61 @@ SkipMoveRight
 
 	STX HMP0	;set the move for player 0, not the missile like last time...
 
-IncreaseCar0Speed	
-	LDA INPT4
-	BMI SkipIncreaseCar0Speed ;not pressed the fire button in negative in bit 7
-	INC Car0Speed;
-SkipIncreaseCar0Speed
-		
 
+;Acelerates / breaks the car
+	LDA #%00010000	;UP in controller
+	BIT SWCHA 
+	BNE SkipAccelerate
+	INC Car0Speed;
+SkipAccelerate
+	LDA #%00100000	;Down in controller
+	BIT SWCHA 
+	BNE SkipBreak
+	DEC Car0Speed
+SkipBreak
+
+
+;Finish read controlers
+		
+;Calculate te relative speeds and update offsets
 	LDY #2
 RepeatUpdateLines ;to be able to rum more than one line at a time
 	LDX #TrafficLineCount
 UpdateLines
 	LDA Car0Speed
 	CMP TrafficSpeeds-1,X
-	BCC CarWithLessSpeed ;See 6502 specs, jump if the car is slower than traffic
-CarWithMoreSpeed
+	BCC TrafficIsFaster ;See 6502 specs, jump if the car is slower than traffic
+PlayerIsFaster
 	SEC
 	SBC TrafficSpeeds-1,X
 	CLC
-	ADC Traffic0SpeedAc-1,X
-	STA Traffic0SpeedAc-1,X
-	BCC PrepareNextUpdateLoop
+	ADC TrafficSpeed0-1,X
+	STA TrafficSpeed0-1,X
+	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
 	INC TrafficOffset0-1,X	
 	JMP PrepareNextUpdateLoop
-CarWithLessSpeed ; Not sure if this still can happen
+TrafficIsFaster 
 	LDA TrafficSpeeds-1,X
 	SEC
 	SBC Car0Speed
 	CLC
-	ADC Traffic0SpeedAc-1,X
-	STA Traffic0SpeedAc-1,X
-	BCC PrepareNextUpdateLoop
+	ADC TrafficSpeed0-1,X
+	STA TrafficSpeed0-1,X
+	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
 	DEC TrafficOffset0-1,X
 PrepareNextUpdateLoop
 	DEX
 	BNE UpdateLines
 	DEY 
 	BNE RepeatUpdateLines
-		
+	
+;Will probably be useful		
 CountFrame	
 	INC FrameCount0
 	BNE SkipIncFC1 ;When it is zero again should increase the MSB
 	INC FrameCount1
 SkipIncFC1
 	
-	
-;keep rotating on 0 - screensize - 1
-
-	LDX #TrafficLineCount
-KeepTrafficPointerInRange
-	LDA TrafficOffset0 - 1,X ;4
-	AND #ScreenSize - 1 ;2
-	STA TrafficOffset0 - 1,X
-	DEX
-	BNE KeepTrafficPointerInRange
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
@@ -168,9 +180,12 @@ WaitForVblankEnd
 	
 	STA VBLANK  		
 	
+
+
+
 ;main scanline loop...
 ScanLoop 
-	STA WSYNC ;10 from the end of the scan loop
+	STA WSYNC ;10 from the end of the scan loop, sync the final line
 			
 DrawCache ;24
 	
@@ -200,22 +215,14 @@ ClearCache ;11
 
 	;STA WSYNC ;75
 	
-DrawCar0 ;16 Border
+DrawCar0; Border
+	DEC TrafficOffset0; 5 Make the shape change per line;
 	LDA TrafficOffset0 ;3
-	ASL ;2
-	ASL ;2
-	ASL ;2
-	;ASL ;2
-	AND #%01110000 ;2
+	AND #%00000100 ;2 Every 8 game lines, draw the border
+	BEQ SkipCar0Draw;2 
+	LDA #%01110000 ;2
 	STA PF0Cache ;3
-SkipCar6Draw
-	
-	;12
-	DEC TrafficOffset0
-	BPL SkipTrafficOffset0Reset
-	LDA #ScreenSize - 1
-	STA TrafficOffset0	
-SkipTrafficOffset0Reset;--
+SkipCar0Draw
 	
 
 BeginDrawCar0Block ;21 to EndDrawCar0Block 21 to finish player (never check if start enable if already on, this is the wrse path)
@@ -246,7 +253,8 @@ WhileScanLoop
 	BMI FinishScanLoop ;2 or 3 ;two big Breach	
 	JMP ScanLoop ;3
 FinishScanLoop
-	
+
+
 PrepareOverscan
 	LDA #2		
 	STA WSYNC  	
