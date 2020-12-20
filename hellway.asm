@@ -7,13 +7,12 @@
 	
 ;contants
 ScreenSize = 64;(192)
-CarSize = 4
+CarSize = 7
 TrafficLineCount = 1
 CarIntialY = 8
 CarMaxSpeed = 255
 CarMinSpeed = 0
 BackgroundColor = $00 ;Black
-BackgroundColor2 = $06 ;Grey
 Player1Color = $1C ;Yellow
 	
 ;memory	
@@ -43,8 +42,7 @@ ClearMem
 	BNE ClearMem	
 	
 ;Setting some variables...
-	LDA #BackgroundColor   ;start with a black background
-	STA COLUBK	
+
 	LDA #Player1Color
 	STA COLUP0
 
@@ -181,14 +179,15 @@ WaitForVblankEnd
 	STA VBLANK  		
 	
 
-
-
 ;main scanline loop...
 ScanLoop 
 	STA WSYNC ;10 from the end of the scan loop, sync the final line
 			
 DrawCache ;24
 	
+	LDA COLUBKCache
+	STA COLUBK	
+
 	LDA GRP0Cache ;3 ;buffer was set during last scanline
 	STA GRP0      ;3   ;put it as graphics now
 
@@ -202,13 +201,12 @@ DrawCache ;24
 	STA PF2      ;3
 	
 
-ClearCache ;11
+ClearCache ;11 Only the playfields
 	LDA #$0 ;2 ;Clear cache
 	STA PF1Cache ;3
 	STA PF2Cache ; 3
 	STA PF0Cache ; 3
 	
-
 
 	STA WSYNC ;73
 
@@ -223,7 +221,8 @@ DrawCar0; Border
 	LDA #%01110000 ;2
 	STA PF0Cache ;3
 SkipCar0Draw
-	
+
+	STA WSYNC ;49
 
 BeginDrawCar0Block ;21 to EndDrawCar0Block 21 to finish player (never check if start enable if already on, this is the wrse path)
 	LDX Car0Line	;3 check the visible player line...
@@ -244,7 +243,7 @@ CheckActivatePlayer ;10 max
 	STA Car0Line ;3
 SkipActivatePlayer ;EndDrawCar0Block
 	
-	STA WSYNC ;49
+	
 	
 	;STA WSYNC ;3
 
@@ -272,13 +271,15 @@ OverScanWait
 	BNE OverScanWait	
 	JMP  MainLoop      
 
-CarSprite 
-	.byte #%00000000
+CarSprite ; Upside down
+	.byte #%00000000 ; Easist way to stop drawing
+	.byte #%11111111
+	.byte #%00100100
 	.byte #%10111101
 	.byte #%00111100
 	.byte #%10111101
-	;.byte #%00111100
-	;.byte #%00111100
+	.byte #%00111100
+
 	
 TrafficSpeeds ;maybe move to ram for dynamic changes and speed of 0 page access
 	.byte #0 ; Border
