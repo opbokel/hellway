@@ -1,5 +1,5 @@
-; move a happy face with GRP0CacheStuffer
-;OPB game!
+; Hellway! 
+; Thanks to AtariAge and all available online docs 
 	processor 6502
 	include vcs.h
 	include macro.h
@@ -8,28 +8,37 @@
 ;contants
 ScreenSize = 64;(192)
 CarSize = 7
-TrafficLineCount = 1
-CarIntialY = 8
+TraficSize = 7 ; For now, we can make it random later to simulate bigger cars
+TrafficLineCount = 2
+Car0Y = 10
 CarMaxSpeed = 255
 CarMinSpeed = 0
 BackgroundColor = $00 ;Black
 Player1Color = $1C ;Yellow
-BreakSpeed=2
+BreakSpeed=3
+SpeedMultiplier=2; Expensive, add X time the car speeds! Needs optimization
 	
 ;memory	
-Car0Y = $80
-Car0Line = $81 ; Never changes at this point!
-GRP0Cache = $82
-FrameCount0 = $83;
-FrameCount1 = $84;
-PF0Cache = $85
-PF1Cache = $86
-PF2Cache = $87
-TrafficOffset0 = $88; Border
-Car0Speed = $89
-TrafficSpeed0 = $8A
+Car0Line = $80
 
-;generic start up stuff...
+GRP0Cache = $81
+PF0Cache = $82
+PF1Cache = $83
+PF2Cache = $84
+
+FrameCount0 = $86;
+FrameCount1 = $87;
+Car0Speed = $88
+
+TrafficOffset0 = $90; Border
+TrafficOffset1 = $91; First traffic car
+
+Traffic1Line = $A0; Line currently draw from car, the border do not need it
+
+Traffic0Acc = $B0 ; Keep adding or subtracting until overflows, this means change line
+Traffic1Acc = $B1
+
+;generic start up stuff, put zero in all...
 Start
 	SEI	
 	CLD 	
@@ -46,8 +55,9 @@ ClearMem
 	LDA #Player1Color
 	STA COLUP0
 
-	LDA #CarIntialY
-	STA Car0Y	;Initial Y Position
+	;Temporary code, cars will be added randomily
+	LDA #10
+	STA TrafficOffset1	;Initial Y Position
 
 	LDA #CarMinSpeed
 	STA Car0Speed	
@@ -119,18 +129,25 @@ SkipAccelerate
 	BCC LoadMinSpeed ; Negative overflow
 	CMP #CarMinSpeed
 	BCC LoadMinSpeed ; Less than memory
+	JMP SpeedAfterBreak
 
-	STA Car0Speed ;Just apply the subtraction
-	JMP SkipBreak
 LoadMinSpeed ; Underflow or less than min
 	LDA #CarMinSpeed
+
+SpeedAfterBreak	
 	STA Car0Speed
 SkipBreak
 
+;Temporary code until cars are dynamic, will make it wrap
+	LDA TrafficOffset1
+	AND #%00111111
+	STA TrafficOffset1
+
+
 ;Finish read controlers
 		
-;Calculate te relative speeds and update offsets
-	LDY #2
+;Calculate the relative speeds and update offsets
+	LDY #SpeedMultiplier ; Ads the speed again, makes the games run faster,needs optimiztion
 RepeatUpdateLines ;to be able to rum more than one line at a time
 	LDX #TrafficLineCount
 UpdateLines
@@ -141,20 +158,20 @@ PlayerIsFaster
 	SEC
 	SBC TrafficSpeeds-1,X
 	CLC
-	ADC TrafficSpeed0-1,X
-	STA TrafficSpeed0-1,X
+	ADC Traffic0Acc-1,X
+	STA Traffic0Acc-1,X
 	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	INC TrafficOffset0-1,X	
+	DEC TrafficOffset0-1,X	
 	JMP PrepareNextUpdateLoop
 TrafficIsFaster 
 	LDA TrafficSpeeds-1,X
 	SEC
 	SBC Car0Speed
 	CLC
-	ADC TrafficSpeed0-1,X
-	STA TrafficSpeed0-1,X
+	ADC Traffic0Acc-1,X
+	STA Traffic0Acc-1,X
 	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	DEC TrafficOffset0-1,X
+	INC TrafficOffset0-1,X
 PrepareNextUpdateLoop
 	DEX
 	BNE UpdateLines
@@ -194,8 +211,9 @@ WaitForVblankEnd
 
 ;main scanline loop...
 ScanLoop 
-	STA WSYNC ;10 from the end of the scan loop, sync the final line
-			
+	STA WSYNC ;?? from the end of the scan loop, sync the final line
+
+;Start of next line!			
 DrawCache ;24
 	
 	LDA GRP0Cache ;3 ;buffer was set during last scanline
@@ -216,42 +234,59 @@ ClearCache ;11 Only the playfields
 	STA PF1Cache ;3
 	STA PF2Cache ; 3
 	STA PF0Cache ; 3
-	
+
+DrawTraffic0; 16 max, traffic 0 is the border
+	INC TrafficOffset0; 5 Make the shape change per line;
+	LDA TrafficOffset0; 3
+	AND #%00000100 ;2 Every 8 game lines, draw the border
+	BEQ SkipDrawTraffic0; 2 
+	LDA #%01110000; 2
+	STA PF0Cache ;3
+SkipDrawTraffic0
+
+;51
 
 	STA WSYNC ;73
 
+BeginDrawTraffic1; 15 max 
+	LDX Traffic1Line ;3 check first car visible
+	BEQ FinishDrawTrafficLine1 ;2	skip the drawing if its zero...
+DrawTraffic1;
+	;LDA PF1Cache ;3
+	;ORA #%11000000 ;2 
+	LDA #%11000000 ;2
+	STA PF1Cache ;3
+	DEC Traffic1Line; 5
+FinishDrawTrafficLine1
 
-	;STA WSYNC ;75
-	
-DrawCar0; Border
-	DEC TrafficOffset0; 5 Make the shape change per line;
-	LDA TrafficOffset0 ;3
-	AND #%00000100 ;2 Every 8 game lines, draw the border
-	BEQ SkipCar0Draw;2 
-	LDA #%01110000 ;2
-	STA PF0Cache ;3
-SkipCar0Draw
+CheckActivateTraffic1 ;10 max,
+	CPY TrafficOffset1 ;3
+	BNE SkipActivateTraffic1 ;2
+	LDA #TraficSize ;2
+	STA Traffic1Line; 3
+SkipActivateTraffic1 ;EndDrawCar0Block
 
 	STA WSYNC ;49
 
-BeginDrawCar0Block ;21 to EndDrawCar0Block 21 to finish player (never check if start enable if already on, this is the wrse path)
+BeginDrawCar0Block ;21 is the max, since if draw, does ot check active
 	LDX Car0Line	;3 check the visible player line...
-	BEQ FinishPlayer ;2	skip the drawing if its zero...
-IsPlayerOn	
+	BEQ FinishDrawCar0 ;2	skip the drawing if its zero...
+DrawCar0
 	LDA CarSprite-1,X ;5	;otherwise, load the correct line from CarSprite
 				;section below... it's off by 1 though, since at zero
 				;we stop drawing
 	STA GRP0Cache ;3	;put that line as player graphic for the next line
 	DEC Car0Line ;5	;and decrement the line count
-	JMP SkipActivatePlayer ;3 save some cpu time
-FinishPlayer
+	JMP SkipActivateCar0 ;3 save some cpu time
+FinishDrawCar0
 
-CheckActivatePlayer ;10 max
-	CPY Car0Y ;3
-	BNE SkipActivatePlayer ;2
+CheckActivateCar0 ;9 max
+	CPY #Car0Y ;2
+	BNE SkipActivateCar0 ;2
 	LDA #CarSize ;2
 	STA Car0Line ;3
-SkipActivatePlayer ;EndDrawCar0Block
+SkipActivateCar0 ;EndDrawCar0Block
+
 	
 	;STA WSYNC ;3
 
@@ -290,7 +325,8 @@ CarSprite ; Upside down
 
 	
 TrafficSpeeds ;maybe move to ram for dynamic changes and speed of 0 page access
-	.byte #0 ; Border
+	.byte #0; Border
+	.byte #40; Trafic1
 
 	org $FFFC
 	.word Start
