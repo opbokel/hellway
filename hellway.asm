@@ -14,6 +14,7 @@ CarMaxSpeed = 255
 CarMinSpeed = 0
 BackgroundColor = $00 ;Black
 Player1Color = $1C ;Yellow
+BreakSpeed=2
 	
 ;memory	
 Car0Y = $80
@@ -27,7 +28,6 @@ PF2Cache = $87
 TrafficOffset0 = $88; Border
 Car0Speed = $89
 TrafficSpeed0 = $8A
-COLUBKCache = $8B
 
 ;generic start up stuff...
 Start
@@ -105,14 +105,27 @@ SkipMoveRight
 	LDA #%00010000	;UP in controller
 	BIT SWCHA 
 	BNE SkipAccelerate
+	LDA Car0Speed
+	CMP #CarMaxSpeed
+	BEQ SkipAccelerate ;Already at max
 	INC Car0Speed;
 SkipAccelerate
 	LDA #%00100000	;Down in controller
 	BIT SWCHA 
 	BNE SkipBreak
-	DEC Car0Speed
-SkipBreak
+	LDA Car0Speed
+	SEC
+	SBC #BreakSpeed
+	BCC LoadMinSpeed ; Negative overflow
+	CMP #CarMinSpeed
+	BCC LoadMinSpeed ; Less than memory
 
+	STA Car0Speed ;Just apply the subtraction
+	JMP SkipBreak
+LoadMinSpeed ; Underflow or less than min
+	LDA #CarMinSpeed
+	STA Car0Speed
+SkipBreak
 
 ;Finish read controlers
 		
@@ -185,9 +198,6 @@ ScanLoop
 			
 DrawCache ;24
 	
-	LDA COLUBKCache
-	STA COLUBK	
-
 	LDA GRP0Cache ;3 ;buffer was set during last scanline
 	STA GRP0      ;3   ;put it as graphics now
 
@@ -242,8 +252,6 @@ CheckActivatePlayer ;10 max
 	LDA #CarSize ;2
 	STA Car0Line ;3
 SkipActivatePlayer ;EndDrawCar0Block
-	
-	
 	
 	;STA WSYNC ;3
 
