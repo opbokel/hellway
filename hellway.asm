@@ -143,11 +143,10 @@ SkipBreak
 	AND #%00111111
 	STA TrafficOffset1
 
-
 ;Finish read controlers
 		
 ;Calculate the relative speeds and update offsets
-	LDY #SpeedMultiplier ; Ads the speed again, makes the games run faster,needs optimiztion
+	LDY #SpeedMultiplier ; Ads the speed again, makes the games run faster, needs optimization
 RepeatUpdateLines ;to be able to rum more than one line at a time
 	LDX #TrafficLineCount
 UpdateLines
@@ -248,7 +247,7 @@ SkipDrawTraffic0
 
 	STA WSYNC ;73
 
-BeginDrawTraffic1; 15 max 
+BeginDrawTraffic1; 15 max (20 for other traffic)
 	LDX Traffic1Line ;3 check first car visible
 	BEQ FinishDrawTrafficLine1 ;2	skip the drawing if its zero...
 DrawTraffic1;
