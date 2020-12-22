@@ -1,1 +1,1 @@
-./dasm hellway.asm -lhellway.txt -ohellway.bin -f3 -v5
+./dasm hellway.asm -lhellway.txt -ohellway.bin -f3 -v5 -DNO_ILLEGAL_OPCODES=1

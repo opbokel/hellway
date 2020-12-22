@@ -38,6 +38,8 @@ Traffic1Line = $A0; Line currently draw from car, the border do not need it
 Traffic0Acc = $B0 ; Keep adding or subtracting until overflows, this means change line
 Traffic1Acc = $B1
 
+GameStatus = $C0 ; Flags, D7 = running, expect more flags
+
 ;generic start up stuff, put zero in all...
 Start
 	SEI	
@@ -76,14 +78,39 @@ MainLoop
 	STA VSYNC	
 	STA WSYNC	
 	STA WSYNC
-		;Cool, can put code here! It removed the black line on top 
-	STA HMOVE 
+;Cool, can put code here! It removed the black line on top
+;Make Objects move in the X axys
+	STA HMOVE  ;2
+;This must be done after a WSync, otherwise it is impossible to predict the X position
+	LDA GameStatus ;3
+	EOR #%10000000 ;2 game running, we get 0 and not reset the position.
+	BEQ DoNotSetPlayerX ;3
+	;Do something better with this 32 cycles
+	SLEEP 32;
+	STA RESP0 ;3
+DoNotSetPlayerX
+
 	STA WSYNC	
 	LDA #43	
 	STA TIM64T	
 	LDA #0
 	STA VSYNC 	
 
+;Read Fire Button before, will make it start the game for now.
+	LDA INPT4
+	BMI SkipGameStart ;not pressed the fire button in negative in bit 7
+	LDA GameStatus
+	ORA #%10000000
+	STA GameStatus
+SkipGameStart
+
+;Does not update the game if not running
+	LDA GameStatus ;3
+	EOR #%10000000 ;2 game is running...
+	BEQ ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have ti use JMP
+	JMP SkipUpdateLogic
+
+ContinueWithGameLogic
 
 ; for left and right, we're gonna 
 ; set the horizontal speed, and then do
@@ -93,7 +120,8 @@ MainLoop
 
 ;assum horiz speed will be zero
 
-;Begin read controlers
+
+;Begin read dpad
 	LDX #0	
 	
 	LDA #%01000000	;Left?
@@ -143,8 +171,8 @@ SkipBreak
 	AND #%00111111
 	STA TrafficOffset1
 
-;Finish read controlers
-		
+;Finish read dpad
+
 ;Calculate the relative speeds and update offsets
 	LDY #SpeedMultiplier ; Ads the speed again, makes the games run faster, needs optimization
 RepeatUpdateLines ;to be able to rum more than one line at a time
@@ -196,15 +224,18 @@ NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 	; LDA #0		 ;zero out the buffer
 	; STA PlayerBuffer ;just in case
-	
+
+SkipUpdateLogic	
+
 ; After here we are going to update the screen, No more heavy code
 WaitForVblankEnd
 	LDA INTIM	
-	BNE WaitForVblankEnd	
+	BNE WaitForVblankEnd ;Is there a better way?	
 	
 	LDY #ScreenSize - 1 ;#63 ;  	
 	STA WSYNC	
 	
+	LDA #1
 	STA VBLANK  		
 	
 
@@ -310,7 +341,7 @@ PrepareOverscan
 
 OverScanWait
 	LDA INTIM	
-	BNE OverScanWait	
+	BNE OverScanWait ;Is there a better way?	
 	JMP  MainLoop      
 
 CarSprite ; Upside down
