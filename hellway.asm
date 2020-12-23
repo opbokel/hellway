@@ -6,18 +6,21 @@
 	org $F000
 	
 ;contants
-ScreenSize = 64;(VSy)
-CarSize = 7
-TraficSize = 7 ; For now, we can make it random later to simulate bigger cars
-TrafficLineCount = 2
-Car0Y = 10
-CarMaxSpeed = 255
-CarMinSpeed = 0
-BackgroundColor = $00 ;Black
-Player1Color = $1C ;Yellow
-BreakSpeed=3
-SpeedMultiplier=2; Expensive, add X time the car speeds! Needs optimization
-RomStartMSB = $10
+SCREEN_SIZE = 64;(VSy)
+CAR_SIZE = 7
+TRAFFIC_SIZE = 7 ; For now, we can make it random later to simulate bigger cars
+TRAFFIC_LINE_COUNT = 2
+CAR_0_Y = 10
+;16 bit precision A is the least significative byte
+CAR_MAX_SPEED_H = 2
+CAR_MAX_SPEED_L = 128
+CAR_MIN_SPEED_H = 0
+CAR_MIN_SPEED_L = 0
+BACKGROUND_COLOR = $00 ;Black
+PLAYER_1_COLOR = $1C ;Yellow
+ACCELERATE_SPEED = 1
+BREAK_SPEED = 3
+ROM_START_MSB = $10
 	
 ;memory	
 Car0Line = $80
@@ -29,12 +32,13 @@ PF2Cache = $84
 
 FrameCount0 = $86;
 FrameCount1 = $87;
-Car0Speed = $88
+
+Car0SpeedL = $88
+Car0SpeedH = $89
 
 TrafficOffset0 = $90; Border
 TrafficOffset1 = $91; Traffic 1
 
-Traffic1Line = $A0; Line currently draw from car, the border do not need it
 
 Traffic0Acc = $B0 ; Keep adding or subtracting until overflows, this means change line
 Traffic1Acc = $B1
@@ -55,15 +59,18 @@ ClearMem
 	
 ;Setting some variables...
 
-	LDA #Player1Color
+	LDA #PLAYER_1_COLOR
 	STA COLUP0
 
 	;Temporary code, cars will be added randomily
 	LDA #10
 	STA TrafficOffset1	;Initial Y Position
 
-	LDA #CarMinSpeed
-	STA Car0Speed	
+;Extract to subrotine? Used also dor the offsets
+	LDA #CAR_MIN_SPEED_L
+	STA Car0SpeedL
+	LDA #CAR_MIN_SPEED_H
+	STA Car0SpeedH		
 	
 	;Traffic colour
 	LDA $32 
@@ -144,27 +151,49 @@ SkipMoveRight
 	LDA #%00010000	;UP in controller
 	BIT SWCHA 
 	BNE SkipAccelerate
-	LDA Car0Speed
-	CMP #CarMaxSpeed
-	BEQ SkipAccelerate ;Already at max
-	INC Car0Speed;
+
+;Adds acceleration
+	CLC
+	LDA Car0SpeedL
+	ADC ACCELERATE_SPEED
+	STA Car0SpeedL
+	LDA Car0SpeedH
+	ADC #0
+	STA Car0SpeedH
+
+;Checks if already max
+	CMP #CAR_MAX_SPEED_H
+	BCC SkipAccelerate ; less than my max speed
+	BNE ResetToMaxSpeed ; Not equal, so if I am less, and not equal, I am more!
+	;High bit is max, compare the low
+	LDA Car0SpeedL
+	CMP #CAR_MAX_SPEED_L
+	BCC SkipAccelerate ; High bit is max, but low bit is not
+	;BEQ SkipAccelerate ; Optimize best case, but not worse case
+
+ResetToMaxSpeed ; Speed is more, or is already max
+	LDA #CAR_MAX_SPEED_H
+	STA Car0SpeedH
+	LDA #CAR_MAX_SPEED_L
+	STA Car0SpeedL
+
 SkipAccelerate
 	LDA #%00100000	;Down in controller
 	BIT SWCHA 
 	BNE SkipBreak
-	LDA Car0Speed
+	LDA Car0SpeedL
 	SEC
-	SBC #BreakSpeed
+	SBC #BREAK_SPEED
 	BCC LoadMinSpeed ; Negative overflow
-	CMP #CarMinSpeed
+	CMP #CAR_MIN_SPEED_L
 	BCC LoadMinSpeed ; Less than memory
 	JMP SpeedAfterBreak
 
 LoadMinSpeed ; Underflow or less than min
-	LDA #CarMinSpeed
+	LDA #CAR_MIN_SPEED_L
 
 SpeedAfterBreak	
-	STA Car0Speed
+	STA Car0SpeedL
 SkipBreak
 
 ;Temporary code until cars are dynamic, will make it wrap
@@ -174,12 +203,10 @@ SkipBreak
 
 ;Finish read dpad
 
-;Calculate the relative speeds and update offsets
-	LDY #SpeedMultiplier ; Ads the speed again, makes the games run faster, needs optimization
-RepeatUpdateLines ;to be able to rum more than one line at a time
-	LDX #TrafficLineCount
-UpdateLines
-	LDA Car0Speed
+;Updates all offsets 24 bits
+	LDX #TRAFFIC_LINE_COUNT
+UpdateOffsets
+	LDA Car0SpeedL
 	CMP TrafficSpeeds-1,X
 	BCC TrafficIsFaster ;See 6502 specs, jump if the car is slower than traffic
 PlayerIsFaster
@@ -194,7 +221,7 @@ PlayerIsFaster
 TrafficIsFaster 
 	LDA TrafficSpeeds-1,X
 	SEC
-	SBC Car0Speed
+	SBC Car0SpeedL
 	CLC
 	ADC Traffic0Acc-1,X
 	STA Traffic0Acc-1,X
@@ -202,9 +229,7 @@ TrafficIsFaster
 	DEC TrafficOffset0-1,X
 PrepareNextUpdateLoop
 	DEX
-	BNE UpdateLines
-	DEY 
-	BNE RepeatUpdateLines
+	BNE UpdateOffsets
 	
 ;Will probably be useful		
 CountFrame	
@@ -233,7 +258,7 @@ WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
 	
-	LDY #ScreenSize - 1 ;#63 ;  	
+	LDY #SCREEN_SIZE - 1 ;#63 ;  	
 	STA WSYNC	
 	
 	LDA #1
@@ -279,24 +304,6 @@ SkipDrawTraffic0
 
 	STA WSYNC ;73
 
-;One car per line
-;BeginDrawTraffic1; 15 max (20 for other traffic)
-;	LDX Traffic1Line ;3 check first car visible
-;	BEQ FinishDrawTrafficLine1 ;2	skip the drawing if its zero...
-;DrawTraffic1;
-;	;LDA PF1Cache ;3
-;	;ORA #%11000000 ;2 
-;	LDA #%11000000 ;2
-;	STA PF1Cache ;3
-;	DEC Traffic1Line; 5
-;FinishDrawTrafficLine1
-;
-;CheckActivateTraffic1 ;10 max,
-;	CPY TrafficOffset1 ;3
-;	BNE SkipActivateTraffic1 ;2
-;	LDA #TraficSize ;2
-;	STA Traffic1Line; 3
-;SkipActivateTraffic1 ;EndDrawCar0Block
 
 DrawTraffic1; 17 Max, will be more
 	TYA; 2
@@ -324,9 +331,9 @@ DrawCar0
 FinishDrawCar0
 
 CheckActivateCar0 ;9 max
-	CPY #Car0Y ;2
+	CPY #CAR_0_Y ;2
 	BNE SkipActivateCar0 ;2
-	LDA #CarSize ;2
+	LDA #CAR_SIZE ;2
 	STA Car0Line ;3
 SkipActivateCar0 ;EndDrawCar0Block
 
