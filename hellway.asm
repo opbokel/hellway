@@ -6,7 +6,7 @@
 	org $F000
 	
 ;contants
-ScreenSize = 64;(192)
+ScreenSize = 64;(VSy)
 CarSize = 7
 TraficSize = 7 ; For now, we can make it random later to simulate bigger cars
 TrafficLineCount = 2
@@ -17,6 +17,7 @@ BackgroundColor = $00 ;Black
 Player1Color = $1C ;Yellow
 BreakSpeed=3
 SpeedMultiplier=2; Expensive, add X time the car speeds! Needs optimization
+RomStartMSB = $10
 	
 ;memory	
 Car0Line = $80
@@ -31,7 +32,7 @@ FrameCount1 = $87;
 Car0Speed = $88
 
 TrafficOffset0 = $90; Border
-TrafficOffset1 = $91; First traffic car
+TrafficOffset1 = $91; Traffic 1
 
 Traffic1Line = $A0; Line currently draw from car, the border do not need it
 
@@ -167,9 +168,9 @@ SpeedAfterBreak
 SkipBreak
 
 ;Temporary code until cars are dynamic, will make it wrap
-	LDA TrafficOffset1
-	AND #%00111111
-	STA TrafficOffset1
+	;LDA TrafficOffset1
+	;AND #%00111111
+	;STA TrafficOffset1
 
 ;Finish read dpad
 
@@ -188,7 +189,7 @@ PlayerIsFaster
 	ADC Traffic0Acc-1,X
 	STA Traffic0Acc-1,X
 	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	DEC TrafficOffset0-1,X	
+	INC TrafficOffset0-1,X	
 	JMP PrepareNextUpdateLoop
 TrafficIsFaster 
 	LDA TrafficSpeeds-1,X
@@ -198,7 +199,7 @@ TrafficIsFaster
 	ADC Traffic0Acc-1,X
 	STA Traffic0Acc-1,X
 	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	INC TrafficOffset0-1,X
+	DEC TrafficOffset0-1,X
 PrepareNextUpdateLoop
 	DEX
 	BNE UpdateLines
@@ -266,7 +267,7 @@ ClearCache ;11 Only the playfields
 	STA PF0Cache ; 3
 
 DrawTraffic0; 16 max, traffic 0 is the border
-	INC TrafficOffset0; 5 Make the shape change per line;
+	DEC TrafficOffset0; 5 Make the shape change per line;
 	LDA TrafficOffset0; 3
 	AND #%00000100 ;2 Every 8 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2 
@@ -278,23 +279,35 @@ SkipDrawTraffic0
 
 	STA WSYNC ;73
 
-BeginDrawTraffic1; 15 max (20 for other traffic)
-	LDX Traffic1Line ;3 check first car visible
-	BEQ FinishDrawTrafficLine1 ;2	skip the drawing if its zero...
-DrawTraffic1;
-	;LDA PF1Cache ;3
-	;ORA #%11000000 ;2 
+;One car per line
+;BeginDrawTraffic1; 15 max (20 for other traffic)
+;	LDX Traffic1Line ;3 check first car visible
+;	BEQ FinishDrawTrafficLine1 ;2	skip the drawing if its zero...
+;DrawTraffic1;
+;	;LDA PF1Cache ;3
+;	;ORA #%11000000 ;2 
+;	LDA #%11000000 ;2
+;	STA PF1Cache ;3
+;	DEC Traffic1Line; 5
+;FinishDrawTrafficLine1
+;
+;CheckActivateTraffic1 ;10 max,
+;	CPY TrafficOffset1 ;3
+;	BNE SkipActivateTraffic1 ;2
+;	LDA #TraficSize ;2
+;	STA Traffic1Line; 3
+;SkipActivateTraffic1 ;EndDrawCar0Block
+
+DrawTraffic1; 17 Max, will be more
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset1 ;3
+	AND #%00001000 ;2 Every 8 for now
+	BEQ FinishDrawTrafficLine1 ;2
 	LDA #%11000000 ;2
 	STA PF1Cache ;3
-	DEC Traffic1Line; 5
-FinishDrawTrafficLine1
 
-CheckActivateTraffic1 ;10 max,
-	CPY TrafficOffset1 ;3
-	BNE SkipActivateTraffic1 ;2
-	LDA #TraficSize ;2
-	STA Traffic1Line; 3
-SkipActivateTraffic1 ;EndDrawCar0Block
+FinishDrawTrafficLine1
 
 	STA WSYNC ;49
 
@@ -335,7 +348,7 @@ PrepareOverscan
 	LDA #37
 	STA TIM64T	
 	;LDA #0
-	;STA VSYNC 		
+	;STA VSYNC Is it needed? Why is this here, I don't remember		
 
 ;Do more logic
 
