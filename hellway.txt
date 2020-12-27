@@ -387,88 +387,89 @@
      12  f000		       00 02	   TRAFFIC_LINE_COUNT =	2
      13  f000		       00 0a	   CAR_0_Y    =	10
      14  f000							;16 bit precision A is the least significative byte
-     15  f000		       00 02	   CAR_MAX_SPEED_H =	2
-     16  f000		       00 80	   CAR_MAX_SPEED_L =	128
-     17  f000		       00 00	   CAR_MIN_SPEED_H =	0
-     18  f000		       00 00	   CAR_MIN_SPEED_L =	0
-     19  f000		       00 00	   BACKGROUND_COLOR =	$00	;Black
-     20  f000		       00 1c	   PLAYER_1_COLOR =	$1C	;Yellow
-     21  f000		       00 01	   ACCELERATE_SPEED =	1
-     22  f000		       00 03	   BREAK_SPEED =	3
-     23  f000		       00 10	   ROM_START_MSB =	$10
-     24  f000
-     25  f000							;memory	
-     26  f000		       00 80	   Car0Line   =	$80
-     27  f000
-     28  f000		       00 81	   GRP0Cache  =	$81
-     29  f000		       00 82	   PF0Cache   =	$82
-     30  f000		       00 83	   PF1Cache   =	$83
-     31  f000		       00 84	   PF2Cache   =	$84
-     32  f000
-     33  f000		       00 86	   FrameCount0 =	$86	;
-     34  f000		       00 87	   FrameCount1 =	$87	;
-     35  f000
-     36  f000		       00 88	   Car0SpeedL =	$88
-     37  f000		       00 89	   Car0SpeedH =	$89
-     38  f000
-     39  f000		       00 90	   TrafficOffset0 =	$90	; Border
-     40  f000		       00 91	   TrafficOffset1 =	$91	; Traffic 1
-     41  f000
+     15  f000							;640 max speed!
+     16  f000		       00 02	   CAR_MAX_SPEED_H =	$02
+     17  f000		       00 80	   CAR_MAX_SPEED_L =	$80
+     18  f000		       00 00	   CAR_MIN_SPEED_H =	0
+     19  f000		       00 00	   CAR_MIN_SPEED_L =	0
+     20  f000		       00 00	   BACKGROUND_COLOR =	$00	;Black
+     21  f000		       00 1c	   PLAYER_1_COLOR =	$1C	;Yellow
+     22  f000		       00 01	   ACCELERATE_SPEED =	1
+     23  f000		       00 03	   BREAK_SPEED =	3
+     24  f000		       00 10	   ROM_START_MSB =	$10
+     25  f000
+     26  f000							;memory	
+     27  f000		       00 80	   Car0Line   =	$80
+     28  f000
+     29  f000		       00 81	   GRP0Cache  =	$81
+     30  f000		       00 82	   PF0Cache   =	$82
+     31  f000		       00 83	   PF1Cache   =	$83
+     32  f000		       00 84	   PF2Cache   =	$84
+     33  f000
+     34  f000		       00 86	   FrameCount0 =	$86	;
+     35  f000		       00 87	   FrameCount1 =	$87	;
+     36  f000
+     37  f000		       00 88	   Car0SpeedL =	$88
+     38  f000		       00 89	   Car0SpeedH =	$89
+     39  f000
+     40  f000		       00 90	   TrafficOffset0 =	$90	; Border
+     41  f000		       00 91	   TrafficOffset1 =	$91	; Traffic 1
      42  f000
-     43  f000		       00 b0	   Traffic0Acc =	$B0	; Keep adding or subtracting until overflows, this means change line
-     44  f000		       00 b1	   Traffic1Acc =	$B1
-     45  f000
-     46  f000		       00 c0	   GameStatus =	$C0	; Flags, D7 = running, expect more flags
-     47  f000
-     48  f000							;generic start up stuff, put zero in all...
-     49  f000				   Start
-     50  f000		       78		      SEI
-     51  f001		       d8		      CLD
-     52  f002		       a2 ff		      LDX	#$FF
-     53  f004		       9a		      TXS
-     54  f005		       a9 00		      LDA	#0
-     55  f007				   ClearMem
-     56  f007		       95 00		      STA	0,X
-     57  f009		       ca		      DEX
-     58  f00a		       d0 fb		      BNE	ClearMem
-     59  f00c
-     60  f00c							;Setting some variables...
-     61  f00c
-     62  f00c		       a9 1c		      LDA	#PLAYER_1_COLOR
-     63  f00e		       85 06		      STA	COLUP0
-     64  f010
-     65  f010							;Temporary code, cars will be added randomily
-     66  f010		       a9 0a		      LDA	#10
-     67  f012		       85 91		      STA	TrafficOffset1	;Initial Y Position
-     68  f014
-     69  f014							;Extract to subrotine? Used also dor the offsets
-     70  f014		       a9 00		      LDA	#CAR_MIN_SPEED_L
-     71  f016		       85 88		      STA	Car0SpeedL
-     72  f018		       a9 00		      LDA	#CAR_MIN_SPEED_H
-     73  f01a		       85 89		      STA	Car0SpeedH
-     74  f01c
-     75  f01c							;Traffic colour
-     76  f01c		       a5 32		      LDA	$32
-     77  f01e		       85 08		      STA	COLUPF
-     78  f020
-     79  f020							;mirror the playfield
-     80  f020		       a9 01		      LDA	#%00000001
-     81  f022		       85 0a		      STA	CTRLPF
-     82  f024
-     83  f024							;VSYNC time
-     84  f024				   MainLoop
-     85  f024		       a9 02		      LDA	#2
-     86  f026		       85 00		      STA	VSYNC
-     87  f028		       85 02		      STA	WSYNC
-     88  f02a		       85 02		      STA	WSYNC
-     89  f02c							;Cool, can put code here! It removed the black line on top
-     90  f02c							;Make Objects move in the X axys
-     91  f02c		       85 2a		      STA	HMOVE	;2
-     92  f02e							;This must be done after a WSync, otherwise it is impossible to predict the X position
-     93  f02e		       a5 c0		      LDA	GameStatus	;3
-     94  f030		       49 80		      EOR	#%10000000	;2 game running, we get 0 and not reset the position.
-     95  f032		       f0 12		      BEQ	DoNotSetPlayerX	;3
-     96  f034							;Do something better with this 32 cycles
+     43  f000
+     44  f000		       00 b0	   Traffic0Acc =	$B0	; Keep adding or subtracting until overflows, this means change line
+     45  f000		       00 b1	   Traffic1Acc =	$B1
+     46  f000
+     47  f000		       00 c0	   GameStatus =	$C0	; Flags, D7 = running, expect more flags
+     48  f000
+     49  f000							;generic start up stuff, put zero in all...
+     50  f000				   Start
+     51  f000		       78		      SEI
+     52  f001		       d8		      CLD
+     53  f002		       a2 ff		      LDX	#$FF
+     54  f004		       9a		      TXS
+     55  f005		       a9 00		      LDA	#0
+     56  f007				   ClearMem
+     57  f007		       95 00		      STA	0,X
+     58  f009		       ca		      DEX
+     59  f00a		       d0 fb		      BNE	ClearMem
+     60  f00c
+     61  f00c							;Setting some variables...
+     62  f00c
+     63  f00c		       a9 1c		      LDA	#PLAYER_1_COLOR
+     64  f00e		       85 06		      STA	COLUP0
+     65  f010
+     66  f010							;Temporary code, cars will be added randomily
+     67  f010		       a9 0a		      LDA	#10
+     68  f012		       85 91		      STA	TrafficOffset1	;Initial Y Position
+     69  f014
+     70  f014							;Extract to subrotine? Used also dor the offsets
+     71  f014		       a9 00		      LDA	#CAR_MIN_SPEED_L
+     72  f016		       85 88		      STA	Car0SpeedL
+     73  f018		       a9 00		      LDA	#CAR_MIN_SPEED_H
+     74  f01a		       85 89		      STA	Car0SpeedH
+     75  f01c
+     76  f01c							;Traffic colour
+     77  f01c		       a5 32		      LDA	$32
+     78  f01e		       85 08		      STA	COLUPF
+     79  f020
+     80  f020							;mirror the playfield
+     81  f020		       a9 01		      LDA	#%00000001
+     82  f022		       85 0a		      STA	CTRLPF
+     83  f024
+     84  f024							;VSYNC time
+     85  f024				   MainLoop
+     86  f024		       a9 02		      LDA	#2
+     87  f026		       85 00		      STA	VSYNC
+     88  f028		       85 02		      STA	WSYNC
+     89  f02a		       85 02		      STA	WSYNC
+     90  f02c							;Cool, can put code here! It removed the black line on top
+     91  f02c							;Make Objects move in the X axys
+     92  f02c		       85 2a		      STA	HMOVE	;2
+     93  f02e							;This must be done after a WSync, otherwise it is impossible to predict the X position
+     94  f02e		       a5 c0		      LDA	GameStatus	;3
+     95  f030		       49 80		      EOR	#%10000000	;2 game running, we get 0 and not reset the position.
+     96  f032		       f0 12		      BEQ	DoNotSetPlayerX	;3
+     97  f034							;Do something better with this 32 cycles
       0  f034					      SLEEP	32	;
       1  f034				   .CYCLES    SET	32
       2  f034
@@ -519,50 +520,49 @@
      17  f042					      REPEND
      18  f043		       ea		      nop
      19  f044					      REPEND
-     98  f044		       85 10		      STA	RESP0	;3
-     99  f046				   DoNotSetPlayerX
-    100  f046
-    101  f046		       85 02		      STA	WSYNC
-    102  f048		       a9 2b		      LDA	#43
-    103  f04a		       8d 96 02 	      STA	TIM64T
-    104  f04d		       a9 00		      LDA	#0
-    105  f04f		       85 00		      STA	VSYNC
-    106  f051
-    107  f051							;Read Fire Button before, will make it start the game for now.
-    108  f051		       a5 0c		      LDA	INPT4
-    109  f053		       30 06		      BMI	SkipGameStart	;not pressed the fire button in negative in bit 7
-    110  f055		       a5 c0		      LDA	GameStatus
-    111  f057		       09 80		      ORA	#%10000000
-    112  f059		       85 c0		      STA	GameStatus
-    113  f05b				   SkipGameStart
-    114  f05b
-    115  f05b							;Does not update the game if not running
-    116  f05b		       a5 c0		      LDA	GameStatus	;3
-    117  f05d		       49 80		      EOR	#%10000000	;2 game is running...
-    118  f05f		       f0 03		      BEQ	ContinueWithGameLogic	;3 Cannot branch more than 128 bytes, so we have ti use JMP
-    119  f061		       4c f8 f0 	      JMP	SkipUpdateLogic
-    120  f064
-    121  f064				   ContinueWithGameLogic
-    122  f064
-    123  f064							; for left and right, we're gonna 
-    124  f064							; set the horizontal speed, and then do
-    125  f064							; a single HMOVE.  We'll use X to hold the
-    126  f064							; horizontal speed, then store it in the 
-    127  f064							; appropriate register
-    128  f064
-    129  f064							;assum horiz speed will be zero
-    130  f064
+     99  f044		       85 10		      STA	RESP0	;3
+    100  f046				   DoNotSetPlayerX
+    101  f046
+    102  f046		       85 02		      STA	WSYNC
+    103  f048		       a9 2b		      LDA	#43
+    104  f04a		       8d 96 02 	      STA	TIM64T
+    105  f04d		       a9 00		      LDA	#0
+    106  f04f		       85 00		      STA	VSYNC
+    107  f051
+    108  f051							;Read Fire Button before, will make it start the game for now.
+    109  f051		       a5 0c		      LDA	INPT4
+    110  f053		       30 06		      BMI	SkipGameStart	;not pressed the fire button in negative in bit 7
+    111  f055		       a5 c0		      LDA	GameStatus
+    112  f057		       09 80		      ORA	#%10000000
+    113  f059		       85 c0		      STA	GameStatus
+    114  f05b				   SkipGameStart
+    115  f05b
+    116  f05b							;Does not update the game if not running
+    117  f05b		       a5 c0		      LDA	GameStatus	;3
+    118  f05d		       49 80		      EOR	#%10000000	;2 game is running...
+    119  f05f		       f0 03		      BEQ	ContinueWithGameLogic	;3 Cannot branch more than 128 bytes, so we have to use JMP
+    120  f061		       4c 0c f1 	      JMP	SkipUpdateLogic
+    121  f064
+    122  f064				   ContinueWithGameLogic
+    123  f064
+    124  f064							; for left and right, we're gonna 
+    125  f064							; set the horizontal speed, and then do
+    126  f064							; a single HMOVE.  We'll use X to hold the
+    127  f064							; horizontal speed, then store it in the 
+    128  f064							; appropriate register
+    129  f064
+    130  f064							;assum horiz speed will be zero
     131  f064
     132  f064							;Begin read dpad
     133  f064		       a2 00		      LDX	#0
     134  f066
-    135  f066		       a9 40		      LDA	#%01000000	;Left?
+    135  f066		       a9 40		      LDA	#%01000000	;Left
     136  f068		       2c 80 02 	      BIT	SWCHA
     137  f06b		       d0 02		      BNE	SkipMoveLeft
     138  f06d		       a2 10		      LDX	#$10	;a 1 in the left nibble means go left
     139  f06f				   SkipMoveLeft
     140  f06f
-    141  f06f		       a9 80		      LDA	#%10000000	;Right?
+    141  f06f		       a9 80		      LDA	#%10000000	;Right
     142  f071		       2c 80 02 	      BIT	SWCHA
     143  f074		       d0 02		      BNE	SkipMoveRight
     144  f076		       a2 f0		      LDX	#$F0	;a -1 in the left nibble means go right...
@@ -576,10 +576,10 @@
     152  f07c		       2c 80 02 	      BIT	SWCHA
     153  f07f		       d0 21		      BNE	SkipAccelerate
     154  f081
-    155  f081							;Adds acceleration
+    155  f081							;Adds speed
     156  f081		       18		      CLC
     157  f082		       a5 88		      LDA	Car0SpeedL
-    158  f084		       65 01		      ADC	ACCELERATE_SPEED
+    158  f084		       69 01		      ADC	#ACCELERATE_SPEED
     159  f086		       85 88		      STA	Car0SpeedL
     160  f088		       a5 89		      LDA	Car0SpeedH
     161  f08a		       69 00		      ADC	#0
@@ -602,206 +602,223 @@
     178  f0a0		       85 88		      STA	Car0SpeedL
     179  f0a2
     180  f0a2				   SkipAccelerate
-    181  f0a2		       a9 20		      LDA	#%00100000	;Down in controller
-    182  f0a4		       2c 80 02 	      BIT	SWCHA
-    183  f0a7		       d0 12		      BNE	SkipBreak
-    184  f0a9		       a5 88		      LDA	Car0SpeedL
-    185  f0ab		       38		      SEC
-    186  f0ac		       e9 03		      SBC	#BREAK_SPEED
-    187  f0ae		       90 07		      BCC	LoadMinSpeed	; Negative overflow
-    188  f0b0		       c9 00		      CMP	#CAR_MIN_SPEED_L
-    189  f0b2		       90 03		      BCC	LoadMinSpeed	; Less than memory
-    190  f0b4		       4c b9 f0 	      JMP	SpeedAfterBreak
-    191  f0b7
-    192  f0b7				   LoadMinSpeed 		; Underflow or less than min
-    193  f0b7		       a9 00		      LDA	#CAR_MIN_SPEED_L
-    194  f0b9
-    195  f0b9				   SpeedAfterBreak
-    196  f0b9		       85 88		      STA	Car0SpeedL
-    197  f0bb				   SkipBreak
-    198  f0bb
-    199  f0bb							;Temporary code until cars are dynamic, will make it wrap
-    200  f0bb							;LDA TrafficOffset1
-    201  f0bb							;AND #%00111111
-    202  f0bb							;STA TrafficOffset1
-    203  f0bb
-    204  f0bb							;Finish read dpad
-    205  f0bb
-    206  f0bb							;Updates all offsets 24 bits
-    207  f0bb		       a2 02		      LDX	#TRAFFIC_LINE_COUNT
-    208  f0bd				   UpdateOffsets
-    209  f0bd		       a5 88		      LDA	Car0SpeedL
-    210  f0bf		       dd 70 f1 	      CMP	TrafficSpeeds-1,X
-    211  f0c2		       90 10		      BCC	TrafficIsFaster	;See 6502 specs, jump if the car is slower than traffic
-    212  f0c4				   PlayerIsFaster
-    213  f0c4		       38		      SEC
-    214  f0c5		       fd 70 f1 	      SBC	TrafficSpeeds-1,X
-    215  f0c8		       18		      CLC
-    216  f0c9		       75 af		      ADC	Traffic0Acc-1,X
-    217  f0cb		       95 af		      STA	Traffic0Acc-1,X
-    218  f0cd		       90 14		      BCC	PrepareNextUpdateLoop	; Change the offset only when there is a carry!
-    219  f0cf		       f6 8f		      INC	TrafficOffset0-1,X
-    220  f0d1		       4c e3 f0 	      JMP	PrepareNextUpdateLoop
-    221  f0d4				   TrafficIsFaster
-    222  f0d4		       bd 70 f1 	      LDA	TrafficSpeeds-1,X
-    223  f0d7		       38		      SEC
-    224  f0d8		       e5 88		      SBC	Car0SpeedL
-    225  f0da		       18		      CLC
-    226  f0db		       75 af		      ADC	Traffic0Acc-1,X
-    227  f0dd		       95 af		      STA	Traffic0Acc-1,X
-    228  f0df		       90 02		      BCC	PrepareNextUpdateLoop	; Change the offset only when there is a carry!
-    229  f0e1		       d6 8f		      DEC	TrafficOffset0-1,X
-    230  f0e3				   PrepareNextUpdateLoop
-    231  f0e3		       ca		      DEX
-    232  f0e4		       d0 d7		      BNE	UpdateOffsets
-    233  f0e6
-    234  f0e6							;Will probably be useful		
-    235  f0e6				   CountFrame
-    236  f0e6		       e6 86		      INC	FrameCount0
-    237  f0e8		       d0 02		      BNE	SkipIncFC1	;When it is zero again should increase the MSB
-    238  f0ea		       e6 87		      INC	FrameCount1
-    239  f0ec				   SkipIncFC1
-    240  f0ec
-    241  f0ec
-    242  f0ec				   TestCollision		;
-    243  f0ec							; see if car0 and playfield collide, and change the background color if so
-    244  f0ec		       a9 80		      LDA	#%10000000
-    245  f0ee		       24 02		      BIT	CXP0FB
-    246  f0f0		       f0 04		      BEQ	NoCollision	;skip if not hitting...
-    247  f0f2		       a5 86		      LDA	FrameCount0	;must be a hit! Change rand color bg
-    248  f0f4		       85 09		      STA	COLUBK	;and store as the bgcolor
-    249  f0f6				   NoCollision
-    250  f0f6		       85 2c		      STA	CXCLR	;reset the collision detection for next frame
-    251  f0f8							; LDA #0		 ;zero out the buffer
-    252  f0f8							; STA PlayerBuffer ;just in case
-    253  f0f8
-    254  f0f8				   SkipUpdateLogic
-    255  f0f8
-    256  f0f8							; After here we are going to update the screen, No more heavy code
-    257  f0f8				   WaitForVblankEnd
-    258  f0f8		       ad 84 02 	      LDA	INTIM
-    259  f0fb		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
-    260  f0fd
-    261  f0fd		       a0 3f		      LDY	#SCREEN_SIZE - 1	;#63 ; 	
-    262  f0ff		       85 02		      STA	WSYNC
-    263  f101
-    264  f101		       a9 01		      LDA	#1
-    265  f103		       85 01		      STA	VBLANK
-    266  f105
-    267  f105
-    268  f105							;main scanline loop...
-    269  f105				   ScanLoop
-    270  f105		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
-    271  f107
-    272  f107							;Start of next line!			
-    273  f107				   DrawCache		;24
-    274  f107
-    275  f107		       a5 81		      LDA	GRP0Cache	;3 ;buffer was set during last scanline
-    276  f109		       85 1b		      STA	GRP0	;3   ;put it as graphics now
-    277  f10b
-    278  f10b		       a5 82		      LDA	PF0Cache	;3
-    279  f10d		       85 0d		      STA	PF0	;3
-    280  f10f
-    281  f10f		       a5 83		      LDA	PF1Cache	;3
-    282  f111		       85 0e		      STA	PF1	;3
-    283  f113
-    284  f113		       a5 84		      LDA	PF2Cache	;3
-    285  f115		       85 0f		      STA	PF2	;3
-    286  f117
-    287  f117
-    288  f117				   ClearCache		;11 Only the playfields
-    289  f117		       a9 00		      LDA	#$0	;2 ;Clear cache
-    290  f119		       85 83		      STA	PF1Cache	;3
-    291  f11b		       85 84		      STA	PF2Cache	; 3
-    292  f11d		       85 82		      STA	PF0Cache	; 3
-    293  f11f
-    294  f11f				   DrawTraffic0 		; 16 max, traffic 0 is the border
-    295  f11f		       c6 90		      DEC	TrafficOffset0	; 5 Make the shape change per line;
-    296  f121		       a5 90		      LDA	TrafficOffset0	; 3
-    297  f123		       29 04		      AND	#%00000100	;2 Every 8 game lines, draw the border
-    298  f125		       f0 04		      BEQ	SkipDrawTraffic0	; 2 
-    299  f127		       a9 70		      LDA	#%01110000	; 2
-    300  f129		       85 82		      STA	PF0Cache	;3
-    301  f12b				   SkipDrawTraffic0
-    302  f12b
-    303  f12b							;51
+    181  f0a2
+    182  f0a2							;Break
+    183  f0a2		       a9 20		      LDA	#%00100000	;Down in controller
+    184  f0a4		       2c 80 02 	      BIT	SWCHA
+    185  f0a7		       d0 26		      BNE	SkipBreak
+    186  f0a9
+    187  f0a9							;Decrease speed
+    188  f0a9		       38		      SEC
+    189  f0aa		       a5 88		      LDA	Car0SpeedL
+    190  f0ac		       e9 03		      SBC	#BREAK_SPEED
+    191  f0ae		       85 88		      STA	Car0SpeedL
+    192  f0b0		       a5 89		      LDA	Car0SpeedH
+    193  f0b2		       e9 00		      SBC	#0
+    194  f0b4		       85 89		      STA	Car0SpeedH
+    195  f0b6
+    196  f0b6							;Checks if is min speed
+    197  f0b6		       30 0f		      BMI	ResetMinSpeed	; Overflow d7 is set
+    198  f0b8		       c9 00		      CMP	#CAR_MIN_SPEED_H
+    199  f0ba		       f0 02		      BEQ	CompareLBreakSpeed	; is the same as minimun, compare other byte.
+    200  f0bc		       b0 11		      BCS	SkipBreak	; Greater than min, we are ok! 
+    201  f0be
+    202  f0be				   CompareLBreakSpeed
+    203  f0be		       a5 88		      LDA	Car0SpeedL
+    204  f0c0		       c9 00		      CMP	#CAR_MIN_SPEED_L
+    205  f0c2		       90 03		      BCC	ResetMinSpeed	; Less than memory
+    206  f0c4		       4c cf f0 	      JMP	SkipBreak	; We are greather than min speed in the low byte.
+    207  f0c7
+    208  f0c7				   ResetMinSpeed
+    209  f0c7		       a9 00		      LDA	#CAR_MIN_SPEED_H
+    210  f0c9		       85 89		      STA	Car0SpeedH
+    211  f0cb		       a9 00		      LDA	#CAR_MIN_SPEED_L
+    212  f0cd		       85 88		      STA	Car0SpeedL
+    213  f0cf
+    214  f0cf				   SkipBreak
+    215  f0cf
+    216  f0cf							;Temporary code until cars are dynamic, will make it wrap
+    217  f0cf							;LDA TrafficOffset1
+    218  f0cf							;AND #%00111111
+    219  f0cf							;STA TrafficOffset1
+    220  f0cf
+    221  f0cf							;Finish read dpad
+    222  f0cf
+    223  f0cf							;Updates all offsets 24 bits
+    224  f0cf		       a2 02		      LDX	#TRAFFIC_LINE_COUNT
+    225  f0d1				   UpdateOffsets
+    226  f0d1		       a5 88		      LDA	Car0SpeedL
+    227  f0d3		       dd 84 f1 	      CMP	TrafficSpeeds-1,X
+    228  f0d6		       90 10		      BCC	TrafficIsFaster	;See 6502 specs, jump if the car is slower than traffic
+    229  f0d8				   PlayerIsFaster
+    230  f0d8		       38		      SEC
+    231  f0d9		       fd 84 f1 	      SBC	TrafficSpeeds-1,X
+    232  f0dc		       18		      CLC
+    233  f0dd		       75 af		      ADC	Traffic0Acc-1,X
+    234  f0df		       95 af		      STA	Traffic0Acc-1,X
+    235  f0e1		       90 14		      BCC	PrepareNextUpdateLoop	; Change the offset only when there is a carry!
+    236  f0e3		       f6 8f		      INC	TrafficOffset0-1,X
+    237  f0e5		       4c f7 f0 	      JMP	PrepareNextUpdateLoop
+    238  f0e8				   TrafficIsFaster
+    239  f0e8		       bd 84 f1 	      LDA	TrafficSpeeds-1,X
+    240  f0eb		       38		      SEC
+    241  f0ec		       e5 88		      SBC	Car0SpeedL
+    242  f0ee		       18		      CLC
+    243  f0ef		       75 af		      ADC	Traffic0Acc-1,X
+    244  f0f1		       95 af		      STA	Traffic0Acc-1,X
+    245  f0f3		       90 02		      BCC	PrepareNextUpdateLoop	; Change the offset only when there is a carry!
+    246  f0f5		       d6 8f		      DEC	TrafficOffset0-1,X
+    247  f0f7				   PrepareNextUpdateLoop
+    248  f0f7		       ca		      DEX
+    249  f0f8		       d0 d7		      BNE	UpdateOffsets
+    250  f0fa
+    251  f0fa							;Will probably be useful		
+    252  f0fa				   CountFrame
+    253  f0fa		       e6 86		      INC	FrameCount0
+    254  f0fc		       d0 02		      BNE	SkipIncFC1	;When it is zero again should increase the MSB
+    255  f0fe		       e6 87		      INC	FrameCount1
+    256  f100				   SkipIncFC1
+    257  f100
+    258  f100
+    259  f100				   TestCollision		;
+    260  f100							; see if car0 and playfield collide, and change the background color if so
+    261  f100		       a9 80		      LDA	#%10000000
+    262  f102		       24 02		      BIT	CXP0FB
+    263  f104		       f0 04		      BEQ	NoCollision	;skip if not hitting...
+    264  f106		       a5 86		      LDA	FrameCount0	;must be a hit! Change rand color bg
+    265  f108		       85 09		      STA	COLUBK	;and store as the bgcolor
+    266  f10a				   NoCollision
+    267  f10a		       85 2c		      STA	CXCLR	;reset the collision detection for next frame
+    268  f10c							; LDA #0		 ;zero out the buffer
+    269  f10c							; STA PlayerBuffer ;just in case
+    270  f10c
+    271  f10c				   SkipUpdateLogic
+    272  f10c
+    273  f10c							; After here we are going to update the screen, No more heavy code
+    274  f10c				   WaitForVblankEnd
+    275  f10c		       ad 84 02 	      LDA	INTIM
+    276  f10f		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
+    277  f111
+    278  f111		       a0 3f		      LDY	#SCREEN_SIZE - 1	;#63 ; 	
+    279  f113		       85 02		      STA	WSYNC
+    280  f115
+    281  f115		       a9 01		      LDA	#1
+    282  f117		       85 01		      STA	VBLANK
+    283  f119
+    284  f119
+    285  f119							;main scanline loop...
+    286  f119				   ScanLoop
+    287  f119		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
+    288  f11b
+    289  f11b							;Start of next line!			
+    290  f11b				   DrawCache		;24 Is the last line going to the top of the next frame?
+    291  f11b
+    292  f11b		       a5 81		      LDA	GRP0Cache	;3 ;buffer was set during last scanline
+    293  f11d		       85 1b		      STA	GRP0	;3   ;put it as graphics now
+    294  f11f
+    295  f11f		       a5 82		      LDA	PF0Cache	;3
+    296  f121		       85 0d		      STA	PF0	;3
+    297  f123
+    298  f123		       a5 83		      LDA	PF1Cache	;3
+    299  f125		       85 0e		      STA	PF1	;3
+    300  f127
+    301  f127		       a5 84		      LDA	PF2Cache	;3
+    302  f129		       85 0f		      STA	PF2	;3
+    303  f12b
     304  f12b
-    305  f12b		       85 02		      STA	WSYNC	;73
-    306  f12d
-    307  f12d
-    308  f12d				   DrawTraffic1 		; 17 Max, will be more
-    309  f12d		       98		      TYA		; 2
-    310  f12e		       18		      CLC		; 2 
-    311  f12f		       65 91		      ADC	TrafficOffset1	;3
-    312  f131		       29 08		      AND	#%00001000	;2 Every 8 for now
-    313  f133		       f0 04		      BEQ	FinishDrawTrafficLine1	;2
-    314  f135		       a9 c0		      LDA	#%11000000	;2
-    315  f137		       85 83		      STA	PF1Cache	;3
-    316  f139
-    317  f139				   FinishDrawTrafficLine1
-    318  f139
-    319  f139		       85 02		      STA	WSYNC	;49
-    320  f13b
-    321  f13b				   BeginDrawCar0Block		;21 is the max, since if draw, does ot check active
-    322  f13b		       a6 80		      LDX	Car0Line	;3 check the visible player line...
-    323  f13d		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
-    324  f13f				   DrawCar0
-    325  f13f		       bd 69 f1 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
-    326  f142							;section below... it's off by 1 though, since at zero
-    327  f142							;we stop drawing
-    328  f142		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
-    329  f144		       c6 80		      DEC	Car0Line	;5	;and decrement the line count
-    330  f146		       4c 51 f1 	      JMP	SkipActivateCar0	;3 save some cpu time
-    331  f149				   FinishDrawCar0
-    332  f149
-    333  f149				   CheckActivateCar0		;9 max
-    334  f149		       c0 0a		      CPY	#CAR_0_Y	;2
-    335  f14b		       d0 04		      BNE	SkipActivateCar0	;2
-    336  f14d		       a9 07		      LDA	#CAR_SIZE	;2
-    337  f14f		       85 80		      STA	Car0Line	;3
-    338  f151				   SkipActivateCar0		;EndDrawCar0Block
-    339  f151
-    340  f151
-    341  f151							;STA WSYNC ;3
-    342  f151
-    343  f151				   WhileScanLoop
-    344  f151		       88		      DEY		;2
-    345  f152		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
-    346  f154		       4c 05 f1 	      JMP	ScanLoop	;3
-    347  f157				   FinishScanLoop
-    348  f157
-    349  f157
-    350  f157				   PrepareOverscan
-    351  f157		       a9 02		      LDA	#2
-    352  f159		       85 02		      STA	WSYNC
-    353  f15b		       85 01		      STA	VBLANK
-    354  f15d
-    355  f15d		       a9 25		      LDA	#37
-    356  f15f		       8d 96 02 	      STA	TIM64T
-    357  f162							;LDA #0
-    358  f162							;STA VSYNC Is it needed? Why is this here, I don't remember		
-    359  f162
-    360  f162							;Do more logic
-    361  f162
-    362  f162				   OverScanWait
-    363  f162		       ad 84 02 	      LDA	INTIM
-    364  f165		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
-    365  f167		       4c 24 f0 	      JMP	MainLoop
-    366  f16a
-    367  f16a				   CarSprite		; Upside down
-    368  f16a		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-    369  f16b		       ff		      .byte.b	#%11111111
-    370  f16c		       24		      .byte.b	#%00100100
-    371  f16d		       bd		      .byte.b	#%10111101
-    372  f16e		       3c		      .byte.b	#%00111100
-    373  f16f		       bd		      .byte.b	#%10111101
-    374  f170		       3c		      .byte.b	#%00111100
-    375  f171
-    376  f171
-    377  f171				   TrafficSpeeds		;maybe move to ram for dynamic changes and speed of 0 page access
-    378  f171		       00		      .byte.b	#0	; Border
-    379  f172		       28		      .byte.b	#40	; Trafic1
-    380  f173
-    381  fffc					      org	$FFFC
-    382  fffc		       00 f0		      .word.w	Start
-    383  fffe		       00 f0		      .word.w	Start
+    305  f12b				   ClearCache		;11 Only the playfields
+    306  f12b		       a9 00		      LDA	#$0	;2 ;Clear cache
+    307  f12d		       85 83		      STA	PF1Cache	;3
+    308  f12f		       85 84		      STA	PF2Cache	; 3
+    309  f131		       85 82		      STA	PF0Cache	; 3
+    310  f133
+    311  f133				   DrawTraffic0 		; 16 max, traffic 0 is the border
+    312  f133		       c6 90		      DEC	TrafficOffset0	; 5 Make the shape change per line;
+    313  f135		       a5 90		      LDA	TrafficOffset0	; 3
+    314  f137		       29 04		      AND	#%00000100	;2 Every 8 game lines, draw the border
+    315  f139		       f0 04		      BEQ	SkipDrawTraffic0	; 2 
+    316  f13b		       a9 70		      LDA	#%01110000	; 2
+    317  f13d		       85 82		      STA	PF0Cache	;3
+    318  f13f				   SkipDrawTraffic0
+    319  f13f
+    320  f13f							;51
+    321  f13f
+    322  f13f		       85 02		      STA	WSYNC	;73
+    323  f141
+    324  f141
+    325  f141				   DrawTraffic1 		; 17 Max, will be more
+    326  f141		       98		      TYA		; 2
+    327  f142		       18		      CLC		; 2 
+    328  f143		       65 91		      ADC	TrafficOffset1	;3
+    329  f145		       29 08		      AND	#%00001000	;2 Every 8 for now
+    330  f147		       f0 04		      BEQ	FinishDrawTrafficLine1	;2
+    331  f149		       a9 c0		      LDA	#%11000000	;2
+    332  f14b		       85 83		      STA	PF1Cache	;3
+    333  f14d
+    334  f14d				   FinishDrawTrafficLine1
+    335  f14d
+    336  f14d		       85 02		      STA	WSYNC	;49
+    337  f14f
+    338  f14f				   BeginDrawCar0Block		;21 is the max, since if draw, does ot check active
+    339  f14f		       a6 80		      LDX	Car0Line	;3 check the visible player line...
+    340  f151		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
+    341  f153				   DrawCar0
+    342  f153		       bd 7d f1 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
+    343  f156							;section below... it's off by 1 though, since at zero
+    344  f156							;we stop drawing
+    345  f156		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
+    346  f158		       c6 80		      DEC	Car0Line	;5	and decrement the line count
+    347  f15a		       4c 65 f1 	      JMP	SkipActivateCar0	;3 save some cpu time
+    348  f15d				   FinishDrawCar0
+    349  f15d
+    350  f15d				   CheckActivateCar0		;9 max
+    351  f15d		       c0 0a		      CPY	#CAR_0_Y	;2
+    352  f15f		       d0 04		      BNE	SkipActivateCar0	;2
+    353  f161		       a9 07		      LDA	#CAR_SIZE	;2
+    354  f163		       85 80		      STA	Car0Line	;3
+    355  f165				   SkipActivateCar0		;EndDrawCar0Block
+    356  f165
+    357  f165
+    358  f165							;STA WSYNC ;3
+    359  f165
+    360  f165				   WhileScanLoop
+    361  f165		       88		      DEY		;2
+    362  f166		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
+    363  f168		       4c 19 f1 	      JMP	ScanLoop	;3
+    364  f16b				   FinishScanLoop
+    365  f16b
+    366  f16b
+    367  f16b				   PrepareOverscan
+    368  f16b		       a9 02		      LDA	#2
+    369  f16d		       85 02		      STA	WSYNC
+    370  f16f		       85 01		      STA	VBLANK
+    371  f171
+    372  f171		       a9 25		      LDA	#37
+    373  f173		       8d 96 02 	      STA	TIM64T
+    374  f176							;LDA #0
+    375  f176							;STA VSYNC Is it needed? Why is this here, I don't remember		
+    376  f176
+    377  f176							;Do more logic
+    378  f176
+    379  f176				   OverScanWait
+    380  f176		       ad 84 02 	      LDA	INTIM
+    381  f179		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
+    382  f17b		       4c 24 f0 	      JMP	MainLoop
+    383  f17e
+    384  f17e				   CarSprite		; Upside down
+    385  f17e		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+    386  f17f		       ff		      .byte.b	#%11111111
+    387  f180		       24		      .byte.b	#%00100100
+    388  f181		       bd		      .byte.b	#%10111101
+    389  f182		       3c		      .byte.b	#%00111100
+    390  f183		       bd		      .byte.b	#%10111101
+    391  f184		       3c		      .byte.b	#%00111100
+    392  f185
+    393  f185
+    394  f185				   TrafficSpeeds		;maybe move to ram for dynamic changes and speed of 0 page access
+    395  f185		       00		      .byte.b	#0	; Border
+    396  f186		       28		      .byte.b	#40	; Trafic1
+    397  f187
+    398  fffc					      org	$FFFC
+    399  fffc		       00 f0		      .word.w	Start
+    400  fffe		       00 f0		      .word.w	Start

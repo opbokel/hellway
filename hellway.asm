@@ -12,8 +12,9 @@ TRAFFIC_SIZE = 7 ; For now, we can make it random later to simulate bigger cars
 TRAFFIC_LINE_COUNT = 2
 CAR_0_Y = 10
 ;16 bit precision A is the least significative byte
-CAR_MAX_SPEED_H = 2
-CAR_MAX_SPEED_L = 128
+;640 max speed!
+CAR_MAX_SPEED_H = $02
+CAR_MAX_SPEED_L = $80
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
 BACKGROUND_COLOR = $00 ;Black
@@ -72,7 +73,7 @@ ClearMem
 	LDA #CAR_MIN_SPEED_H
 	STA Car0SpeedH		
 	
-	;Traffic colour
+;Traffic colour
 	LDA $32 
 	STA COLUPF  
 	
@@ -115,7 +116,7 @@ SkipGameStart
 ;Does not update the game if not running
 	LDA GameStatus ;3
 	EOR #%10000000 ;2 game is running...
-	BEQ ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have ti use JMP
+	BEQ ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
 	JMP SkipUpdateLogic
 
 ContinueWithGameLogic
@@ -128,17 +129,16 @@ ContinueWithGameLogic
 
 ;assum horiz speed will be zero
 
-
 ;Begin read dpad
 	LDX #0	
-	
-	LDA #%01000000	;Left?
+
+	LDA #%01000000	;Left
 	BIT SWCHA 
 	BNE SkipMoveLeft
 	LDX #$10	;a 1 in the left nibble means go left
 SkipMoveLeft
 	
-	LDA #%10000000	;Right?
+	LDA #%10000000	;Right
 	BIT SWCHA 
 	BNE SkipMoveRight
 	LDX #$F0	;a -1 in the left nibble means go right...
@@ -152,10 +152,10 @@ SkipMoveRight
 	BIT SWCHA 
 	BNE SkipAccelerate
 
-;Adds acceleration
+;Adds speed
 	CLC
 	LDA Car0SpeedL
-	ADC ACCELERATE_SPEED
+	ADC #ACCELERATE_SPEED
 	STA Car0SpeedL
 	LDA Car0SpeedH
 	ADC #0
@@ -178,22 +178,39 @@ ResetToMaxSpeed ; Speed is more, or is already max
 	STA Car0SpeedL
 
 SkipAccelerate
+
+;Break
 	LDA #%00100000	;Down in controller
 	BIT SWCHA 
 	BNE SkipBreak
-	LDA Car0SpeedL
+
+;Decrease speed
 	SEC
+	LDA Car0SpeedL
 	SBC #BREAK_SPEED
-	BCC LoadMinSpeed ; Negative overflow
-	CMP #CAR_MIN_SPEED_L
-	BCC LoadMinSpeed ; Less than memory
-	JMP SpeedAfterBreak
-
-LoadMinSpeed ; Underflow or less than min
-	LDA #CAR_MIN_SPEED_L
-
-SpeedAfterBreak	
 	STA Car0SpeedL
+	LDA Car0SpeedH
+	SBC #0
+	STA Car0SpeedH
+
+;Checks if is min speed
+	BMI ResetMinSpeed; Overflow d7 is set
+	CMP #CAR_MIN_SPEED_H
+	BEQ CompareLBreakSpeed; is the same as minimun, compare other byte.
+	BCS SkipBreak; Greater than min, we are ok! 
+
+CompareLBreakSpeed	
+	LDA Car0SpeedL
+	CMP #CAR_MIN_SPEED_L	
+	BCC ResetMinSpeed ; Less than memory
+	JMP SkipBreak ; We are greather than min speed in the low byte.
+
+ResetMinSpeed
+	LDA #CAR_MIN_SPEED_H
+	STA Car0SpeedH
+	LDA #CAR_MIN_SPEED_L
+	STA Car0SpeedL
+
 SkipBreak
 
 ;Temporary code until cars are dynamic, will make it wrap
@@ -270,7 +287,7 @@ ScanLoop
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;24
+DrawCache ;24 Is the last line going to the top of the next frame?
 	
 	LDA GRP0Cache ;3 ;buffer was set during last scanline
 	STA GRP0      ;3   ;put it as graphics now
@@ -326,7 +343,7 @@ DrawCar0
 				;section below... it's off by 1 though, since at zero
 				;we stop drawing
 	STA GRP0Cache ;3	;put that line as player graphic for the next line
-	DEC Car0Line ;5	;and decrement the line count
+	DEC Car0Line ;5	and decrement the line count
 	JMP SkipActivateCar0 ;3 save some cpu time
 FinishDrawCar0
 
