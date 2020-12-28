@@ -43,6 +43,7 @@ TrafficOffset1 = $93; Traffic 1 $94 $95 (24 bit)
 ;Temporary variables, multiple uses
 Tmp0=$A0
 Tmp1=$A1
+Tmp2=$A2
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -233,6 +234,10 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet
 	LDA Car0SpeedH
 	SBC TrafficSpeeds,Y
 	STA Tmp1
+	LDA #0; Hard to figure out, make the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
+	SBC #0
+	STA Tmp2
+
 
 ;Adds the result
 	CLC
@@ -244,7 +249,7 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet
 	ADC TrafficOffset0,X
 	STA TrafficOffset0,X
 	INX
-	LDA #0 ; Carry
+	LDA Tmp2 ; Carry
 	ADC TrafficOffset0,X
 	STA TrafficOffset0,X
 
@@ -268,8 +273,8 @@ TestCollision;
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
-	LDA FrameCount0	;must be a hit! Change rand color bg
-	STA COLUBK	;and store as the bgcolor
+	;LDA FrameCount0	;must be a hit! Change rand color bg
+	;STA COLUBK	;and store as the bgcolor
 NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 	; LDA #0		 ;zero out the buffer
@@ -316,8 +321,9 @@ ClearCache ;11 Only the playfields
 	STA PF0Cache ; 3
 
 DrawTraffic0; 16 max, traffic 0 is the border
-	DEC TrafficOffset0 + 1; 5 Make the shape change per line;
-	LDA TrafficOffset0 + 1; 3
+	TYA ;2
+	CLC ;2
+	ADC TrafficOffset0 + 1
 	AND #%00000100 ;2 Every 8 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2 
 	LDA #%01110000; 2
@@ -329,20 +335,23 @@ SkipDrawTraffic0
 	STA WSYNC ;73
 
 
-;DrawTraffic1; 17 Max, will be more
-;	TYA; 2
-;	CLC; 2 
-;	ADC TrafficOffset1 + 1;3
-;	AND #%00001000 ;2 Every 8 for now
-;	BEQ FinishDrawTrafficLine1 ;2
-;	LDA #%11000000 ;2
-;	STA PF1Cache ;3
+DrawTraffic1; 17 Max, will be more
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset1 + 1;3
+	;AND #%00001000 ;2 Every 8 for now
+	;BEQ FinishDrawTrafficLine1 ;2
+	;LDA #%11000000 ;2
+	STA PF2Cache ;3
+	LDA #0 ;2
+	ADC TrafficOffset1 + 2;3
+	STA PF1Cache ;3
 
 FinishDrawTrafficLine1
 
 	STA WSYNC ;49
 
-BeginDrawCar0Block ;21 is the max, since if draw, does ot check active
+BeginDrawCar0Block ;21 is the max, since if draw, does not check active
 	LDX Car0Line	;3 check the visible player line...
 	BEQ FinishDrawCar0 ;2	skip the drawing if its zero...
 DrawCar0
@@ -399,10 +408,10 @@ CarSprite ; Upside down
 
 	
 TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
-	.byte #0; Border L
-	.byte #0; Border H
-	.byte #60; Trafic1 L
-	.byte #60; Trafic1 H
+	.byte #0;   Border L
+	.byte #0;   Border H
+	.byte #$A0; Trafic1 L
+	.byte #0;   Trafic1 H
 
 	org $FFFC
 	.word Start
