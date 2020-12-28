@@ -11,7 +11,7 @@ CAR_SIZE = 7
 TRAFFIC_SIZE = 7 ; For now, we can make it random later to simulate bigger cars
 TRAFFIC_LINE_COUNT = 2
 CAR_0_Y = 10
-;16 bit precision A is the least significative byte
+;16 bit precision
 ;640 max speed!
 CAR_MAX_SPEED_H = $02
 CAR_MAX_SPEED_L = $80
@@ -37,12 +37,12 @@ FrameCount1 = $87;
 Car0SpeedL = $88
 Car0SpeedH = $89
 
-TrafficOffset0 = $90; Border
-TrafficOffset1 = $91; Traffic 1
+TrafficOffset0 = $90; Border $91 $92 (24 bit)
+TrafficOffset1 = $93; Traffic 1 $94 $95 (24 bit)
 
-
-Traffic0Acc = $B0 ; Keep adding or subtracting until overflows, this means change line
-Traffic1Acc = $B1
+;Temporary variables, multiple uses
+Tmp0=$A0
+Tmp1=$A1
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -220,32 +220,39 @@ SkipBreak
 
 ;Finish read dpad
 
+
 ;Updates all offsets 24 bits
-	LDX #TRAFFIC_LINE_COUNT
-UpdateOffsets
+	LDX #0 ; Memory Offset 24 bit
+	LDY #0 ; Line Speeds 16 bits
+UpdateOffsets; Car sped - traffic speed = how much to change offet
+	SEC
 	LDA Car0SpeedL
-	CMP TrafficSpeeds-1,X
-	BCC TrafficIsFaster ;See 6502 specs, jump if the car is slower than traffic
-PlayerIsFaster
-	SEC
-	SBC TrafficSpeeds-1,X
+	SBC TrafficSpeeds,Y
+	STA Tmp0
+	INY
+	LDA Car0SpeedH
+	SBC TrafficSpeeds,Y
+	STA Tmp1
+
+;Adds the result
 	CLC
-	ADC Traffic0Acc-1,X
-	STA Traffic0Acc-1,X
-	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	INC TrafficOffset0-1,X	
-	JMP PrepareNextUpdateLoop
-TrafficIsFaster 
-	LDA TrafficSpeeds-1,X
-	SEC
-	SBC Car0SpeedL
-	CLC
-	ADC Traffic0Acc-1,X
-	STA Traffic0Acc-1,X
-	BCC PrepareNextUpdateLoop; Change the offset only when there is a carry!
-	DEC TrafficOffset0-1,X
+	LDA Tmp0
+	ADC TrafficOffset0,X
+	STA TrafficOffset0,X
+	INX
+	LDA Tmp1
+	ADC TrafficOffset0,X
+	STA TrafficOffset0,X
+	INX
+	LDA #0 ; Carry
+	ADC TrafficOffset0,X
+	STA TrafficOffset0,X
+
+
 PrepareNextUpdateLoop
-	DEX
+	INY
+	INX
+	CPX #TRAFFIC_LINE_COUNT * 3;
 	BNE UpdateOffsets
 	
 ;Will probably be useful		
@@ -309,8 +316,8 @@ ClearCache ;11 Only the playfields
 	STA PF0Cache ; 3
 
 DrawTraffic0; 16 max, traffic 0 is the border
-	DEC TrafficOffset0; 5 Make the shape change per line;
-	LDA TrafficOffset0; 3
+	DEC TrafficOffset0 + 1; 5 Make the shape change per line;
+	LDA TrafficOffset0 + 1; 3
 	AND #%00000100 ;2 Every 8 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2 
 	LDA #%01110000; 2
@@ -322,14 +329,14 @@ SkipDrawTraffic0
 	STA WSYNC ;73
 
 
-DrawTraffic1; 17 Max, will be more
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset1 ;3
-	AND #%00001000 ;2 Every 8 for now
-	BEQ FinishDrawTrafficLine1 ;2
-	LDA #%11000000 ;2
-	STA PF1Cache ;3
+;DrawTraffic1; 17 Max, will be more
+;	TYA; 2
+;	CLC; 2 
+;	ADC TrafficOffset1 + 1;3
+;	AND #%00001000 ;2 Every 8 for now
+;	BEQ FinishDrawTrafficLine1 ;2
+;	LDA #%11000000 ;2
+;	STA PF1Cache ;3
 
 FinishDrawTrafficLine1
 
@@ -391,9 +398,11 @@ CarSprite ; Upside down
 	.byte #%00111100
 
 	
-TrafficSpeeds ;maybe move to ram for dynamic changes and speed of 0 page access
-	.byte #0; Border
-	.byte #40; Trafic1
+TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
+	.byte #0; Border L
+	.byte #0; Border H
+	.byte #60; Trafic1 L
+	.byte #60; Trafic1 H
 
 	org $FFFC
 	.word Start
