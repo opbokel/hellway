@@ -44,6 +44,8 @@ TrafficOffset1 = $93; Traffic 1 $94 $95 (24 bit)
 Tmp0=$A0
 Tmp1=$A1
 Tmp2=$A2
+rand=$A3
+rand16=$A4
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -64,9 +66,13 @@ ClearMem
 	LDA #PLAYER_1_COLOR
 	STA COLUP0
 
+	STA rand
+
 	;Temporary code, cars will be added randomily
 	LDA #10
 	STA TrafficOffset1	;Initial Y Position
+
+	STA rand16
 
 ;Extract to subrotine? Used also dor the offsets
 	LDA #CAR_MIN_SPEED_L
@@ -154,6 +160,7 @@ SkipMoveRight
 	BNE SkipAccelerate
 
 ;Adds speed
+	JSR Randomize
 	CLC
 	LDA Car0SpeedL
 	ADC #ACCELERATE_SPEED
@@ -225,7 +232,7 @@ SkipBreak
 ;Updates all offsets 24 bits
 	LDX #0 ; Memory Offset 24 bit
 	LDY #0 ; Line Speeds 16 bits
-UpdateOffsets; Car sped - traffic speed = how much to change offet
+UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SEC
 	LDA Car0SpeedL
 	SBC TrafficSpeeds,Y
@@ -234,7 +241,7 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet
 	LDA Car0SpeedH
 	SBC TrafficSpeeds,Y
 	STA Tmp1
-	LDA #0; Hard to figure out, make the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
+	LDA #0; Hard to figure out, makes the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
 	SBC #0
 	STA Tmp2
 
@@ -336,16 +343,19 @@ SkipDrawTraffic0
 
 
 DrawTraffic1; 17 Max, will be more
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset1 + 1;3
-	;AND #%00001000 ;2 Every 8 for now
-	;BEQ FinishDrawTrafficLine1 ;2
-	;LDA #%11000000 ;2
-	STA PF2Cache ;3
-	LDA #0 ;2
-	ADC TrafficOffset1 + 2;3
+	;TYA; 2
+	;CLC; 2 
+	;ADC TrafficOffset1 + 1;3
+	;STA rand16
+	;LDA #0 ;2
+	;ADC TrafficOffset1 + 2;3
+	;LDA #56
+	;STA rand
+
+	LDA rand
 	STA PF1Cache ;3
+	LDA rand16
+	STA PF2Cache ;3
 
 FinishDrawTrafficLine1
 
@@ -396,6 +406,17 @@ OverScanWait
 	LDA INTIM	
 	BNE OverScanWait ;Is there a better way?	
 	JMP  MainLoop      
+
+Randomize ; Subrotine From https://atariage.com/forums/topic/159268-random-numbers/
+       lda rand
+       lsr
+       rol rand16
+       bcc noeor
+       eor #$B4 
+noeor
+       sta rand
+       eor rand16
+       rts
 
 CarSprite ; Upside down
 	.byte #%00000000 ; Easist way to stop drawing
