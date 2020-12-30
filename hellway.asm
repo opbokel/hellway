@@ -44,8 +44,6 @@ TrafficOffset1 = $93; Traffic 1 $94 $95 (24 bit)
 Tmp0=$A0
 Tmp1=$A1
 Tmp2=$A2
-rand=$A3
-rand16=$A4
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -66,13 +64,8 @@ ClearMem
 	LDA #PLAYER_1_COLOR
 	STA COLUP0
 
-	STA rand
-
-	;Temporary code, cars will be added randomily
 	LDA #10
 	STA TrafficOffset1	;Initial Y Position
-
-	STA rand16
 
 ;Extract to subrotine? Used also dor the offsets
 	LDA #CAR_MIN_SPEED_L
@@ -160,7 +153,6 @@ SkipMoveRight
 	BNE SkipAccelerate
 
 ;Adds speed
-	JSR Randomize
 	CLC
 	LDA Car0SpeedL
 	ADC #ACCELERATE_SPEED
@@ -280,12 +272,10 @@ TestCollision;
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
-	;LDA FrameCount0	;must be a hit! Change rand color bg
-	;STA COLUBK	;and store as the bgcolor
+	LDA FrameCount0	;must be a hit! Change rand color bg
+	STA COLUBK	;and store as the bgcolor
 NoCollision
 	STA CXCLR	;reset the collision detection for next frame
-	; LDA #0		 ;zero out the buffer
-	; STA PlayerBuffer ;just in case
 
 SkipUpdateLogic	
 
@@ -343,19 +333,12 @@ SkipDrawTraffic0
 
 
 DrawTraffic1; 17 Max, will be more
-	;TYA; 2
-	;CLC; 2 
-	;ADC TrafficOffset1 + 1;3
-	;STA rand16
-	;LDA #0 ;2
-	;ADC TrafficOffset1 + 2;3
-	;LDA #56
-	;STA rand
-
-	LDA rand
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset1 + 1;3
+	LDA #0 ;2
+	ADC TrafficOffset1 + 2;3
 	STA PF1Cache ;3
-	LDA rand16
-	STA PF2Cache ;3
 
 FinishDrawTrafficLine1
 
@@ -407,16 +390,6 @@ OverScanWait
 	BNE OverScanWait ;Is there a better way?	
 	JMP  MainLoop      
 
-Randomize ; Subrotine From https://atariage.com/forums/topic/159268-random-numbers/
-       lda rand
-       lsr
-       rol rand16
-       bcc noeor
-       eor #$B4 
-noeor
-       sta rand
-       eor rand16
-       rts
 
 CarSprite ; Upside down
 	.byte #%00000000 ; Easist way to stop drawing
