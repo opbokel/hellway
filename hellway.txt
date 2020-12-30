@@ -651,11 +651,11 @@
     227  f0d3				   UpdateOffsets		; Car sped - traffic speed = how much to change offet (signed)
     228  f0d3		       38		      SEC
     229  f0d4		       a5 88		      LDA	Car0SpeedL
-    230  f0d6		       f9 8d f1 	      SBC	TrafficSpeeds,Y
+    230  f0d6		       f9 a1 f1 	      SBC	TrafficSpeeds,Y
     231  f0d9		       85 a0		      STA	Tmp0
     232  f0db		       c8		      INY
     233  f0dc		       a5 89		      LDA	Car0SpeedH
-    234  f0de		       f9 8d f1 	      SBC	TrafficSpeeds,Y
+    234  f0de		       f9 a1 f1 	      SBC	TrafficSpeeds,Y
     235  f0e1		       85 a1		      STA	Tmp1
     236  f0e3		       a9 00		      LDA	#0	; Hard to figure out, makes the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
     237  f0e5		       e9 00		      SBC	#0
@@ -760,77 +760,93 @@
     336  f14b		       98		      TYA		; 2
     337  f14c		       18		      CLC		; 2 
     338  f14d		       65 94		      ADC	TrafficOffset1 + 1	;3
-    339  f14f		       a9 00		      LDA	#0	;2
-    340  f151		       65 95		      ADC	TrafficOffset1 + 2	;3
-    341  f153		       85 83		      STA	PF1Cache	;3
-    342  f155
-    343  f155				   FinishDrawTrafficLine1
-    344  f155
-    345  f155		       85 02		      STA	WSYNC	;49
-    346  f157
-    347  f157				   BeginDrawCar0Block		;21 is the max, since if draw, does not check active
-    348  f157		       a6 80		      LDX	Car0Line	;3 check the visible player line...
-    349  f159		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
-    350  f15b				   DrawCar0
-    351  f15b		       bd 85 f1 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
-    352  f15e							;section below... it's off by 1 though, since at zero
-    353  f15e							;we stop drawing
-    354  f15e		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
-    355  f160		       c6 80		      DEC	Car0Line	;5	and decrement the line count
-    356  f162		       4c 6d f1 	      JMP	SkipActivateCar0	;3 save some cpu time
-    357  f165				   FinishDrawCar0
-    358  f165
-    359  f165				   CheckActivateCar0		;9 max
-    360  f165		       c0 0a		      CPY	#CAR_0_Y	;2
-    361  f167		       d0 04		      BNE	SkipActivateCar0	;2
-    362  f169		       a9 07		      LDA	#CAR_SIZE	;2
-    363  f16b		       85 80		      STA	Car0Line	;3
-    364  f16d				   SkipActivateCar0		;EndDrawCar0Block
-    365  f16d
-    366  f16d
-    367  f16d							;STA WSYNC ;3
-    368  f16d
-    369  f16d				   WhileScanLoop
-    370  f16d		       88		      DEY		;2
-    371  f16e		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
-    372  f170		       4c 23 f1 	      JMP	ScanLoop	;3
-    373  f173				   FinishScanLoop
-    374  f173
-    375  f173
-    376  f173				   PrepareOverscan
-    377  f173		       a9 02		      LDA	#2
-    378  f175		       85 02		      STA	WSYNC
-    379  f177		       85 01		      STA	VBLANK
-    380  f179
-    381  f179		       a9 25		      LDA	#37
-    382  f17b		       8d 96 02 	      STA	TIM64T
-    383  f17e							;LDA #0
-    384  f17e							;STA VSYNC Is it needed? Why is this here, I don't remember		
-    385  f17e
-    386  f17e							;Do more logic
-    387  f17e
-    388  f17e				   OverScanWait
-    389  f17e		       ad 84 02 	      LDA	INTIM
-    390  f181		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
-    391  f183		       4c 24 f0 	      JMP	MainLoop
-    392  f186
-    393  f186
-    394  f186				   CarSprite		; Upside down
-    395  f186		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-    396  f187		       ff		      .byte.b	#%11111111
-    397  f188		       24		      .byte.b	#%00100100
-    398  f189		       bd		      .byte.b	#%10111101
-    399  f18a		       3c		      .byte.b	#%00111100
-    400  f18b		       bd		      .byte.b	#%10111101
-    401  f18c		       3c		      .byte.b	#%00111100
-    402  f18d
-    403  f18d
-    404  f18d				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
-    405  f18d		       00		      .byte.b	#0	;   Border L
-    406  f18e		       00		      .byte.b	#0	;   Border H
-    407  f18f		       a0		      .byte.b	#$A0	; Trafic1 L
-    408  f190		       00		      .byte.b	#0	;   Trafic1 H
-    409  f191
-    410  fffc					      org	$FFFC
-    411  fffc		       00 f0		      .word.w	Start
-    412  fffe		       00 f0		      .word.w	Start
+    339  f14f		       85 a0		      STA	Tmp0
+    340  f151							;AND #%00001000 ;2 Every 8 for now
+    341  f151							;BEQ FinishDrawTrafficLine1 ;2
+    342  f151							;LDA #%11000000 ;2
+    343  f151							;STA PF2Cache ;3
+    344  f151		       a9 00		      LDA	#0	;2
+    345  f153		       65 95		      ADC	TrafficOffset1 + 2	;3
+    346  f155		       85 a1		      STA	Tmp1
+    347  f157		       a5 a0		      LDA	Tmp0
+    348  f159		       29 fc		      AND	#%11111100	; 4 lines same patern
+    349  f15b		       2a		      ROL
+    350  f15c		       2a		      ROL
+    351  f15d		       45 a1		      EOR	Tmp1
+    352  f15f		       49 aa		      EOR	#%10101010
+    353  f161		       c9 a0		      CMP	#$A0
+    354  f163		       90 04		      BCC	FinishDrawTraffic1
+    355  f165		       a9 c0		      LDA	#%11000000
+    356  f167		       85 83		      STA	PF1Cache	;3
+    357  f169				   FinishDrawTraffic1
+    358  f169
+    359  f169				   FinishDrawTrafficLine1
+    360  f169
+    361  f169		       85 02		      STA	WSYNC	;49
+    362  f16b
+    363  f16b				   BeginDrawCar0Block		;21 is the max, since if draw, does not check active
+    364  f16b		       a6 80		      LDX	Car0Line	;3 check the visible player line...
+    365  f16d		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
+    366  f16f				   DrawCar0
+    367  f16f		       bd 99 f1 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
+    368  f172							;section below... it's off by 1 though, since at zero
+    369  f172							;we stop drawing
+    370  f172		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
+    371  f174		       c6 80		      DEC	Car0Line	;5	and decrement the line count
+    372  f176		       4c 81 f1 	      JMP	SkipActivateCar0	;3 save some cpu time
+    373  f179				   FinishDrawCar0
+    374  f179
+    375  f179				   CheckActivateCar0		;9 max
+    376  f179		       c0 0a		      CPY	#CAR_0_Y	;2
+    377  f17b		       d0 04		      BNE	SkipActivateCar0	;2
+    378  f17d		       a9 07		      LDA	#CAR_SIZE	;2
+    379  f17f		       85 80		      STA	Car0Line	;3
+    380  f181				   SkipActivateCar0		;EndDrawCar0Block
+    381  f181
+    382  f181
+    383  f181							;STA WSYNC ;3
+    384  f181
+    385  f181				   WhileScanLoop
+    386  f181		       88		      DEY		;2
+    387  f182		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
+    388  f184		       4c 23 f1 	      JMP	ScanLoop	;3
+    389  f187				   FinishScanLoop
+    390  f187
+    391  f187
+    392  f187				   PrepareOverscan
+    393  f187		       a9 02		      LDA	#2
+    394  f189		       85 02		      STA	WSYNC
+    395  f18b		       85 01		      STA	VBLANK
+    396  f18d
+    397  f18d		       a9 25		      LDA	#37
+    398  f18f		       8d 96 02 	      STA	TIM64T
+    399  f192							;LDA #0
+    400  f192							;STA VSYNC Is it needed? Why is this here, I don't remember		
+    401  f192
+    402  f192							;Do more logic
+    403  f192
+    404  f192				   OverScanWait
+    405  f192		       ad 84 02 	      LDA	INTIM
+    406  f195		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
+    407  f197		       4c 24 f0 	      JMP	MainLoop
+    408  f19a
+    409  f19a
+    410  f19a				   CarSprite		; Upside down
+    411  f19a		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+    412  f19b		       ff		      .byte.b	#%11111111
+    413  f19c		       24		      .byte.b	#%00100100
+    414  f19d		       bd		      .byte.b	#%10111101
+    415  f19e		       3c		      .byte.b	#%00111100
+    416  f19f		       bd		      .byte.b	#%10111101
+    417  f1a0		       3c		      .byte.b	#%00111100
+    418  f1a1
+    419  f1a1
+    420  f1a1				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
+    421  f1a1		       00		      .byte.b	#0	;   Border L
+    422  f1a2		       00		      .byte.b	#0	;   Border H
+    423  f1a3		       a0		      .byte.b	#$A0	; Trafic1 L
+    424  f1a4		       00		      .byte.b	#0	;   Trafic1 H
+    425  f1a5
+    426  fffc					      org	$FFFC
+    427  fffc		       00 f0		      .word.w	Start
+    428  fffe		       00 f0		      .word.w	Start

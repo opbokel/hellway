@@ -336,9 +336,25 @@ DrawTraffic1; 17 Max, will be more
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset1 + 1;3
+	STA Tmp0
+	;AND #%00001000 ;2 Every 8 for now
+	;BEQ FinishDrawTrafficLine1 ;2
+	;LDA #%11000000 ;2
+	;STA PF2Cache ;3
 	LDA #0 ;2
 	ADC TrafficOffset1 + 2;3
+	STA Tmp1
+	LDA Tmp0
+	AND #%11111100 ; 4 lines same patern
+	ROL
+	ROL
+	EOR Tmp1
+	EOR #%10101010
+	CMP #$A0
+	BCC FinishDrawTraffic1
+	LDA #%11000000
 	STA PF1Cache ;3
+FinishDrawTraffic1	
 
 FinishDrawTrafficLine1
 
