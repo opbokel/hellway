@@ -1,0 +1,150 @@
+--- Symbol List (sorted by symbol)
+0.FREE_BYTES             0000                  
+1.CYCLES                 0020              (R )
+ACCELERATE_SPEED         0001              (R )
+AesTable                 f1a5              (R )
+AUDC0                    0015                  
+AUDC1                    0016                  
+AUDF0                    0017                  
+AUDF1                    0018                  
+AUDV0                    0019                  
+AUDV1                    001a                  
+BACKGROUND_COLOR         0000                  
+BeginDrawCar0Block       f16b                  
+BREAK_SPEED              0003              (R )
+Car0Line                 0080              (R )
+Car0SpeedH               0089              (R )
+Car0SpeedL               0088              (R )
+CAR_0_Y                  000a              (R )
+CAR_MAX_SPEED_H          0002              (R )
+CAR_MAX_SPEED_L          0080              (R )
+CAR_MIN_SPEED_H          0000              (R )
+CAR_MIN_SPEED_L          0000              (R )
+CAR_SIZE                 0007              (R )
+CarSprite                f19a              (R )
+CheckActivateCar0        f179                  
+ClearCache               f135                  
+ClearMem                 f007              (R )
+COLUBK                   0009              (R )
+COLUP0                   0006              (R )
+COLUP1                   0007                  
+COLUPF                   0008              (R )
+CompareLBreakSpeed       f0be              (R )
+ContinueWithGameLogic    f064              (R )
+CountFrame               f104                  
+CTRLPF                   000a              (R )
+CXBLPF                   0006                  
+CXCLR                    002c              (R )
+CXM0FB                   0004                  
+CXM0P                    0000                  
+CXM1FB                   0005                  
+CXM1P                    0001                  
+CXP0FB                   0002              (R )
+CXP1FB                   0003                  
+CXPPMM                   0007                  
+DoNotSetPlayerX          f046              (R )
+DrawCache                f125                  
+DrawCar0                 f16f                  
+DrawTraffic0             f13d                  
+DrawTraffic1             f14b                  
+ENABL                    001f                  
+ENAM0                    001d                  
+ENAM1                    001e                  
+FinishDrawCar0           f179              (R )
+FinishDrawTraffic1       f169              (R )
+FinishScanLoop           f187              (R )
+FrameCount0              0086              (R )
+FrameCount1              0087              (R )
+GameStatus               00c0              (R )
+GRP0                     001b              (R )
+GRP0Cache                0081              (R )
+GRP1                     001c                  
+HMBL                     0024                  
+HMCLR                    002b                  
+HMM0                     0022                  
+HMM1                     0023                  
+HMOVE                    002a              (R )
+HMP0                     0020              (R )
+HMP1                     0021                  
+INPT0                    0008                  
+INPT1                    0009                  
+INPT2                    000a                  
+INPT3                    000b                  
+INPT4                    000c              (R )
+INPT5                    000d                  
+INTIM                    0284              (R )
+macro.h                  0000 ????         (R )
+MainLoop                 f024              (R )
+NO_ILLEGAL_OPCODES       0000 ????         (R )
+NoCollision              f114              (R )
+NUSIZ0                   0004                  
+NUSIZ1                   0005                  
+OverScanWait             f192              (R )
+PF0                      000d              (R )
+PF0Cache                 0082              (R )
+PF1                      000e              (R )
+PF1Cache                 0083              (R )
+PF2                      000f              (R )
+PF2Cache                 0084              (R )
+PLAYER_1_COLOR           001c              (R )
+PrepareNextUpdateLoop    f0fe                  
+PrepareOverscan          f187                  
+REFP0                    000b                  
+REFP1                    000c                  
+RESBL                    0014                  
+ResetMinSpeed            f0c7              (R )
+ResetToMaxSpeed          f09a              (R )
+RESM0                    0012                  
+RESM1                    0013                  
+RESMP0                   0028                  
+RESMP1                   0029                  
+RESP0                    0010              (R )
+RESP1                    0011                  
+ROM_START_MSB            0010                  
+RSYNC                    0003                  
+ScanLoop                 f123              (R )
+SCREEN_SIZE              0040              (R )
+SkipAccelerate           f0a2              (R )
+SkipActivateCar0         f181              (R )
+SkipBreak                f0cf              (R )
+SkipDrawTraffic0         f149              (R )
+SkipGameStart            f05b              (R )
+SkipIncFC1               f10a              (R )
+SkipMoveLeft             f06f              (R )
+SkipMoveRight            f078              (R )
+SkipUpdateLogic          f116              (R )
+Start                    f000              (R )
+SWACNT                   0281                  
+SWBCNT                   0283                  
+SWCHA                    0280              (R )
+SWCHB                    0282                  
+T1024T                   0297                  
+TestCollision            f10a                  
+TIA_BASE_ADDRESS         0000              (R )
+TIA_BASE_READ_ADDRESS    0000              (R )
+TIA_BASE_WRITE_ADDRESS   0000              (R )
+TIM1T                    0294                  
+TIM64T                   0296              (R )
+TIM8T                    0295                  
+TIMINT                   0285                  
+Tmp0                     00a0              (R )
+Tmp1                     00a1              (R )
+Tmp2                     00a2              (R )
+TRAFFIC_LINE_COUNT       0002              (R )
+TRAFFIC_SIZE             0007                  
+TrafficOffset0           0090              (R )
+TrafficOffset1           0093              (R )
+TrafficSpeeds            f1a1              (R )
+UpdateOffsets            f0d3              (R )
+VBLANK                   0001              (R )
+vcs.h                    0000 ????         (R )
+VDELBL                   0027                  
+VDELP0                   0025                  
+VDELP1                   0026                  
+VERSION_MACRO            006d                  
+VERSION_VCS              006a                  
+VSYNC                    0000              (R )
+WaitForVblankEnd         f116              (R )
+WhileScanLoop            f181                  
+WSYNC                    0002              (R )
+--- End of Symbol List.
