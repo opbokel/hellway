@@ -354,8 +354,9 @@ DrawTraffic1; 17 Max, will be more
 	LDA #%11000000 ;2
 	STA PF1Cache ;3
 
-	;39 cyles worse case! 35 or 36 best case.
+	;39 cyles worse case! 35 or 36 best case
 FinishDrawTraffic1	
+
 
 	STA WSYNC ;49
 
@@ -406,7 +407,7 @@ OverScanWait
 	JMP  MainLoop      
 
 
-	org $FFE0
+	org $FE00
 AesTable
 	DC.B $63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
 	DC.B $ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
@@ -425,7 +426,7 @@ AesTable
 	DC.B $e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
 	DC.B $8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
 
-; From FFF0 to FFFB (122 bytes) to use here
+; From FF00 to FFFB (122 bytes) to use here
 
 CarSprite ; Upside down
 	.byte #%00000000 ; Easist way to stop drawing

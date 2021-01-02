@@ -2,7 +2,7 @@
 0.FREE_BYTES             0000                  
 1.CYCLES                 0020              (R )
 ACCELERATE_SPEED         0001              (R )
-AesTable                 f1a5              (R )
+AesTable                 fe00              (R )
 AUDC0                    0015                  
 AUDC1                    0016                  
 AUDF0                    0017                  
@@ -21,7 +21,7 @@ CAR_MAX_SPEED_L          0080              (R )
 CAR_MIN_SPEED_H          0000              (R )
 CAR_MIN_SPEED_L          0000              (R )
 CAR_SIZE                 0007              (R )
-CarSprite                f19a              (R )
+CarSprite                ff00              (R )
 CheckActivateCar0        f179                  
 ClearCache               f135                  
 ClearMem                 f007              (R )
@@ -134,7 +134,7 @@ TRAFFIC_LINE_COUNT       0002              (R )
 TRAFFIC_SIZE             0007                  
 TrafficOffset0           0090              (R )
 TrafficOffset1           0093              (R )
-TrafficSpeeds            f1a1              (R )
+TrafficSpeeds            ff07              (R )
 UpdateOffsets            f0d3              (R )
 VBLANK                   0001              (R )
 vcs.h                    0000 ????         (R )
