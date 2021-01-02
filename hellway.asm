@@ -8,7 +8,6 @@
 ;contants
 SCREEN_SIZE = 64;(VSy)
 CAR_SIZE = 7
-TRAFFIC_SIZE = 7 ; For now, we can make it random later to simulate bigger cars
 TRAFFIC_LINE_COUNT = 2
 CAR_0_Y = 10
 ;16 bit precision
@@ -37,8 +36,8 @@ FrameCount1 = $87;
 Car0SpeedL = $88
 Car0SpeedH = $89
 
-TrafficOffset0 = $90; Border $91 $92 (24 bit)
-TrafficOffset1 = $93; Traffic 1 $94 $95 (24 bit)
+TrafficOffset0 = $90; Border $91 $92 (24 bit) $93 is cache
+TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
 
 ;Temporary variables, multiple uses
 Tmp0=$A0
@@ -251,12 +250,16 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	LDA Tmp2 ; Carry
 	ADC TrafficOffset0,X
 	STA TrafficOffset0,X
+	INX
+	SEC
+	ADC #0 ;Increment by one
+	STA TrafficOffset0,X ; cache of the other possible value for the MSB in the frame, make drawing faster.
 
 
 PrepareNextUpdateLoop
 	INY
 	INX
-	CPX #TRAFFIC_LINE_COUNT * 3;
+	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
 	
 ;Will probably be useful		
@@ -332,31 +335,47 @@ SkipDrawTraffic0
 	STA WSYNC ;73
 
 
-DrawTraffic1; 17 Max, will be more
+; DrawTraffic1; 17 Max, will be more
+; 	TYA; 2
+; 	CLC; 2 
+; 	ADC TrafficOffset1 + 1;3
+; 	AND #%11111000 ;2
+; 	TAX ;2
+; 	LDA AesTable,X ; 4
+; 	STA Tmp0 ;3
+; 	LDA #0 ;2
+; 	ADC TrafficOffset1 + 2;3
+; 	TAX ;2
+; 	LDA AesTable,X ;4
+; 	EOR Tmp0 ;3
+; 	CMP #$30;2
+; 	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+; 	LDA #%11000000 ;2
+; 	STA PF1Cache ;3
+
+; 	;39 cyles worse case! 35 or 36 best case
+; FinishDrawTraffic1	
+
+DrawTraffic1;
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset1 + 1;3
 	AND #%11111000 ;2
+	BCS EorOffsetWithCarry; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset1 + 2 ; 2
+	JMP AfterEorOffsetWithCarry ; 3
+EorOffsetWithCarry
+	EOR TrafficOffset1 + 3 ; 3
+AfterEorOffsetWithCarry
 	TAX ;2
 	LDA AesTable,X ; 4
-	STA Tmp0 ;3
-	;AND #%00001000 ;2 Every 8 for now
-	;BEQ FinishDrawTrafficLine1 ;2
-	;LDA #%11000000 ;2
-	;STA PF2Cache ;3
-	LDA #0 ;2
-	ADC TrafficOffset1 + 2;3
-	TAX ;2
-	LDA AesTable,X ;4
-	EOR Tmp0 ;3
 	CMP #$30;2
 	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA #%11000000 ;2
 	STA PF1Cache ;3
 
-	;39 cyles worse case! 35 or 36 best case
+	;31 cyles worse case!
 FinishDrawTraffic1	
-
 
 	STA WSYNC ;49
 
