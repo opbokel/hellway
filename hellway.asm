@@ -8,7 +8,7 @@
 ;contants
 SCREEN_SIZE = 64;(VSy)
 CAR_SIZE = 7
-TRAFFIC_LINE_COUNT = 2
+TRAFFIC_LINE_COUNT = 5
 CAR_0_Y = 10
 ;16 bit precision
 ;640 max speed!
@@ -19,8 +19,13 @@ CAR_MIN_SPEED_L = 0
 BACKGROUND_COLOR = $00 ;Black
 PLAYER_1_COLOR = $1C ;Yellow
 ACCELERATE_SPEED = 1
-BREAK_SPEED = 3
+BREAK_SPEED = 4
 ROM_START_MSB = $10
+;For now, will use in aal rows until figure out if make it dynamic or not.
+TRAFFIC_1_MASK = #%11111000
+TRAFFIC_1_CHANCE = #$20
+
+TRAFFIC_LEFT_COLOR = $32
 	
 ;memory	
 Car0Line = $80
@@ -38,11 +43,14 @@ Car0SpeedH = $89
 
 TrafficOffset0 = $90; Border $91 $92 (24 bit) $93 is cache
 TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
+TrafficOffset2 = $98; Traffic 1 $99 $9A (24 bit) $9B is cache
+TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
+TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 
 ;Temporary variables, multiple uses
-Tmp0=$A0
-Tmp1=$A1
-Tmp2=$A2
+Tmp0=$B0
+Tmp1=$B1
+Tmp2=$B2
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -73,7 +81,7 @@ ClearMem
 	STA Car0SpeedH		
 	
 ;Traffic colour
-	LDA $32 
+	LDA #TRAFFIC_LEFT_COLOR
 	STA COLUPF  
 	
 	;mirror the playfield
@@ -287,7 +295,9 @@ WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
 	
+	;50 cycles worse case before the VSync 
 	LDY #SCREEN_SIZE - 1 ;#63 ;  	
+	
 	STA WSYNC	
 	
 	LDA #1
@@ -323,61 +333,12 @@ ClearCache ;11 Only the playfields
 DrawTraffic0; 16 max, traffic 0 is the border
 	TYA ;2
 	CLC ;2
-	ADC TrafficOffset0 + 1
+	ADC TrafficOffset0 + 1 ; 3
 	AND #%00000100 ;2 Every 8 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2 
 	LDA #%01110000; 2
 	STA PF0Cache ;3
 SkipDrawTraffic0
-
-;51
-
-	STA WSYNC ;73
-
-
-; DrawTraffic1; 17 Max, will be more
-; 	TYA; 2
-; 	CLC; 2 
-; 	ADC TrafficOffset1 + 1;3
-; 	AND #%11111000 ;2
-; 	TAX ;2
-; 	LDA AesTable,X ; 4
-; 	STA Tmp0 ;3
-; 	LDA #0 ;2
-; 	ADC TrafficOffset1 + 2;3
-; 	TAX ;2
-; 	LDA AesTable,X ;4
-; 	EOR Tmp0 ;3
-; 	CMP #$30;2
-; 	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-; 	LDA #%11000000 ;2
-; 	STA PF1Cache ;3
-
-; 	;39 cyles worse case! 35 or 36 best case
-; FinishDrawTraffic1	
-
-DrawTraffic1;
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset1 + 1;3
-	AND #%11111000 ;2
-	BCS EorOffsetWithCarry; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset1 + 2 ; 2
-	JMP AfterEorOffsetWithCarry ; 3
-EorOffsetWithCarry
-	EOR TrafficOffset1 + 3 ; 3
-AfterEorOffsetWithCarry
-	TAX ;2
-	LDA AesTable,X ; 4
-	CMP #$30;2
-	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-	LDA #%11000000 ;2
-	STA PF1Cache ;3
-
-	;31 cyles worse case!
-FinishDrawTraffic1	
-
-	STA WSYNC ;49
 
 BeginDrawCar0Block ;21 is the max, since if draw, does not check active
 	LDX Car0Line	;3 check the visible player line...
@@ -398,14 +359,100 @@ CheckActivateCar0 ;9 max
 	STA Car0Line ;3
 SkipActivateCar0 ;EndDrawCar0Block
 
-	
-	;STA WSYNC ;3
+	;STA WSYNC ;72
 
-WhileScanLoop	
+
+DrawTraffic1;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset1 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset1 + 2 ; 2
+	JMP AfterEorOffsetWithCarry ; 3
+EorOffsetWithCarry
+	EOR TrafficOffset1 + 3 ; 3
+AfterEorOffsetWithCarry
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA #%11000000 ;2
+	STA PF1Cache ;3
+FinishDrawTraffic1	
+;31 worse
+
+DrawTraffic2;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset2 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry2; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset2 + 2 ; 2
+	JMP AfterEorOffsetWithCarry2 ; 3
+EorOffsetWithCarry2
+	EOR TrafficOffset2 + 3 ; 3
+AfterEorOffsetWithCarry2
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA PF1Cache ;3
+	ORA #%00011000 ;2
+	STA PF1Cache ;3
+FinishDrawTraffic2	
+;34 cyles worse case!
+
+	;STA WSYNC ;65 / 137
+
+DrawTraffic3;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset3 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry3; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset3 + 2 ; 2
+	JMP AfterEorOffsetWithCarry3 ; 3
+EorOffsetWithCarry3
+	EOR TrafficOffset3 + 3 ; 3
+AfterEorOffsetWithCarry3
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic3 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA PF1Cache ;3
+	ORA #%00000011 ;2
+	STA PF1Cache ;3
+FinishDrawTraffic3	
+;34 cyles worse case!
+	
+DrawTraffic4;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset4 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry4; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset4 + 2 ; 2
+	JMP AfterEorOffsetWithCarry4 ; 3
+EorOffsetWithCarry4
+	EOR TrafficOffset4 + 3 ; 3
+AfterEorOffsetWithCarry4
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA #%11111110 ;2
+	STA PF2Cache ;3
+FinishDrawTraffic4
+;31 max
+	
+	;STA WSYNC ;65 / 202 of 222
+
+WhileScanLoop 
 	DEY	;2
 	BMI FinishScanLoop ;2 or 3 ;two big Breach	
 	JMP ScanLoop ;3
-FinishScanLoop
+FinishScanLoop ; 7 209 of 222
 
 
 PrepareOverscan
@@ -423,7 +470,7 @@ PrepareOverscan
 OverScanWait
 	LDA INTIM	
 	BNE OverScanWait ;Is there a better way?	
-	JMP  MainLoop      
+	JMP MainLoop      
 
 
 	org $FE00
@@ -458,10 +505,16 @@ CarSprite ; Upside down
 
 	
 TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
-	.byte #0;   Border L
-	.byte #0;   Border H
-	.byte #$A0; Trafic1 L
-	.byte #0;   Trafic1 H
+	.byte #$00;  Trafic0 L
+	.byte #$00;  Trafic0 H
+	.byte #$A0;  Trafic1 L
+	.byte #$00;  Trafic1 H
+	.byte #$EA;  Trafic2 L
+	.byte #$00;  Trafic2 H
+	.byte #$00;  Trafic3 L
+	.byte #$01;  Trafic3 H
+	.byte #$A0;  Trafic4 L
+	.byte #$01;  Trafic4 H
 
 
 	org $FFFC
