@@ -400,7 +400,7 @@
      25  f000		       00 f8	   TRAFFIC_1_MASK =	#%11111000
      26  f000		       00 20	   TRAFFIC_1_CHANCE =	#$20
      27  f000
-     28  f000		       00 32	   TRAFFIC_LEFT_COLOR =	$32
+     28  f000		       00 0f	   TRAFFIC_COLOR =	$0F
      29  f000
      30  f000							;memory	
      31  f000		       00 80	   Car0Line   =	$80
@@ -456,11 +456,11 @@
      81  f01a		       85 89		      STA	Car0SpeedH
      82  f01c
      83  f01c							;Traffic colour
-     84  f01c		       a9 32		      LDA	#TRAFFIC_LEFT_COLOR
+     84  f01c		       a9 0f		      LDA	#TRAFFIC_COLOR
      85  f01e		       85 08		      STA	COLUPF
      86  f020
-     87  f020							;mirror the playfield
-     88  f020		       a9 01		      LDA	#%00000001
+     87  f020							;mirror the playfield, also score mode.
+     88  f020		       a9 00		      LDA	#%00000000
      89  f022		       85 0a		      STA	CTRLPF
      90  f024
      91  f024							;VSYNC time
@@ -548,7 +548,7 @@
     124  f05b		       a5 c0		      LDA	GameStatus	;3
     125  f05d		       49 80		      EOR	#%10000000	;2 game is running...
     126  f05f		       f0 03		      BEQ	ContinueWithGameLogic	;3 Cannot branch more than 128 bytes, so we have to use JMP
-    127  f061		       4c 1c f1 	      JMP	SkipUpdateLogic
+    127  f061		       4c 26 f1 	      JMP	SkipUpdateLogic
     128  f064
     129  f064				   ContinueWithGameLogic
     130  f064
@@ -701,246 +701,257 @@
     277  f10e		       e6 87		      INC	FrameCount1
     278  f110				   SkipIncFC1
     279  f110
-    280  f110
-    281  f110				   TestCollision		;
-    282  f110							; see if car0 and playfield collide, and change the background color if so
-    283  f110		       a9 80		      LDA	#%10000000
-    284  f112		       24 02		      BIT	CXP0FB
-    285  f114		       f0 04		      BEQ	NoCollision	;skip if not hitting...
-    286  f116		       a5 86		      LDA	FrameCount0	;must be a hit! Change rand color bg
-    287  f118		       85 09		      STA	COLUBK	;and store as the bgcolor
-    288  f11a				   NoCollision
-    289  f11a		       85 2c		      STA	CXCLR	;reset the collision detection for next frame
-    290  f11c
-    291  f11c				   SkipUpdateLogic
-    292  f11c
-    293  f11c							; After here we are going to update the screen, No more heavy code
-    294  f11c				   WaitForVblankEnd
-    295  f11c		       ad 84 02 	      LDA	INTIM
-    296  f11f		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
-    297  f121
-    298  f121							;50 cycles worse case before the VSync 
-    299  f121		       a0 3f		      LDY	#SCREEN_SIZE - 1	;#63 ; 	
-    300  f123
-    301  f123		       85 02		      STA	WSYNC
-    302  f125
-    303  f125		       a9 01		      LDA	#1
-    304  f127		       85 01		      STA	VBLANK
-    305  f129
-    306  f129
-    307  f129							;main scanline loop...
-    308  f129				   ScanLoop
-    309  f129		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
-    310  f12b
-    311  f12b							;Start of next line!			
-    312  f12b				   DrawCache		;24 Is the last line going to the top of the next frame?
-    313  f12b
-    314  f12b		       a5 81		      LDA	GRP0Cache	;3 ;buffer was set during last scanline
-    315  f12d		       85 1b		      STA	GRP0	;3   ;put it as graphics now
-    316  f12f
-    317  f12f		       a5 82		      LDA	PF0Cache	;3
-    318  f131		       85 0d		      STA	PF0	;3
-    319  f133
-    320  f133		       a5 83		      LDA	PF1Cache	;3
-    321  f135		       85 0e		      STA	PF1	;3
-    322  f137
-    323  f137		       a5 84		      LDA	PF2Cache	;3
-    324  f139		       85 0f		      STA	PF2	;3
-    325  f13b
-    326  f13b
-    327  f13b				   ClearCache		;11 Only the playfields
-    328  f13b		       a9 00		      LDA	#$0	;2 ;Clear cache
-    329  f13d		       85 83		      STA	PF1Cache	;3
-    330  f13f		       85 84		      STA	PF2Cache	; 3
-    331  f141		       85 82		      STA	PF0Cache	; 3
-    332  f143
-    333  f143				   DrawTraffic0 		; 16 max, traffic 0 is the border
-    334  f143		       98		      TYA		;2
-    335  f144		       18		      CLC		;2
-    336  f145		       65 91		      ADC	TrafficOffset0 + 1	; 3
-    337  f147		       29 04		      AND	#%00000100	;2 Every 8 game lines, draw the border
-    338  f149		       f0 04		      BEQ	SkipDrawTraffic0	; 2 
-    339  f14b		       a9 70		      LDA	#%01110000	; 2
-    340  f14d		       85 82		      STA	PF0Cache	;3
-    341  f14f				   SkipDrawTraffic0
-    342  f14f
-    343  f14f				   BeginDrawCar0Block		;21 is the max, since if draw, does not check active
-    344  f14f		       a6 80		      LDX	Car0Line	;3 check the visible player line...
-    345  f151		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
-    346  f153				   DrawCar0
-    347  f153		       bd ff fe 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
-    348  f156							;section below... it's off by 1 though, since at zero
-    349  f156							;we stop drawing
-    350  f156		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
-    351  f158		       c6 80		      DEC	Car0Line	;5	and decrement the line count
-    352  f15a		       4c 65 f1 	      JMP	SkipActivateCar0	;3 save some cpu time
-    353  f15d				   FinishDrawCar0
-    354  f15d
-    355  f15d				   CheckActivateCar0		;9 max
-    356  f15d		       c0 0a		      CPY	#CAR_0_Y	;2
-    357  f15f		       d0 04		      BNE	SkipActivateCar0	;2
-    358  f161		       a9 07		      LDA	#CAR_SIZE	;2
-    359  f163		       85 80		      STA	Car0Line	;3
-    360  f165				   SkipActivateCar0		;EndDrawCar0Block
-    361  f165
-    362  f165							;STA WSYNC ;72
-    363  f165
-    364  f165
-    365  f165				   DrawTraffic1 		;
-    366  f165		       98		      TYA		; 2
-    367  f166		       18		      CLC		; 2 
-    368  f167		       65 95		      ADC	TrafficOffset1 + 1	;3
-    369  f169		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    370  f16b		       b0 05		      BCS	EorOffsetWithCarry	; 4 max if branch max, 2 otherwise
-    371  f16d		       45 96		      EOR	TrafficOffset1 + 2	; 2
-    372  f16f		       4c 74 f1 	      JMP	AfterEorOffsetWithCarry	; 3
-    373  f172				   EorOffsetWithCarry
-    374  f172		       45 97		      EOR	TrafficOffset1 + 3	; 3
-    375  f174				   AfterEorOffsetWithCarry
-    376  f174		       aa		      TAX		;2
-    377  f175		       bd 00 fe 	      LDA	AesTable,X	; 4
-    378  f178		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
-    379  f17a		       b0 04		      BCS	FinishDrawTraffic1	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-    380  f17c		       a9 c0		      LDA	#%11000000	;2
-    381  f17e		       85 83		      STA	PF1Cache	;3
-    382  f180				   FinishDrawTraffic1
-    383  f180							;31 worse
-    384  f180
-    385  f180				   DrawTraffic2 		;
-    386  f180		       98		      TYA		; 2
-    387  f181		       18		      CLC		; 2 
-    388  f182		       65 99		      ADC	TrafficOffset2 + 1	;3
-    389  f184		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    390  f186		       b0 05		      BCS	EorOffsetWithCarry2	; 4 max if branch max, 2 otherwise
-    391  f188		       45 9a		      EOR	TrafficOffset2 + 2	; 2
-    392  f18a		       4c 8f f1 	      JMP	AfterEorOffsetWithCarry2	; 3
-    393  f18d				   EorOffsetWithCarry2
-    394  f18d		       45 9b		      EOR	TrafficOffset2 + 3	; 3
-    395  f18f				   AfterEorOffsetWithCarry2
-    396  f18f		       aa		      TAX		;2
-    397  f190		       bd 00 fe 	      LDA	AesTable,X	; 4
-    398  f193		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
-    399  f195		       b0 06		      BCS	FinishDrawTraffic2	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-    400  f197		       a5 83		      LDA	PF1Cache	;3
-    401  f199		       09 18		      ORA	#%00011000	;2
-    402  f19b		       85 83		      STA	PF1Cache	;3
-    403  f19d				   FinishDrawTraffic2
-    404  f19d							;34 cyles worse case!
-    405  f19d
-    406  f19d							;STA WSYNC ;65 / 137
-    407  f19d
-    408  f19d				   DrawTraffic3 		;
-    409  f19d		       98		      TYA		; 2
-    410  f19e		       18		      CLC		; 2 
-    411  f19f		       65 9d		      ADC	TrafficOffset3 + 1	;3
-    412  f1a1		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    413  f1a3		       b0 05		      BCS	EorOffsetWithCarry3	; 4 max if branch max, 2 otherwise
-    414  f1a5		       45 9e		      EOR	TrafficOffset3 + 2	; 2
-    415  f1a7		       4c ac f1 	      JMP	AfterEorOffsetWithCarry3	; 3
-    416  f1aa				   EorOffsetWithCarry3
-    417  f1aa		       45 9f		      EOR	TrafficOffset3 + 3	; 3
-    418  f1ac				   AfterEorOffsetWithCarry3
-    419  f1ac		       aa		      TAX		;2
-    420  f1ad		       bd 00 fe 	      LDA	AesTable,X	; 4
-    421  f1b0		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
-    422  f1b2		       b0 06		      BCS	FinishDrawTraffic3	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-    423  f1b4		       a5 83		      LDA	PF1Cache	;3
-    424  f1b6		       09 03		      ORA	#%00000011	;2
-    425  f1b8		       85 83		      STA	PF1Cache	;3
-    426  f1ba				   FinishDrawTraffic3
-    427  f1ba							;34 cyles worse case!
-    428  f1ba
-    429  f1ba				   DrawTraffic4 		;
-    430  f1ba		       98		      TYA		; 2
-    431  f1bb		       18		      CLC		; 2 
-    432  f1bc		       65 a1		      ADC	TrafficOffset4 + 1	;3
-    433  f1be		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    434  f1c0		       b0 05		      BCS	EorOffsetWithCarry4	; 4 max if branch max, 2 otherwise
-    435  f1c2		       45 a2		      EOR	TrafficOffset4 + 2	; 2
-    436  f1c4		       4c c9 f1 	      JMP	AfterEorOffsetWithCarry4	; 3
-    437  f1c7				   EorOffsetWithCarry4
-    438  f1c7		       45 a3		      EOR	TrafficOffset4 + 3	; 3
-    439  f1c9				   AfterEorOffsetWithCarry4
-    440  f1c9		       aa		      TAX		;2
-    441  f1ca		       bd 00 fe 	      LDA	AesTable,X	; 4
-    442  f1cd		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
-    443  f1cf		       b0 04		      BCS	FinishDrawTraffic4	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-    444  f1d1		       a9 fe		      LDA	#%11111110	;2
-    445  f1d3		       85 84		      STA	PF2Cache	;3
-    446  f1d5				   FinishDrawTraffic4
-    447  f1d5							;31 max
-    448  f1d5
-    449  f1d5							;STA WSYNC ;65 / 202 of 222
-    450  f1d5
-    451  f1d5				   WhileScanLoop
-    452  f1d5		       88		      DEY		;2
-    453  f1d6		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
-    454  f1d8		       4c 29 f1 	      JMP	ScanLoop	;3
-    455  f1db				   FinishScanLoop		; 7 209 of 222
-    456  f1db
-    457  f1db
-    458  f1db				   PrepareOverscan
-    459  f1db		       a9 02		      LDA	#2
-    460  f1dd		       85 02		      STA	WSYNC
-    461  f1df		       85 01		      STA	VBLANK
-    462  f1e1
-    463  f1e1		       a9 25		      LDA	#37
-    464  f1e3		       8d 96 02 	      STA	TIM64T
-    465  f1e6							;LDA #0
-    466  f1e6							;STA VSYNC Is it needed? Why is this here, I don't remember		
-    467  f1e6
-    468  f1e6							;Do more logic
-    469  f1e6
-    470  f1e6				   OverScanWait
-    471  f1e6		       ad 84 02 	      LDA	INTIM
-    472  f1e9		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
-    473  f1eb		       4c 24 f0 	      JMP	MainLoop
-    474  f1ee
-    475  f1ee
-    476  fe00					      org	$FE00
-    477  fe00				   AesTable
-    478  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
-    479  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
-    480  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
-    481  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
-    482  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
-    483  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
-    484  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
-    485  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
-    486  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
-    487  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
-    488  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
-    489  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
-    490  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
-    491  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
-    492  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
-    493  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
-    494  ff00
-    495  ff00							; From FF00 to FFFB (122 bytes) to use here
-    496  ff00
-    497  ff00				   CarSprite		; Upside down
-    498  ff00		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-    499  ff01		       ff		      .byte.b	#%11111111
-    500  ff02		       24		      .byte.b	#%00100100
-    501  ff03		       bd		      .byte.b	#%10111101
-    502  ff04		       3c		      .byte.b	#%00111100
-    503  ff05		       bd		      .byte.b	#%10111101
-    504  ff06		       3c		      .byte.b	#%00111100
-    505  ff07
-    506  ff07
-    507  ff07				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
-    508  ff07		       00		      .byte.b	#$00	;  Trafic0 L
-    509  ff08		       00		      .byte.b	#$00	;  Trafic0 H
-    510  ff09		       a0		      .byte.b	#$A0	;  Trafic1 L
-    511  ff0a		       00		      .byte.b	#$00	;  Trafic1 H
-    512  ff0b		       ea		      .byte.b	#$EA	;  Trafic2 L
-    513  ff0c		       00		      .byte.b	#$00	;  Trafic2 H
-    514  ff0d		       00		      .byte.b	#$00	;  Trafic3 L
-    515  ff0e		       01		      .byte.b	#$01	;  Trafic3 H
-    516  ff0f		       a0		      .byte.b	#$A0	;  Trafic4 L
-    517  ff10		       01		      .byte.b	#$01	;  Trafic4 H
-    518  ff11
-    519  ff11
-    520  fffc					      org	$FFFC
-    521  fffc		       00 f0		      .word.w	Start
-    522  fffe		       00 f0		      .word.w	Start
+    280  f110							;Remove this	
+    281  f110		       a9 00		      LDA	#0
+    282  f112		       85 08		      STA	COLUPF
+    283  f114		       a5 86		      LDA	FrameCount0
+    284  f116							; AND #%00000011
+    285  f116							; BEQ FinishBlink
+    286  f116		       29 01		      AND	#%00000001
+    287  f118		       f0 04		      BEQ	FinishBlink
+    288  f11a		       a9 0f		      LDA	#TRAFFIC_COLOR
+    289  f11c		       85 08		      STA	COLUPF
+    290  f11e				   FinishBlink
+    291  f11e
+    292  f11e				   TestCollision		;
+    293  f11e							; see if car0 and playfield collide, and change the background color if so
+    294  f11e		       a9 80		      LDA	#%10000000
+    295  f120		       24 02		      BIT	CXP0FB
+    296  f122		       f0 00		      BEQ	NoCollision	;skip if not hitting...
+    297  f124							;LDA FrameCount0	;must be a hit! Change rand color bg
+    298  f124							;STA COLUBK	;and store as the bgcolor
+    299  f124				   NoCollision
+    300  f124		       85 2c		      STA	CXCLR	;reset the collision detection for next frame
+    301  f126
+    302  f126				   SkipUpdateLogic
+    303  f126
+    304  f126							; After here we are going to update the screen, No more heavy code
+    305  f126				   WaitForVblankEnd
+    306  f126		       ad 84 02 	      LDA	INTIM
+    307  f129		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
+    308  f12b
+    309  f12b							;50 cycles worse case before the VSync 
+    310  f12b		       a0 3f		      LDY	#SCREEN_SIZE - 1	;#63 ; 	
+    311  f12d
+    312  f12d		       85 02		      STA	WSYNC
+    313  f12f
+    314  f12f		       a9 01		      LDA	#1
+    315  f131		       85 01		      STA	VBLANK
+    316  f133
+    317  f133
+    318  f133							;main scanline loop...
+    319  f133				   ScanLoop
+    320  f133		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
+    321  f135
+    322  f135							;Start of next line!			
+    323  f135				   DrawCache		;24 Is the last line going to the top of the next frame?
+    324  f135
+    325  f135		       a5 81		      LDA	GRP0Cache	;3 ;buffer was set during last scanline
+    326  f137		       85 1b		      STA	GRP0	;3   ;put it as graphics now
+    327  f139
+    328  f139		       a5 82		      LDA	PF0Cache	;3
+    329  f13b		       85 0d		      STA	PF0	;3
+    330  f13d
+    331  f13d		       a5 83		      LDA	PF1Cache	;3
+    332  f13f		       85 0e		      STA	PF1	;3
+    333  f141
+    334  f141		       a5 84		      LDA	PF2Cache	;3
+    335  f143		       85 0f		      STA	PF2	;3
+    336  f145
+    337  f145
+    338  f145				   ClearCache		;11 Only the playfields
+    339  f145		       a9 00		      LDA	#$0	;2 ;Clear cache
+    340  f147		       85 83		      STA	PF1Cache	;3
+    341  f149		       85 84		      STA	PF2Cache	; 3
+    342  f14b		       85 82		      STA	PF0Cache	; 3
+    343  f14d
+    344  f14d				   DrawTraffic0 		; 16 max, traffic 0 is the border
+    345  f14d		       98		      TYA		;2
+    346  f14e		       18		      CLC		;2
+    347  f14f		       65 91		      ADC	TrafficOffset0 + 1	; 3
+    348  f151		       29 04		      AND	#%00000100	;2 Every 8 game lines, draw the border
+    349  f153		       f0 04		      BEQ	SkipDrawTraffic0	; 2 
+    350  f155		       a9 70		      LDA	#%01110000	; 2
+    351  f157		       85 82		      STA	PF0Cache	;3
+    352  f159				   SkipDrawTraffic0
+    353  f159
+    354  f159				   BeginDrawCar0Block		;21 is the max, since if draw, does not check active
+    355  f159		       a6 80		      LDX	Car0Line	;3 check the visible player line...
+    356  f15b		       f0 0a		      BEQ	FinishDrawCar0	;2	skip the drawing if its zero...
+    357  f15d				   DrawCar0
+    358  f15d		       bd ff fe 	      LDA	CarSprite-1,X	;5	;otherwise, load the correct line from CarSprite
+    359  f160							;section below... it's off by 1 though, since at zero
+    360  f160							;we stop drawing
+    361  f160		       85 81		      STA	GRP0Cache	;3	;put that line as player graphic for the next line
+    362  f162		       c6 80		      DEC	Car0Line	;5	and decrement the line count
+    363  f164		       4c 6f f1 	      JMP	SkipActivateCar0	;3 save some cpu time
+    364  f167				   FinishDrawCar0
+    365  f167
+    366  f167				   CheckActivateCar0		;9 max
+    367  f167		       c0 0a		      CPY	#CAR_0_Y	;2
+    368  f169		       d0 04		      BNE	SkipActivateCar0	;2
+    369  f16b		       a9 07		      LDA	#CAR_SIZE	;2
+    370  f16d		       85 80		      STA	Car0Line	;3
+    371  f16f				   SkipActivateCar0		;EndDrawCar0Block
+    372  f16f
+    373  f16f							;STA WSYNC ;72
+    374  f16f
+    375  f16f
+    376  f16f				   DrawTraffic1 		;
+    377  f16f		       98		      TYA		; 2
+    378  f170		       18		      CLC		; 2 
+    379  f171		       65 95		      ADC	TrafficOffset1 + 1	;3
+    380  f173		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    381  f175		       b0 05		      BCS	EorOffsetWithCarry	; 4 max if branch max, 2 otherwise
+    382  f177		       45 96		      EOR	TrafficOffset1 + 2	; 2
+    383  f179		       4c 7e f1 	      JMP	AfterEorOffsetWithCarry	; 3
+    384  f17c				   EorOffsetWithCarry
+    385  f17c		       45 97		      EOR	TrafficOffset1 + 3	; 3
+    386  f17e				   AfterEorOffsetWithCarry
+    387  f17e		       aa		      TAX		;2
+    388  f17f		       bd 00 fe 	      LDA	AesTable,X	; 4
+    389  f182		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
+    390  f184		       b0 04		      BCS	FinishDrawTraffic1	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+    391  f186		       a9 c0		      LDA	#%11000000	;2
+    392  f188		       85 83		      STA	PF1Cache	;3
+    393  f18a				   FinishDrawTraffic1
+    394  f18a							;31 worse
+    395  f18a
+    396  f18a				   DrawTraffic2 		;
+    397  f18a		       98		      TYA		; 2
+    398  f18b		       18		      CLC		; 2 
+    399  f18c		       65 99		      ADC	TrafficOffset2 + 1	;3
+    400  f18e		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    401  f190		       b0 05		      BCS	EorOffsetWithCarry2	; 4 max if branch max, 2 otherwise
+    402  f192		       45 9a		      EOR	TrafficOffset2 + 2	; 2
+    403  f194		       4c 99 f1 	      JMP	AfterEorOffsetWithCarry2	; 3
+    404  f197				   EorOffsetWithCarry2
+    405  f197		       45 9b		      EOR	TrafficOffset2 + 3	; 3
+    406  f199				   AfterEorOffsetWithCarry2
+    407  f199		       aa		      TAX		;2
+    408  f19a		       bd 00 fe 	      LDA	AesTable,X	; 4
+    409  f19d		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
+    410  f19f		       b0 06		      BCS	FinishDrawTraffic2	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+    411  f1a1		       a5 83		      LDA	PF1Cache	;3
+    412  f1a3		       09 18		      ORA	#%00011000	;2
+    413  f1a5		       85 83		      STA	PF1Cache	;3
+    414  f1a7				   FinishDrawTraffic2
+    415  f1a7							;34 cyles worse case!
+    416  f1a7
+    417  f1a7							;STA WSYNC ;65 / 137
+    418  f1a7
+    419  f1a7				   DrawTraffic3 		;
+    420  f1a7		       98		      TYA		; 2
+    421  f1a8		       18		      CLC		; 2 
+    422  f1a9		       65 9d		      ADC	TrafficOffset3 + 1	;3
+    423  f1ab		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    424  f1ad		       b0 05		      BCS	EorOffsetWithCarry3	; 4 max if branch max, 2 otherwise
+    425  f1af		       45 9e		      EOR	TrafficOffset3 + 2	; 2
+    426  f1b1		       4c b6 f1 	      JMP	AfterEorOffsetWithCarry3	; 3
+    427  f1b4				   EorOffsetWithCarry3
+    428  f1b4		       45 9f		      EOR	TrafficOffset3 + 3	; 3
+    429  f1b6				   AfterEorOffsetWithCarry3
+    430  f1b6		       aa		      TAX		;2
+    431  f1b7		       bd 00 fe 	      LDA	AesTable,X	; 4
+    432  f1ba		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
+    433  f1bc		       b0 06		      BCS	FinishDrawTraffic3	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+    434  f1be		       a5 83		      LDA	PF1Cache	;3
+    435  f1c0		       09 03		      ORA	#%00000011	;2
+    436  f1c2		       85 83		      STA	PF1Cache	;3
+    437  f1c4				   FinishDrawTraffic3
+    438  f1c4							;34 cyles worse case!
+    439  f1c4
+    440  f1c4				   DrawTraffic4 		;
+    441  f1c4		       98		      TYA		; 2
+    442  f1c5		       18		      CLC		; 2 
+    443  f1c6		       65 a1		      ADC	TrafficOffset4 + 1	;3
+    444  f1c8		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    445  f1ca		       b0 05		      BCS	EorOffsetWithCarry4	; 4 max if branch max, 2 otherwise
+    446  f1cc		       45 a2		      EOR	TrafficOffset4 + 2	; 2
+    447  f1ce		       4c d3 f1 	      JMP	AfterEorOffsetWithCarry4	; 3
+    448  f1d1				   EorOffsetWithCarry4
+    449  f1d1		       45 a3		      EOR	TrafficOffset4 + 3	; 3
+    450  f1d3				   AfterEorOffsetWithCarry4
+    451  f1d3		       aa		      TAX		;2
+    452  f1d4		       bd 00 fe 	      LDA	AesTable,X	; 4
+    453  f1d7		       c9 20		      CMP	#TRAFFIC_1_CHANCE	;2
+    454  f1d9		       b0 04		      BCS	FinishDrawTraffic4	; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+    455  f1db		       a9 b6		      LDA	#%10110110	;2
+    456  f1dd		       85 84		      STA	PF2Cache	;3
+    457  f1df				   FinishDrawTraffic4
+    458  f1df							;31 max
+    459  f1df
+    460  f1df							;STA WSYNC ;65 / 202 of 222
+    461  f1df
+    462  f1df				   WhileScanLoop
+    463  f1df		       88		      DEY		;2
+    464  f1e0		       30 03		      BMI	FinishScanLoop	;2 or 3 ;two big Breach	
+    465  f1e2		       4c 33 f1 	      JMP	ScanLoop	;3
+    466  f1e5				   FinishScanLoop		; 7 209 of 222
+    467  f1e5
+    468  f1e5
+    469  f1e5				   PrepareOverscan
+    470  f1e5		       a9 02		      LDA	#2
+    471  f1e7		       85 02		      STA	WSYNC
+    472  f1e9		       85 01		      STA	VBLANK
+    473  f1eb
+    474  f1eb		       a9 25		      LDA	#37
+    475  f1ed		       8d 96 02 	      STA	TIM64T
+    476  f1f0							;LDA #0
+    477  f1f0							;STA VSYNC Is it needed? Why is this here, I don't remember		
+    478  f1f0
+    479  f1f0							;Do more logic
+    480  f1f0
+    481  f1f0				   OverScanWait
+    482  f1f0		       ad 84 02 	      LDA	INTIM
+    483  f1f3		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
+    484  f1f5		       4c 24 f0 	      JMP	MainLoop
+    485  f1f8
+    486  f1f8
+    487  fe00					      org	$FE00
+    488  fe00				   AesTable
+    489  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
+    490  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
+    491  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
+    492  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
+    493  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
+    494  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
+    495  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
+    496  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
+    497  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
+    498  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
+    499  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
+    500  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
+    501  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
+    502  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
+    503  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
+    504  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
+    505  ff00
+    506  ff00							; From FF00 to FFFB (122 bytes) to use here
+    507  ff00
+    508  ff00				   CarSprite		; Upside down
+    509  ff00		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+    510  ff01		       ff		      .byte.b	#%11111111
+    511  ff02		       24		      .byte.b	#%00100100
+    512  ff03		       bd		      .byte.b	#%10111101
+    513  ff04		       3c		      .byte.b	#%00111100
+    514  ff05		       bd		      .byte.b	#%10111101
+    515  ff06		       3c		      .byte.b	#%00111100
+    516  ff07
+    517  ff07
+    518  ff07				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
+    519  ff07		       00		      .byte.b	#$00	;  Trafic0 L
+    520  ff08		       00		      .byte.b	#$00	;  Trafic0 H
+    521  ff09		       a0		      .byte.b	#$A0	;  Trafic1 L
+    522  ff0a		       00		      .byte.b	#$00	;  Trafic1 H
+    523  ff0b		       ea		      .byte.b	#$EA	;  Trafic2 L
+    524  ff0c		       00		      .byte.b	#$00	;  Trafic2 H
+    525  ff0d		       00		      .byte.b	#$00	;  Trafic3 L
+    526  ff0e		       01		      .byte.b	#$01	;  Trafic3 H
+    527  ff0f		       a0		      .byte.b	#$A0	;  Trafic4 L
+    528  ff10		       01		      .byte.b	#$01	;  Trafic4 H
+    529  ff11
+    530  ff11
+    531  fffc					      org	$FFFC
+    532  fffc		       00 f0		      .word.w	Start
+    533  fffe		       00 f0		      .word.w	Start

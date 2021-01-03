@@ -25,7 +25,7 @@ ROM_START_MSB = $10
 TRAFFIC_1_MASK = #%11111000
 TRAFFIC_1_CHANCE = #$20
 
-TRAFFIC_LEFT_COLOR = $32
+TRAFFIC_COLOR = $0F
 	
 ;memory	
 Car0Line = $80
@@ -81,11 +81,11 @@ ClearMem
 	STA Car0SpeedH		
 	
 ;Traffic colour
-	LDA #TRAFFIC_LEFT_COLOR
+	LDA #TRAFFIC_COLOR
 	STA COLUPF  
 	
-	;mirror the playfield
-	LDA #%00000001
+	;mirror the playfield, also score mode.
+	LDA #%00000000
 	STA CTRLPF 
 	
 ;VSYNC time
@@ -276,15 +276,26 @@ CountFrame
 	BNE SkipIncFC1 ;When it is zero again should increase the MSB
 	INC FrameCount1
 SkipIncFC1
-	
+
+;Remove this	
+	LDA #0
+	STA COLUPF 
+	LDA FrameCount0
+	; AND #%00000011
+	; BEQ FinishBlink
+	AND #%00000001
+	BEQ FinishBlink
+	LDA #TRAFFIC_COLOR
+	STA COLUPF 
+FinishBlink
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
-	LDA FrameCount0	;must be a hit! Change rand color bg
-	STA COLUBK	;and store as the bgcolor
+	;LDA FrameCount0	;must be a hit! Change rand color bg
+	;STA COLUBK	;and store as the bgcolor
 NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 
@@ -441,7 +452,7 @@ AfterEorOffsetWithCarry4
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS FinishDrawTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-	LDA #%11111110 ;2
+	LDA #%10110110 ;2
 	STA PF2Cache ;3
 FinishDrawTraffic4
 ;31 max
