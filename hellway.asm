@@ -277,17 +277,17 @@ CountFrame
 	INC FrameCount1
 SkipIncFC1
 
-;Remove this	
-	LDA #0
-	STA COLUPF 
-	LDA FrameCount0
-	; AND #%00000011
-	; BEQ FinishBlink
-	AND #%00000001
-	BEQ FinishBlink
-	LDA #TRAFFIC_COLOR
-	STA COLUPF 
-FinishBlink
+; ;Remove this	
+; 	LDA #0
+; 	STA COLUPF 
+; 	LDA FrameCount0
+; 	; AND #%00000011
+; 	; BEQ FinishBlink
+; 	AND #%00000001
+; 	BEQ FinishBlink
+; 	LDA #TRAFFIC_COLOR
+; 	STA COLUPF 
+; FinishBlink
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
@@ -341,14 +341,23 @@ ClearCache ;11 Only the playfields
 	STA PF2Cache ; 3
 	STA PF0Cache ; 3
 
+	;TYA
+	LDA FrameCount0
+	;EOR FrameCount0
+	AND #%00000001
+	BEQ SkipDrawTraffic0
 DrawTraffic0; 16 max, traffic 0 is the border
 	TYA ;2
 	CLC ;2
 	ADC TrafficOffset0 + 1 ; 3
-	AND #%00000100 ;2 Every 8 game lines, draw the border
-	BEQ SkipDrawTraffic0; 2 
-	LDA #%01110000; 2
-	STA PF0Cache ;3
+	AND #%00010000 ;2 Every 8 game lines, draw the border
+	BEQ EraseTraffic0; 2
+	LDA #%01100000; 2
+	JMP StoreTraffic0Result
+EraseTraffic0
+	LDA #0; 2	
+StoreTraffic0Result
+	STA PF0Cache
 SkipDrawTraffic0
 
 BeginDrawCar0Block ;21 is the max, since if draw, does not check active
@@ -389,7 +398,7 @@ AfterEorOffsetWithCarry
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA #%11000000 ;2
-	STA PF1Cache ;3
+	;STA PF1Cache ;3
 FinishDrawTraffic1	
 ;31 worse
 
@@ -410,7 +419,7 @@ AfterEorOffsetWithCarry2
 	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
 	ORA #%00011000 ;2
-	STA PF1Cache ;3
+	;STA PF1Cache ;3
 FinishDrawTraffic2	
 ;34 cyles worse case!
 
@@ -433,7 +442,7 @@ AfterEorOffsetWithCarry3
 	BCS FinishDrawTraffic3 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
 	ORA #%00000011 ;2
-	STA PF1Cache ;3
+	;STA PF1Cache ;3
 FinishDrawTraffic3	
 ;34 cyles worse case!
 	
@@ -453,7 +462,7 @@ AfterEorOffsetWithCarry4
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS FinishDrawTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA #%10110110 ;2
-	STA PF2Cache ;3
+	;STA PF2Cache ;3
 FinishDrawTraffic4
 ;31 max
 	
