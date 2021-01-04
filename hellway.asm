@@ -25,7 +25,7 @@ ROM_START_MSB = $10
 TRAFFIC_1_MASK = #%11111000
 TRAFFIC_1_CHANCE = #$20
 
-TRAFFIC_COLOR = $0F
+TRAFFIC_COLOR = $34
 	
 ;memory	
 Car0Line = $80
@@ -336,28 +336,23 @@ DrawCache ;24 Is the last line going to the top of the next frame?
 	
 
 ClearCache ;11 Only the playfields
-	LDA #$0 ;2 ;Clear cache
-	STA PF1Cache ;3
-	STA PF2Cache ; 3
-	STA PF0Cache ; 3
+	;LDA #$0 ;2 ;Clear cache
+	;STA PF1Cache ;3
+	;STA PF2Cache ; 3
+	;STA PF0Cache ; 3
 
-	;TYA
-	LDA FrameCount0
-	;EOR FrameCount0
-	AND #%00000001
-	BEQ SkipDrawTraffic0
 DrawTraffic0; 16 max, traffic 0 is the border
 	TYA ;2
 	CLC ;2
 	ADC TrafficOffset0 + 1 ; 3
-	AND #%00010000 ;2 Every 8 game lines, draw the border
+	AND #%00000100 ;2 Every 4 game lines, draw the border
 	BEQ EraseTraffic0; 2
-	LDA #%01100000; 2
-	JMP StoreTraffic0Result
+	LDA #%11110000; 2
+	JMP StoreTraffic0 ;3
 EraseTraffic0
 	LDA #0; 2	
-StoreTraffic0Result
-	STA PF0Cache
+StoreTraffic0
+	STA PF0Cache ;3
 SkipDrawTraffic0
 
 BeginDrawCar0Block ;21 is the max, since if draw, does not check active
@@ -396,11 +391,15 @@ AfterEorOffsetWithCarry
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-	LDA #%11000000 ;2
-	;STA PF1Cache ;3
+	BCS EraseTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA #%01100000 ;2
+	JMP StoreTraffic1 ;3
+EraseTraffic1	
+	LDA #0 ;2
+StoreTraffic1
+	STA PF1Cache ;3
 FinishDrawTraffic1	
-;31 worse
+;34 worse
 
 DrawTraffic2;
 	TYA; 2
@@ -416,9 +415,13 @@ AfterEorOffsetWithCarry2
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS EraseTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
 	ORA #%00011000 ;2
+	;STA PF1Cache ;3
+EraseTraffic2
+	LDA #0
+StoreTraffic2
 	;STA PF1Cache ;3
 FinishDrawTraffic2	
 ;34 cyles worse case!
