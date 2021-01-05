@@ -8,7 +8,7 @@
 ;contants
 SCREEN_SIZE = 64;(VSy)
 CAR_SIZE = 7
-TRAFFIC_LINE_COUNT = 5
+TRAFFIC_LINE_COUNT = 6
 CAR_0_Y = 10
 ;16 bit precision
 ;640 max speed!
@@ -46,6 +46,7 @@ TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
 TrafficOffset2 = $98; Traffic 1 $99 $9A (24 bit) $9B is cache
 TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
 TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
+TrafficOffset5 = $A4; Traffic 1 $A5 $A6 (24 bit) $A7 is cache
 
 ;Temporary variables, multiple uses
 Tmp0=$B0
@@ -119,6 +120,12 @@ DoNotSetPlayerX
 	ORA #%10000000
 	STA GameStatus
 SkipGameStart
+	
+CountFrame	
+	INC FrameCount0 ; Used to alternate lines
+	BNE SkipIncFC1 ;When it is zero again should increase the MSB
+	INC FrameCount1 ; Still not used
+SkipIncFC1
 
 ;Does not update the game if not running
 	LDA GameStatus ;3
@@ -269,13 +276,7 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
-	
-;Will probably be useful		
-CountFrame	
-	INC FrameCount0
-	BNE SkipIncFC1 ;When it is zero again should increase the MSB
-	INC FrameCount1
-SkipIncFC1
+
 
 ; ;Remove this	
 ; 	LDA #0
@@ -369,6 +370,11 @@ SkipActivateCar0 ;EndDrawCar0Block
 
 	;STA WSYNC ;61
 
+	TYA ;2
+	EOR FrameCount0
+	AND #%00000001
+	BEQ DrawTraffic4;
+
 ;Will set the initial value for PF1Cache
 DrawTraffic1; 
 	TYA; 2
@@ -432,7 +438,7 @@ AfterEorOffsetWithCarry3 ; 18
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
 	BCC EnableTraffic3; 4 with jump worse case, Less than, we draw, logic is reversed to save 3 cycles on the jmp
-EraseTraffic3;Only have to erase PF2...
+EraseTraffic3; Only have to erase PF2...
 	LDA PF2Cache ;3
 	AND #%11111110 ;2
 	STA PF2Cache ;3
@@ -446,7 +452,9 @@ EnableTraffic3
 	STA PF2Cache ;3
 FinishDrawTraffic3	
 ;46 cyles worse case!
-	
+
+	JMP WhileScanLoop
+
 DrawTraffic4;
 	TYA; 2
 	CLC; 2 
@@ -469,11 +477,37 @@ EraseTraffic4 ; Is actually setting the initial state, but have to keep the traf
 EnableTraffic4
 	LDA PF2Cache ;3
 	AND #%00000001 ;2
-	EOR #%00001100 ;2
+	ORA #%00001100 ;2
 StoreTraffic4
 	STA PF2Cache ;3	
 FinishDrawTraffic4
 ;39 max
+	
+	
+	;SLEEP 80
+DrawTraffic5;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset5 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry5; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset5 + 2 ; 2
+	JMP AfterEorOffsetWithCarry5 ; 3
+EorOffsetWithCarry5
+	EOR TrafficOffset5 + 3 ; 3
+AfterEorOffsetWithCarry5 ;18
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic5 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA PF2Cache ;3
+	ORA #%01100000 ;2
+	STA PF2Cache ;3	
+FinishDrawTraffic5
+	
+	SLEEP 36
+
+;36 max
 	
 	;STA WSYNC ;65 / 202 of 222
 
@@ -544,6 +578,8 @@ TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$01;  Trafic3 H
 	.byte #$A0;  Trafic4 L
 	.byte #$01;  Trafic4 H
+	.byte #$C0;  Trafic5 L
+	.byte #$01;  Trafic5 H
 
 
 	org $FFFC
