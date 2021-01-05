@@ -392,7 +392,7 @@ EraseTraffic1
 StoreTraffic1
 	STA PF1Cache ;3
 FinishDrawTraffic1	
-;34 worse
+;36 worse
 
 DrawTraffic2;
 	TYA; 2
@@ -413,7 +413,7 @@ AfterEorOffsetWithCarry2 ;18
 	ORA #%00001100 ;2
 	STA PF1Cache ;3
 FinishDrawTraffic2	
-;34 cyles worse case!
+;36 cyles worse case!
 
 	;STA WSYNC ;65 / 137
 
@@ -431,12 +431,13 @@ AfterEorOffsetWithCarry3 ; 18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCC StaTraffic3; 4 with jump worse case, Less than, we draw, logic is reversed to save 3 cycles on the jmp
+	BCC EnableTraffic3; 4 with jump worse case, Less than, we draw, logic is reversed to save 3 cycles on the jmp
+EraseTraffic3;Only have to erase PF2...
 	LDA PF2Cache ;3
 	AND #%11111110 ;2
 	STA PF2Cache ;3
 	JMP FinishDrawTraffic3 ;3
-StaTraffic3 ;Only have to erase PF2...
+EnableTraffic3 
 	LDA PF1Cache ;3
 	ORA #%00000001 ;2
 	STA PF1Cache ;3
@@ -456,25 +457,23 @@ DrawTraffic4;
 	JMP AfterEorOffsetWithCarry4 ; 3
 EorOffsetWithCarry4
 	EOR TrafficOffset4 + 3 ; 3
-AfterEorOffsetWithCarry4
+AfterEorOffsetWithCarry4 ;18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCC EraseTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCC EnableTraffic4 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+EraseTraffic4 ; Is actually setting the initial state, but have to keep the traffic 3 value	
 	LDA PF2Cache ;2
-	EOR #%00011000
-	JMP StoreTraffic4
-EraseTraffic4
-	LDA PF1Cache ;3
-	AND #%11111110 ;2
-	;STA PF1Cache
+	AND #%00000001 ;2
+	JMP StoreTraffic4 ;3
+EnableTraffic4
 	LDA PF2Cache ;3
-	AND #%11111110 ;2
-	;STA PF2Cache ;3
+	AND #%00000001 ;2
+	EOR #%00001100 ;2
 StoreTraffic4
-	;STA PF2Cache
+	STA PF2Cache ;3	
 FinishDrawTraffic4
-;31 max
+;39 max
 	
 	;STA WSYNC ;65 / 202 of 222
 

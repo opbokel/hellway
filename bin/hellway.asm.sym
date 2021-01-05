@@ -27,7 +27,6 @@ CAR_MIN_SPEED_L          0000              (R )
 CAR_SIZE                 0007              (R )
 CarSprite                ff00              (R )
 CheckActivateCar0        f156                  
-ClearCache               f137                  
 ClearMem                 f007              (R )
 COLUBK                   0009                  
 COLUP0                   0006              (R )
@@ -55,6 +54,8 @@ DrawTraffic2             f17e
 DrawTraffic3             f19b                  
 DrawTraffic4             f1c7                  
 ENABL                    001f                  
+EnableTraffic3           f1bb              (R )
+EnableTraffic4           f1e5              (R )
 ENAM0                    001d                  
 ENAM1                    001e                  
 EorOffsetWithCarry       f16b              (R )
@@ -63,7 +64,8 @@ EorOffsetWithCarry3      f1a8              (R )
 EorOffsetWithCarry4      f1d4              (R )
 EraseTraffic0            f144              (R )
 EraseTraffic1            f17a              (R )
-EraseTraffic4            f1e5              (R )
+EraseTraffic3            f1b2                  
+EraseTraffic4            f1de                  
 FinishDrawCar0           f156              (R )
 FinishDrawTraffic1       f17e                  
 FinishDrawTraffic2       f19b              (R )
@@ -131,10 +133,9 @@ SkipMoveLeft             f06f              (R )
 SkipMoveRight            f078              (R )
 SkipUpdateLogic          f118              (R )
 Start                    f000              (R )
-StaTraffic3              f1bb              (R )
 StoreTraffic0            f146              (R )
 StoreTraffic1            f17c              (R )
-StoreTraffic4            f1ed              (R )
+StoreTraffic4            f1eb              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
