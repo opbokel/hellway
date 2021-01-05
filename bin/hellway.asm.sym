@@ -6,7 +6,7 @@ AesTable                 fe00              (R )
 AfterEorOffsetWithCarry  f16d              (R )
 AfterEorOffsetWithCarry2 f18d              (R )
 AfterEorOffsetWithCarry3 f1aa              (R )
-AfterEorOffsetWithCarry4 f1c5              (R )
+AfterEorOffsetWithCarry4 f1d6              (R )
 AUDC0                    0015                  
 AUDC1                    0016                  
 AUDF0                    0017                  
@@ -53,23 +53,23 @@ DrawTraffic0             f137
 DrawTraffic1             f15e                  
 DrawTraffic2             f17e                  
 DrawTraffic3             f19b                  
-DrawTraffic4             f1b6                  
+DrawTraffic4             f1c7                  
 ENABL                    001f                  
 ENAM0                    001d                  
 ENAM1                    001e                  
 EorOffsetWithCarry       f16b              (R )
 EorOffsetWithCarry2      f18b              (R )
 EorOffsetWithCarry3      f1a8              (R )
-EorOffsetWithCarry4      f1c3              (R )
+EorOffsetWithCarry4      f1d4              (R )
 EraseTraffic0            f144              (R )
 EraseTraffic1            f17a              (R )
-EraseTraffic2            f199              (R )
+EraseTraffic4            f1e5              (R )
 FinishDrawCar0           f156              (R )
 FinishDrawTraffic1       f17e                  
-FinishDrawTraffic2       f19b                  
-FinishDrawTraffic3       f1b6              (R )
-FinishDrawTraffic4       f1cf              (R )
-FinishScanLoop           f1d5              (R )
+FinishDrawTraffic2       f19b              (R )
+FinishDrawTraffic3       f1c7              (R )
+FinishDrawTraffic4       f1ed                  
+FinishScanLoop           f1f3              (R )
 FrameCount0              0086              (R )
 FrameCount1              0087              (R )
 GameStatus               00c0              (R )
@@ -92,11 +92,11 @@ INPT5                    000d
 INTIM                    0284              (R )
 macro.h                  0000 ????         (R )
 MainLoop                 f024              (R )
-NO_ILLEGAL_OPCODES       0001              (R )
+NO_ILLEGAL_OPCODES       0000 ????         (R )
 NoCollision              f116              (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
-OverScanWait             f1e0              (R )
+OverScanWait             f1fe              (R )
 PF0                      000d              (R )
 PF0Cache                 0082              (R )
 PF1                      000e              (R )
@@ -105,7 +105,7 @@ PF2                      000f              (R )
 PF2Cache                 0084              (R )
 PLAYER_1_COLOR           001c              (R )
 PrepareNextUpdateLoop    f104                  
-PrepareOverscan          f1d5                  
+PrepareOverscan          f1f3                  
 REFP0                    000b                  
 REFP1                    000c                  
 RESBL                    0014                  
@@ -131,9 +131,10 @@ SkipMoveLeft             f06f              (R )
 SkipMoveRight            f078              (R )
 SkipUpdateLogic          f118              (R )
 Start                    f000              (R )
+StaTraffic3              f1bb              (R )
 StoreTraffic0            f146              (R )
 StoreTraffic1            f17c              (R )
-StoreTraffic2            f19b                  
+StoreTraffic4            f1ed              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
@@ -170,6 +171,6 @@ VERSION_MACRO            006d
 VERSION_VCS              006a                  
 VSYNC                    0000              (R )
 WaitForVblankEnd         f118              (R )
-WhileScanLoop            f1cf                  
+WhileScanLoop            f1ed                  
 WSYNC                    0002              (R )
 --- End of Symbol List.

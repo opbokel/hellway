@@ -333,13 +333,6 @@ DrawCache ;24 Is the last line going to the top of the next frame?
 	
 	LDA PF2Cache ;3
 	STA PF2      ;3
-	
-
-ClearCache ;11 Only the playfields
-	;LDA #$0 ;2 ;Clear cache
-	;STA PF1Cache ;3
-	;STA PF2Cache ; 3
-	;STA PF0Cache ; 3
 
 DrawTraffic0; 16 max, traffic 0 is the border
 	TYA ;2
@@ -374,10 +367,10 @@ CheckActivateCar0 ;9 max
 	STA Car0Line ;3
 SkipActivateCar0 ;EndDrawCar0Block
 
-	;STA WSYNC ;72
+	;STA WSYNC ;61
 
-
-DrawTraffic1;
+;Will set the initial value for PF1Cache
+DrawTraffic1; 
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset1 + 1;3
@@ -387,7 +380,7 @@ DrawTraffic1;
 	JMP AfterEorOffsetWithCarry ; 3
 EorOffsetWithCarry
 	EOR TrafficOffset1 + 3 ; 3
-AfterEorOffsetWithCarry
+AfterEorOffsetWithCarry ;18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
@@ -411,24 +404,20 @@ DrawTraffic2;
 	JMP AfterEorOffsetWithCarry2 ; 3
 EorOffsetWithCarry2
 	EOR TrafficOffset2 + 3 ; 3
-AfterEorOffsetWithCarry2
+AfterEorOffsetWithCarry2 ;18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS EraseTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
-	ORA #%00011000 ;2
-	;STA PF1Cache ;3
-EraseTraffic2
-	LDA #0
-StoreTraffic2
-	;STA PF1Cache ;3
+	ORA #%00001100 ;2
+	STA PF1Cache ;3
 FinishDrawTraffic2	
 ;34 cyles worse case!
 
 	;STA WSYNC ;65 / 137
 
-DrawTraffic3;
+DrawTraffic3; PF2 is chared with odd and even lines, needs specif logic to erase
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset3 + 1;3
@@ -438,16 +427,24 @@ DrawTraffic3;
 	JMP AfterEorOffsetWithCarry3 ; 3
 EorOffsetWithCarry3
 	EOR TrafficOffset3 + 3 ; 3
-AfterEorOffsetWithCarry3
+AfterEorOffsetWithCarry3 ; 18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic3 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCC StaTraffic3; 4 with jump worse case, Less than, we draw, logic is reversed to save 3 cycles on the jmp
+	LDA PF2Cache ;3
+	AND #%11111110 ;2
+	STA PF2Cache ;3
+	JMP FinishDrawTraffic3 ;3
+StaTraffic3 ;Only have to erase PF2...
 	LDA PF1Cache ;3
-	ORA #%00000011 ;2
-	;STA PF1Cache ;3
+	ORA #%00000001 ;2
+	STA PF1Cache ;3
+	LDA PF2Cache ;3
+	ORA #%00000001 ;2
+	STA PF2Cache ;3
 FinishDrawTraffic3	
-;34 cyles worse case!
+;46 cyles worse case!
 	
 DrawTraffic4;
 	TYA; 2
@@ -463,9 +460,19 @@ AfterEorOffsetWithCarry4
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-	LDA #%10110110 ;2
+	BCC EraseTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA PF2Cache ;2
+	EOR #%00011000
+	JMP StoreTraffic4
+EraseTraffic4
+	LDA PF1Cache ;3
+	AND #%11111110 ;2
+	;STA PF1Cache
+	LDA PF2Cache ;3
+	AND #%11111110 ;2
 	;STA PF2Cache ;3
+StoreTraffic4
+	;STA PF2Cache
 FinishDrawTraffic4
 ;31 max
 	
