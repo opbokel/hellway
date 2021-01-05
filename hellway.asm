@@ -84,10 +84,7 @@ ClearMem
 ;Traffic colour
 	LDA #TRAFFIC_COLOR
 	STA COLUPF  
-	
-	;mirror the playfield, also score mode.
-	LDA #%00000000
-	STA CTRLPF 
+
 	
 ;VSYNC time
 MainLoop
@@ -193,7 +190,7 @@ ResetToMaxSpeed ; Speed is more, or is already max
 
 SkipAccelerate
 
-;Break
+Break
 	LDA #%00100000	;Down in controller
 	BIT SWCHA 
 	BNE SkipBreak
@@ -224,16 +221,7 @@ ResetMinSpeed
 	STA Car0SpeedH
 	LDA #CAR_MIN_SPEED_L
 	STA Car0SpeedL
-
 SkipBreak
-
-;Temporary code until cars are dynamic, will make it wrap
-	;LDA TrafficOffset1
-	;AND #%00111111
-	;STA TrafficOffset1
-
-;Finish read dpad
-
 
 ;Updates all offsets 24 bits
 	LDX #0 ; Memory Offset 24 bit
@@ -276,19 +264,6 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
-
-
-; ;Remove this	
-; 	LDA #0
-; 	STA COLUPF 
-; 	LDA FrameCount0
-; 	; AND #%00000011
-; 	; BEQ FinishBlink
-; 	AND #%00000001
-; 	BEQ FinishBlink
-; 	LDA #TRAFFIC_COLOR
-; 	STA COLUPF 
-; FinishBlink
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
@@ -322,12 +297,12 @@ ScanLoop
 
 ;Start of next line!			
 DrawCache ;24 Is the last line going to the top of the next frame?
-	
-	LDA GRP0Cache ;3 ;buffer was set during last scanline
-	STA GRP0      ;3   ;put it as graphics now
 
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
+
+	LDA GRP0Cache ;3 ;buffer was set during last scanline
+	STA GRP0      ;3   ;put it as graphics now
 	
 	LDA PF1Cache ;3
 	STA PF1	     ;3
@@ -335,7 +310,7 @@ DrawCache ;24 Is the last line going to the top of the next frame?
 	LDA PF2Cache ;3
 	STA PF2      ;3
 
-DrawTraffic0; 16 max, traffic 0 is the border
+DrawTraffic0; 16 max, 14 min, traffic 0 is the border
 	TYA ;2
 	CLC ;2
 	ADC TrafficOffset0 + 1 ; 3
@@ -344,7 +319,7 @@ DrawTraffic0; 16 max, traffic 0 is the border
 	LDA #%11110000; 2
 	JMP StoreTraffic0 ;3
 EraseTraffic0
-	LDA #0; 2	
+	LDA #0; 2
 StoreTraffic0
 	STA PF0Cache ;3
 SkipDrawTraffic0
@@ -368,12 +343,16 @@ CheckActivateCar0 ;9 max
 	STA Car0Line ;3
 SkipActivateCar0 ;EndDrawCar0Block
 
+	LDA #TRAFFIC_COLOR;2
+	STA COLUPF      ;3  
+
 	;STA WSYNC ;61
 
 	TYA ;2
-	EOR FrameCount0
-	AND #%00000001
-	BEQ DrawTraffic4;
+	EOR FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ DrawTraffic4;2,4
+	;NOP
 
 ;Will set the initial value for PF1Cache
 DrawTraffic1; 
@@ -398,7 +377,7 @@ EraseTraffic1
 StoreTraffic1
 	STA PF1Cache ;3
 FinishDrawTraffic1	
-;36 worse
+;36 worse, 35 best
 
 DrawTraffic2;
 	TYA; 2
@@ -423,7 +402,7 @@ FinishDrawTraffic2
 
 	;STA WSYNC ;65 / 137
 
-DrawTraffic3; PF2 is chared with odd and even lines, needs specif logic to erase
+DrawTraffic3; PF2 is shared with odd and even lines, needs specific logic to erase
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset3 + 1;3
@@ -504,11 +483,10 @@ AfterEorOffsetWithCarry5 ;18
 	ORA #%01100000 ;2
 	STA PF2Cache ;3	
 FinishDrawTraffic5
-	
+;36 max	
 	SLEEP 36
 
-;36 max
-	
+
 	;STA WSYNC ;65 / 202 of 222
 
 WhileScanLoop 
