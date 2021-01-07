@@ -18,6 +18,7 @@ CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
 BACKGROUND_COLOR = $00 ;Black
 PLAYER_1_COLOR = $1C ;Yellow
+PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
 BREAK_SPEED = 4
 ROM_START_MSB = $10
@@ -72,6 +73,25 @@ ClearMem
 	LDA #PLAYER_1_COLOR
 	STA COLUP0
 
+	LDA #PLAYER_2_COLOR
+	STA COLUP1
+
+	LDA #$FF
+	STA ENAM1
+
+	
+	LDA #$FF
+	STA ENABL
+
+	;LDA #$FF
+	STA GRP1
+
+	LDA #%00110011
+	STA NUSIZ1
+
+	LDA #%00110000
+	STA CTRLPF
+
 	LDA #10
 	STA TrafficOffset1	;Initial Y Position
 
@@ -100,8 +120,15 @@ MainLoop
 	EOR #%10000000 ;2 game running, we get 0 and not reset the position.
 	BEQ DoNotSetPlayerX ;3
 	;Do something better with this 32 cycles
-	SLEEP 32;
+	SLEEP 14;
 	STA RESP0 ;3
+	SLEEP 24;
+	STA RESP1 ;3
+	STA RESM1
+	SLEEP 10
+	STA RESBL
+
+	
 DoNotSetPlayerX
 
 	STA WSYNC	
@@ -298,6 +325,9 @@ ScanLoop
 ;Start of next line!			
 DrawCache ;24 Is the last line going to the top of the next frame?
 
+	; LDA #TRAFFIC_COLOR ;2
+	; STA COLUPF ;3
+
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 
@@ -324,6 +354,10 @@ StoreTraffic0
 	STA PF0Cache ;3
 SkipDrawTraffic0
 
+	; LDA #BACKGROUND_COLOR ;2
+	; STA COLUPF ;3
+
+
 BeginDrawCar0Block ;21 is the max, since if draw, does not check active
 	LDX Car0Line	;3 check the visible player line...
 	BEQ FinishDrawCar0 ;2	skip the drawing if its zero...
@@ -333,6 +367,7 @@ DrawCar0
 				;we stop drawing
 	STA GRP0Cache ;3	;put that line as player graphic for the next line
 	DEC Car0Line ;5	and decrement the line count
+	;STA WSYNC
 	JMP SkipActivateCar0 ;3 save some cpu time
 FinishDrawCar0
 
@@ -341,18 +376,18 @@ CheckActivateCar0 ;9 max
 	BNE SkipActivateCar0 ;2
 	LDA #CAR_SIZE ;2
 	STA Car0Line ;3
+	;STA WSYNC
 SkipActivateCar0 ;EndDrawCar0Block
 
-	LDA #TRAFFIC_COLOR;2
-	STA COLUPF      ;3  
-
-	;STA WSYNC ;61
-
+	;STA WSYNC ; 3 71 max
+	
 	TYA ;2
 	EOR FrameCount0 ;3
 	AND #%00000001 ;2
 	BEQ DrawTraffic4;2,4
 	;NOP
+	; LDA #TRAFFIC_COLOR ;2
+	; STA COLUPF ;3
 
 ;Will set the initial value for PF1Cache
 DrawTraffic1; 
@@ -432,7 +467,7 @@ EnableTraffic3
 FinishDrawTraffic3	
 ;46 cyles worse case!
 
-	JMP WhileScanLoop
+	JMP WhileScanLoop ; 3
 
 DrawTraffic4;
 	TYA; 2
