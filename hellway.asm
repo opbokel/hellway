@@ -8,7 +8,7 @@
 ;contants
 SCREEN_SIZE = 64;(VSy)
 CAR_SIZE = 7
-TRAFFIC_LINE_COUNT = 6
+TRAFFIC_LINE_COUNT = 7
 CAR_0_Y = 10
 ;16 bit precision
 ;640 max speed!
@@ -21,7 +21,6 @@ PLAYER_1_COLOR = $1C ;Yellow
 PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
 BREAK_SPEED = 4
-ROM_START_MSB = $10
 ;For now, will use in aal rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = #%11111000
 TRAFFIC_1_CHANCE = #$20
@@ -48,6 +47,7 @@ TrafficOffset2 = $98; Traffic 1 $99 $9A (24 bit) $9B is cache
 TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
 TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 TrafficOffset5 = $A4; Traffic 1 $A5 $A6 (24 bit) $A7 is cache
+TrafficOffset6 = $A8; Traffic 1 $A5 $A6 (24 bit) $A7 is cache
 
 ;Temporary variables, multiple uses
 Tmp0=$B0
@@ -76,30 +76,25 @@ ClearMem
 	LDA #PLAYER_2_COLOR
 	STA COLUP1
 
-	LDA #$FF
-	STA ENAM1
-
-	
-	LDA #$FF
-	STA ENABL
-
-	;LDA #$FF
-	STA GRP1
-
-	LDA #%00110011
-	STA NUSIZ1
-
-	LDA #%00110000
+	LDA #%00110001
 	STA CTRLPF
 
-	LDA #10
-	STA TrafficOffset1	;Initial Y Position
+	;Loop ?
+	LDA #$20
+	STA TrafficOffset1 + 2
+	LDA #$40
+	STA TrafficOffset2 + 2	;Initial Y Position
+	LDA #$60
+	STA TrafficOffset3 + 2	;Initial Y Position
+	LDA #$80
+	STA TrafficOffset4 + 2	;Initial Y Position
+	LDA #$A0
+	STA TrafficOffset5 + 2	;Initial Y Position
+	LDA #$C0
+	STA TrafficOffset6 + 2	;Initial Y Position
 
-;Extract to subrotine? Used also dor the offsets
-	LDA #CAR_MIN_SPEED_L
-	STA Car0SpeedL
-	LDA #CAR_MIN_SPEED_H
-	STA Car0SpeedH		
+	LDA TrafficSpeeds + 6 * 2 ; Same as the line he is in.
+	STA Car0SpeedL	
 	
 ;Traffic colour
 	LDA #TRAFFIC_COLOR
@@ -120,15 +115,9 @@ MainLoop
 	EOR #%10000000 ;2 game running, we get 0 and not reset the position.
 	BEQ DoNotSetPlayerX ;3
 	;Do something better with this 32 cycles
-	SLEEP 14;
+	SLEEP 33; Maybe fine position with hmove...
 	STA RESP0 ;3
-	SLEEP 24;
-	STA RESP1 ;3
-	STA RESM1
-	SLEEP 10
-	STA RESBL
 
-	
 DoNotSetPlayerX
 
 	STA WSYNC	
@@ -297,8 +286,8 @@ TestCollision;
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
-	;LDA FrameCount0	;must be a hit! Change rand color bg
-	;STA COLUBK	;and store as the bgcolor
+	LDA FrameCount0	;must be a hit! Change rand color bg
+	STA COLUBK	;and store as the bgcolor
 NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 
@@ -346,7 +335,7 @@ DrawTraffic0; 16 max, 14 min, traffic 0 is the border
 	ADC TrafficOffset0 + 1 ; 3
 	AND #%00000100 ;2 Every 4 game lines, draw the border
 	BEQ EraseTraffic0; 2
-	LDA #%11110000; 2
+	LDA #%01110000; 2
 	JMP StoreTraffic0 ;3
 EraseTraffic0
 	LDA #0; 2
@@ -358,11 +347,11 @@ SkipDrawTraffic0
 	; STA COLUPF ;3
 
 
-BeginDrawCar0Block ;21 is the max, since if draw, does not check active
+BeginDrawCar0Block ;20 is the max, since if draw, does not check active
 	LDX Car0Line	;3 check the visible player line...
 	BEQ FinishDrawCar0 ;2	skip the drawing if its zero...
 DrawCar0
-	LDA CarSprite-1,X ;5	;otherwise, load the correct line from CarSprite
+	LDA CarSprite-1,X ;4 (no page cross) otherwise, load the correct line from CarSprite
 				;section below... it's off by 1 though, since at zero
 				;we stop drawing
 	STA GRP0Cache ;3	;put that line as player graphic for the next line
@@ -405,7 +394,7 @@ AfterEorOffsetWithCarry ;18
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS EraseTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-	LDA #%01100000 ;2
+	LDA #%11000000 ;2
 	JMP StoreTraffic1 ;3
 EraseTraffic1	
 	LDA #0 ;2
@@ -430,7 +419,7 @@ AfterEorOffsetWithCarry2 ;18
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
-	ORA #%00001100 ;2
+	ORA #%00011000 ;2
 	STA PF1Cache ;3
 FinishDrawTraffic2	
 ;36 cyles worse case!
@@ -451,21 +440,12 @@ AfterEorOffsetWithCarry3 ; 18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCC EnableTraffic3; 4 with jump worse case, Less than, we draw, logic is reversed to save 3 cycles on the jmp
-EraseTraffic3; Only have to erase PF2...
-	LDA PF2Cache ;3
-	AND #%11111110 ;2
-	STA PF2Cache ;3
-	JMP FinishDrawTraffic3 ;3
-EnableTraffic3 
+	BCS FinishDrawTraffic3 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF1Cache ;3
-	ORA #%00000001 ;2
+	ORA #%00000011 ;2
 	STA PF1Cache ;3
-	LDA PF2Cache ;3
-	ORA #%00000001 ;2
-	STA PF2Cache ;3
 FinishDrawTraffic3	
-;46 cyles worse case!
+;36 cyles worse case!
 
 	JMP WhileScanLoop ; 3
 
@@ -483,19 +463,15 @@ AfterEorOffsetWithCarry4 ;18
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCC EnableTraffic4 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
-EraseTraffic4 ; Is actually setting the initial state, but have to keep the traffic 3 value	
-	LDA PF2Cache ;2
-	AND #%00000001 ;2
+	BCS EraseTraffic4 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA #%00000110 ;2
 	JMP StoreTraffic4 ;3
-EnableTraffic4
-	LDA PF2Cache ;3
-	AND #%00000001 ;2
-	ORA #%00001100 ;2
+EraseTraffic4	
+	LDA #0 ;2
 StoreTraffic4
-	STA PF2Cache ;3	
-FinishDrawTraffic4
-;39 max
+	STA PF2Cache ;3
+FinishDrawTraffic4	
+;36 max
 	
 	
 	;SLEEP 80
@@ -515,11 +491,32 @@ AfterEorOffsetWithCarry5 ;18
 	CMP #TRAFFIC_1_CHANCE;2
 	BCS FinishDrawTraffic5 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
 	LDA PF2Cache ;3
-	ORA #%01100000 ;2
+	ORA #%00110000 ;2
 	STA PF2Cache ;3	
 FinishDrawTraffic5
+
+DrawTraffic6;
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset6 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry6; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset6 + 2 ; 2
+	JMP AfterEorOffsetWithCarry6 ; 3
+EorOffsetWithCarry6
+	EOR TrafficOffset6 + 3 ; 3
+AfterEorOffsetWithCarry6 ;18
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP #TRAFFIC_1_CHANCE;2
+	BCS FinishDrawTraffic6 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	LDA PF2Cache ;3
+	ORA #%10000000 ;2
+	STA PF2Cache ;3	
+FinishDrawTraffic6
+
 ;36 max	
-	SLEEP 36
+	;SLEEP 36
 
 
 	;STA WSYNC ;65 / 202 of 222
@@ -583,16 +580,18 @@ CarSprite ; Upside down
 TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$00;  Trafic0 L
 	.byte #$00;  Trafic0 H
-	.byte #$A0;  Trafic1 L
-	.byte #$00;  Trafic1 H
-	.byte #$EA;  Trafic2 L
+	.byte #$0A;  Trafic1 L
+	.byte #$01;  Trafic1 H
+	.byte #$E6;  Trafic2 L
 	.byte #$00;  Trafic2 H
-	.byte #$00;  Trafic3 L
-	.byte #$01;  Trafic3 H
-	.byte #$A0;  Trafic4 L
-	.byte #$01;  Trafic4 H
-	.byte #$C0;  Trafic5 L
-	.byte #$01;  Trafic5 H
+	.byte #$C2;  Trafic3 L
+	.byte #$00;  Trafic3 H
+	.byte #$9E;  Trafic4 L
+	.byte #$00;  Trafic4 H
+	.byte #$7A;  Trafic5 L
+	.byte #$00;  Trafic5 H
+	.byte #$56;  Trafic6 L
+	.byte #$00;  Trafic6 H
 
 
 	org $FFFC
