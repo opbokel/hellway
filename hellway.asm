@@ -7,6 +7,8 @@
 	
 ;contants
 SCREEN_SIZE = 64;(VSy)
+SCORE_SIZE = 5
+
 CAR_SIZE = 7
 TRAFFIC_LINE_COUNT = 7
 CAR_0_Y = 10
@@ -26,6 +28,8 @@ TRAFFIC_1_MASK = #%11111000
 TRAFFIC_1_CHANCE = #$20
 
 TRAFFIC_COLOR = $34
+SCORE_BACKGROUND_COLOR = $81
+SCORE_FONT_COLOR = $0A
 	
 ;memory	
 Car0Line = $80
@@ -47,7 +51,7 @@ TrafficOffset2 = $98; Traffic 1 $99 $9A (24 bit) $9B is cache
 TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
 TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 TrafficOffset5 = $A4; Traffic 1 $A5 $A6 (24 bit) $A7 is cache
-TrafficOffset6 = $A8; Traffic 1 $A5 $A6 (24 bit) $A7 is cache
+TrafficOffset6 = $A8; Traffic 1 $A9 $A0 (24 bit) $AA is cache
 
 ;Temporary variables, multiple uses
 Tmp0=$B0
@@ -55,6 +59,9 @@ Tmp1=$B1
 Tmp2=$B2
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
+
+ScoreD0L = $D0
+ScoreD0H = $D1
 
 ;generic start up stuff, put zero in all...
 Start
@@ -76,9 +83,6 @@ ClearMem
 	LDA #PLAYER_2_COLOR
 	STA COLUP1
 
-	LDA #%00110001
-	STA CTRLPF
-
 	;Loop ?
 	LDA #$20
 	STA TrafficOffset1 + 2
@@ -96,10 +100,6 @@ ClearMem
 	LDA TrafficSpeeds + 6 * 2 ; Same as the line he is in.
 	STA Car0SpeedL	
 	
-;Traffic colour
-	LDA #TRAFFIC_COLOR
-	STA COLUPF  
-
 	
 ;VSYNC time
 MainLoop
@@ -121,7 +121,7 @@ MainLoop
 DoNotSetPlayerX
 
 	STA WSYNC	
-	LDA #43	
+	LDA #43 ; We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
 	STA TIM64T	
 	LDA #0
 	STA VSYNC 	
@@ -280,6 +280,14 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
+	LDA #0  	  ;2
+	STA PF0		  ;3
+	STA PF1	      ;3
+	STA PF2       ;3 	
+	LDA #<N1
+	STA ScoreD0L
+	LDA #>N1
+	STA ScoreD0H
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
@@ -292,20 +300,74 @@ NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 
 SkipUpdateLogic	
+	LDA #SCORE_BACKGROUND_COLOR
+	STA COLUBK
+	LDA #SCORE_FONT_COLOR
+	STA COLUPF  
+	JSR ClearPF
+	;LDA #0 ;Clear play field sets 0 for you
+	STA CTRLPF
+	;Temporary code
+	LDX #0
+	LDA AesTable
 
 ; After here we are going to update the screen, No more heavy code
 WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
-	
-	;50 cycles worse case before the VSync 
-	LDY #SCREEN_SIZE - 1 ;#63 ;  	
-	
 	STA WSYNC	
+
 	
+	LDA #0  	  ;2
+	STA PF0		  ;3
+	STA PF1	      ;3
+	STA PF2       ;3 	
+
 	LDA #1
 	STA VBLANK  		
+
+	STA WSYNC
 	
+	
+	LDA #%11100101
+	STA PF1
+	STA WSYNC
+
+	STA WSYNC
+	LDA #%10100101
+	STA PF1
+
+	STA WSYNC
+	STA WSYNC
+	LDA #%11100010
+	STA PF1
+
+	STA WSYNC
+	STA WSYNC
+	LDA #%10100101
+	STA PF1
+
+	STA WSYNC
+	STA WSYNC
+	LDA #%10100101
+	STA PF1
+
+	STA WSYNC
+	STA WSYNC
+	LDA #%00000001
+	STA CTRLPF
+
+		;19 cycles worse case before the VSync 
+
+	JSR ClearPF ;30
+	;Traffic colour
+	LDA #TRAFFIC_COLOR
+	STA COLUPF  	
+
+	LDY #SCREEN_SIZE - 5 ;2 #63 ; (Score)
+
+	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one mor nice blue line
+	STA COLUBK ;3
 
 ;main scanline loop...
 ScanLoop 
@@ -313,9 +375,6 @@ ScanLoop
 
 ;Start of next line!			
 DrawCache ;24 Is the last line going to the top of the next frame?
-
-	; LDA #TRAFFIC_COLOR ;2
-	; STA COLUPF ;3
 
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
@@ -342,10 +401,6 @@ EraseTraffic0
 StoreTraffic0
 	STA PF0Cache ;3
 SkipDrawTraffic0
-
-	; LDA #BACKGROUND_COLOR ;2
-	; STA COLUPF ;3
-
 
 BeginDrawCar0Block ;20 is the max, since if draw, does not check active
 	LDX Car0Line	;3 check the visible player line...
@@ -527,13 +582,27 @@ WhileScanLoop
 	JMP ScanLoop ;3
 FinishScanLoop ; 7 209 of 222
 
+	STA WSYNC ;3 Draw the last line, without wrapping
+	LDA PF0Cache  ;3
+	STA PF0		  ;3
+
+	LDA GRP0Cache ;3 
+	STA GRP0      ;3   
+	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
+	
+	LDA PF2Cache ;3
+	STA PF2      ;3
+
+	;42 cycles to use here
 
 PrepareOverscan
 	LDA #2		
 	STA WSYNC  	
 	STA VBLANK 	
 	
-	LDA #37
+	LDA #36 ; one more line before overscan
 	STA TIM64T	
 	;LDA #0
 	;STA VSYNC Is it needed? Why is this here, I don't remember		
@@ -545,6 +614,15 @@ OverScanWait
 	BNE OverScanWait ;Is there a better way?	
 	JMP MainLoop      
 
+ClearPF ; 26
+	LDA #0  	  ;2
+	STA PF0		  ;3
+	STA PF1	      ;3
+	STA PF2       ;3 	
+	STA PF0Cache   ;3
+	STA PF1Cache   ;3
+	STA PF2Cache   ;3 
+	RTS ;6
 
 	org $FE00
 AesTable
@@ -592,6 +670,26 @@ TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$00;  Trafic5 H
 	.byte #$56;  Trafic6 L
 	.byte #$00;  Trafic6 H
+
+Font ;5 x 3, upside down 
+Space
+	.byte %0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+N1	
+	.byte #%11100000;
+	.byte #%01000000; 
+	.byte #%01000000; 
+	.byte #%01000000; 
+	.byte #%11000000;
+N2
+	.byte #%11100000;
+	.byte #%00100000; 
+	.byte #%11100000; 
+	.byte #%10000000; 
+	.byte #%11100000;
 
 
 	org $FFFC
