@@ -11,7 +11,7 @@ SCORE_SIZE = 5
 
 CAR_SIZE = 7
 TRAFFIC_LINE_COUNT = 7
-CAR_0_Y = 10
+CAR_0_Y = 9
 ;16 bit precision
 ;640 max speed!
 CAR_MAX_SPEED_H = $02
@@ -353,7 +353,7 @@ WaitForVblankEnd
 	;STA WSYNC ; Seems wastefull, can I live killing vblank midline?
 	STA VBLANK 		
 
-ScoreLoop
+ScoreLoop ; Runs in 2 lines, this is the best I can do!
 	STA WSYNC
 
 	LDA PF0Cache  ;3 Move to a macro?
@@ -404,8 +404,6 @@ DrawScore
 	STA PF2Cache ;3
 	DEC ScoreD3,X ;5
 	;15
-	;STA WSYNC
-	;STA WSYNC ; 73 max
 
 	LDY ScoreD4,X ; 3
 	LDA Font,Y	;4
@@ -427,7 +425,7 @@ DrawScore
 
 	JSR LoadPF
 
-	STA WSYNC ; Do stuff?
+	STA WSYNC
 	STA WSYNC
 
 	LDA #PLAYER_1_COLOR
@@ -444,7 +442,7 @@ PrepareForTraffic
 	LDA #TRAFFIC_COLOR
 	STA COLUPF  	
 
-	LDY #SCREEN_SIZE - 9 ;2 #63 ; (Score)
+	LDY #SCREEN_SIZE - 6 ;2 #63 ; (Score)
 
 	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one mor nice blue line
 	STA COLUBK ;3
@@ -650,12 +648,6 @@ AfterEorOffsetWithCarry6 ;18
 	STA PF2Cache ;3	
 FinishDrawTraffic6
 
-;36 max	
-	;SLEEP 36
-
-
-	;STA WSYNC ;65 / 202 of 222
-
 WhileScanLoop 
 	DEY	;2
 	BMI FinishScanLoop ;2 or 3 ;two big Breach	
@@ -663,18 +655,12 @@ WhileScanLoop
 FinishScanLoop ; 7 209 of 222
 
 	STA WSYNC ;3 Draw the last line, without wrapping
-	LDA PF0Cache  ;3
-	STA PF0		  ;3
-
-	LDA GRP0Cache ;3 
-	STA GRP0      ;3   
 	
-	LDA PF1Cache ;3
-	STA PF1	     ;3
-	
-	LDA PF2Cache ;3
-	STA PF2      ;3
+	JSR LoadPF
 
+	STA WSYNC ; do stuff!
+	STA WSYNC
+	STA WSYNC
 	;42 cycles to use here
 
 PrepareOverscan
@@ -682,7 +668,7 @@ PrepareOverscan
 	STA WSYNC  	
 	STA VBLANK 	
 	
-	LDA #36 ; one more line before overscan
+	LDA #35 ; two more lines before overscan...
 	STA TIM64T	
 	;LDA #0
 	;STA VSYNC Is it needed? Why is this here, I don't remember		

@@ -22,7 +22,7 @@ BREAK_SPEED              0004              (R )
 Car0Line                 0080              (R )
 Car0SpeedH               0089              (R )
 Car0SpeedL               0088              (R )
-CAR_0_Y                  000a              (R )
+CAR_0_Y                  0009              (R )
 CAR_MAX_SPEED_H          0002              (R )
 CAR_MAX_SPEED_L          0080              (R )
 CAR_MIN_SPEED_H          0000              (R )
@@ -31,7 +31,7 @@ CAR_SIZE                 0007              (R )
 CarSprite                ff00              (R )
 CheckActivateCar0        f227                  
 ClearMem                 f007              (R )
-ClearPF                  f318              (R )
+ClearPF                  f311              (R )
 COLUBK                   0009              (R )
 COLUP0                   0006              (R )
 COLUP1                   0007              (R )
@@ -102,7 +102,7 @@ INPT4                    000c              (R )
 INPT5                    000d                  
 INTIM                    0284              (R )
 LeftScoreOn              f15b                  
-LoadPF                   f327              (R )
+LoadPF                   f320              (R )
 macro.h                  0000 ????         (R )
 MainLoop                 f031              (R )
 N1                       fd05              (R )
@@ -112,7 +112,7 @@ NO_ILLEGAL_OPCODES       0001              (R )
 NoCollision              f128              (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
-OverScanWait             f310              (R )
+OverScanWait             f309              (R )
 PF0                      000d              (R )
 PF0Cache                 0082              (R )
 PF1                      000e              (R )
@@ -123,7 +123,7 @@ PLAYER_1_COLOR           001c              (R )
 PLAYER_2_COLOR           0085              (R )
 PrepareForTraffic        f1e5                  
 PrepareNextUpdateLoop    f118                  
-PrepareOverscan          f305                  
+PrepareOverscan          f2fe                  
 REFP0                    000b                  
 REFP1                    000c                  
 RESBL                    0014                  
