@@ -304,16 +304,24 @@ SkipUpdateLogic
 	;DELETE THIS!
 	LDA #<N1 + #SCORE_SIZE -1
 	STA ScoreD0
+	LDA #<N2 + #SCORE_SIZE -1
 	STA ScoreD1
+	LDA #<N3 + #SCORE_SIZE -1
 	STA ScoreD2
+	LDA #<N4 + #SCORE_SIZE -1
 	STA ScoreD3
+	LDA #<N5 + #SCORE_SIZE -1
 	STA ScoreD4
 
-	LDA #<N2 + #SCORE_SIZE -1
+	LDA #<N6 + #SCORE_SIZE -1
 	STA ScoreD5
+	LDA #<N7 + #SCORE_SIZE -1
 	STA ScoreD6
+	LDA #<N8 + #SCORE_SIZE -1
 	STA ScoreD7
+	LDA #<N9 + #SCORE_SIZE -1
 	STA ScoreD8
+	LDA #<N0 + #SCORE_SIZE -1
 	STA ScoreD9
 	;END DELETE THIS
 
@@ -335,7 +343,7 @@ LeftScoreOn
 	STA COLUP1
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP0
-	LDA #1
+	LDA #1 ;Jumps faster in the draw loop
 	STA Tmp1
 	JMP WaitForVblankEnd
 RightScoreOn
@@ -343,7 +351,7 @@ RightScoreOn
 	STA COLUP0
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP1
-	LDA #0
+	LDA #0 ;Jumps faster in the draw loop
 	STA Tmp1
 
 ; After here we are going to update the screen, No more heavy code
@@ -400,20 +408,22 @@ DrawScore
 
 	LDY ScoreD3,X ; 3
 	LDA Font,Y	;4
-	AND #%11110000
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	LSR ;2
 	STA PF2Cache ;3
 	DEC ScoreD3,X ;5
-	;15
+	;23
 
 	LDY ScoreD4,X ; 3
 	LDA Font,Y	;4
-	LSR ;2
-	LSR ;2
-	LSR ;2
-	LSR ;2
+	AND #%11110000
 	ORA PF2Cache ;3
 	STA PF2Cache ;3
 	DEC ScoreD4,X ;5
+	;18
+
 	;26
 
 
@@ -724,11 +734,53 @@ N2
 	.byte #%10000001; 
 	.byte #%11100111;
 N3
+	.byte #%11100111;
+	.byte #%10000001; 
+	.byte #%11100111; 
+	.byte #%10000001; 
+	.byte #%11100111;
+N4
 	.byte #%10000001;
-	.byte #%01000010; 
+	.byte #%10000001; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%10100101;
+N5
+	.byte #%11100111;
+	.byte #%10000001; 
+	.byte #%11100111; 
 	.byte #%00100100; 
-	.byte #%01000010; 
+	.byte #%11100111;
+N6
+	.byte #%11100111;
+	.byte #%10100101; 
+	.byte #%11100111; 
+	.byte #%00100100; 
+	.byte #%11100111;
+N7
 	.byte #%10000001;
+	.byte #%10000001; 
+	.byte #%10000001; 
+	.byte #%10000001; 
+	.byte #%11100111;
+N8
+	.byte #%11100111;
+	.byte #%10100101; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%11100111;
+N9
+	.byte #%11100111;
+	.byte #%10000001; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%11100111;
+N0
+	.byte #%11100111;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%11100111;
 
 	org $FE00
 AesTable
