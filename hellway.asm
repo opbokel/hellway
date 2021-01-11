@@ -324,7 +324,8 @@ SkipUpdateLogic
 	JSR ClearPF
 	LDA #%00000010 ; Score mode
 	STA CTRLPF
-	LDY #SCORE_SIZE -1
+	LDY #SCORE_SIZE - 1
+	LDX #0
 
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
@@ -334,19 +335,22 @@ LeftScoreOn
 	STA COLUP1
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP0
+	LDA #1
+	STA Tmp1
 	JMP WaitForVblankEnd
 RightScoreOn
 	LDA #SCORE_FONT_COLOR
 	STA COLUP0
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP1
-
+	LDA #0
+	STA Tmp1
 
 ; After here we are going to update the screen, No more heavy code
 WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
-	STA WSYNC ; Seems wastefull, can I live killing vblank midline?
+	;STA WSYNC ; Seems wastefull, can I live killing vblank midline?
 	STA VBLANK 		
 
 ScoreLoop
@@ -361,39 +365,38 @@ ScoreLoop
 	LDA PF2Cache ;3
 	STA PF2 ;3
 
-	STY Tmp0; Keep Y Value, will be use to alternate text left and right
-	LDX #0 ; LeftScoreOffset
+	STY Tmp0; 3 Keep Y Value, will be use to load the correct chars
 
-	LDA FrameCount0 ;3
-	AND #%00000001 ;2
-	BEQ DrawScore
+	LDA Tmp1 ;3 Was previouly loaded
+	BEQ DrawScore ;2
 RightScoreOffset
-	LDX #5 ; Points to D5 6 7...
+	LDX #5 ;3 Points to D5 6 7...
 
+;39
 DrawScore
-	LDY ScoreD0,X ; 3
+	LDY ScoreD0,X ; 4
 	LDA Font,Y	;4
 	STA PF0Cache ;3
-	DEC ScoreD0,X ;5 Can only DEC with X
-	;14
+	DEC ScoreD0,X ;6 Can only DEC with X
+	;17
 
-	LDY ScoreD1,X ; 3
+	LDY ScoreD1,X ; 4
 	LDA Font,Y	;4
 	ASL ;2
 	ASL ;2
 	ASL ;2
 	ASL ;2
 	STA PF1Cache ;3
-	DEC ScoreD1,X ;5
-	;23
+	DEC ScoreD1,X ;6
+	;9 (After Wsync)
 
-	LDY ScoreD2,X ; 3
+	LDY ScoreD2,X ; 4
 	LDA Font,Y	;4
 	AND #%00001111
 	ORA PF1Cache ;3
 	STA PF1Cache ;3
-	DEC ScoreD2,X ;5
-	;18
+	DEC ScoreD2,X ;6
+	;20
 
 	LDY ScoreD3,X ; 3
 	LDA Font,Y	;4
@@ -401,6 +404,8 @@ DrawScore
 	STA PF2Cache ;3
 	DEC ScoreD3,X ;5
 	;15
+	;STA WSYNC
+	;STA WSYNC ; 73 max
 
 	LDY ScoreD4,X ; 3
 	LDA Font,Y	;4
@@ -413,14 +418,15 @@ DrawScore
 	DEC ScoreD4,X ;5
 	;26
 
-	LDY Tmp0 ; Restore the current line
-	DEY
-	BPL ScoreLoop
 
-	;STA WSYNC
+	LDY Tmp0 ; 3 Restore the current line
+	DEY ;2
+	BPL ScoreLoop ;4
+
+	STA WSYNC
 
 	JSR LoadPF
-	STA WSYNC
+
 	STA WSYNC ; Do stuff?
 	STA WSYNC
 
@@ -438,7 +444,7 @@ PrepareForTraffic
 	LDA #TRAFFIC_COLOR
 	STA COLUPF  	
 
-	LDY #SCREEN_SIZE - 5 ;2 #63 ; (Score)
+	LDY #SCREEN_SIZE - 9 ;2 #63 ; (Score)
 
 	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one mor nice blue line
 	STA COLUBK ;3
@@ -731,6 +737,12 @@ N2
 	.byte #%11100111; 
 	.byte #%10000001; 
 	.byte #%11100111;
+N3
+	.byte #%10000001;
+	.byte #%01000010; 
+	.byte #%00100100; 
+	.byte #%01000010; 
+	.byte #%10000001;
 
 	org $FE00
 AesTable
