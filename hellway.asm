@@ -29,7 +29,7 @@ TRAFFIC_1_CHANCE = #$20
 
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $81
-SCORE_FONT_COLOR = $0A
+SCORE_FONT_COLOR = $0F
 	
 ;memory	
 Car0Line = $80
@@ -60,8 +60,16 @@ Tmp2=$B2
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
-ScoreD0L = $D0
-ScoreD0H = $D1
+ScoreD0 = $D0
+ScoreD1 = $D1
+ScoreD2 = $D2
+ScoreD3 = $D3
+ScoreD4 = $D4
+ScoreD5 = $D5
+ScoreD6 = $D6
+ScoreD7 = $D7
+ScoreD8 = $D8
+ScoreD9 = $D9
 
 ;generic start up stuff, put zero in all...
 Start
@@ -280,14 +288,6 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
-	LDA #0  	  ;2
-	STA PF0		  ;3
-	STA PF1	      ;3
-	STA PF2       ;3 	
-	LDA #<N1
-	STA ScoreD0L
-	LDA #>N1
-	STA ScoreD0H
 	
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
@@ -300,63 +300,137 @@ NoCollision
 	STA CXCLR	;reset the collision detection for next frame
 
 SkipUpdateLogic	
+	
+	;DELETE THIS!
+	LDA #<N1 + #SCORE_SIZE -1
+	STA ScoreD0
+	STA ScoreD1
+	STA ScoreD2
+	STA ScoreD3
+	STA ScoreD4
+
+	LDA #<N2 + #SCORE_SIZE -1
+	STA ScoreD5
+	STA ScoreD6
+	STA ScoreD7
+	STA ScoreD8
+	STA ScoreD9
+	;END DELETE THIS
+
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUBK
 	LDA #SCORE_FONT_COLOR
 	STA COLUPF  
 	JSR ClearPF
-	;LDA #0 ;Clear play field sets 0 for you
+	LDA #%00000010 ; Score mode
 	STA CTRLPF
-	;Temporary code
-	LDX #0
-	LDA AesTable
+	LDY #SCORE_SIZE -1
+
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ RightScoreOn ; Half of the screen with the correct colors.
+LeftScoreOn
+	LDA #SCORE_FONT_COLOR
+	STA COLUP1
+	LDA #SCORE_BACKGROUND_COLOR
+	STA COLUP0
+	JMP WaitForVblankEnd
+RightScoreOn
+	LDA #SCORE_FONT_COLOR
+	STA COLUP0
+	LDA #SCORE_BACKGROUND_COLOR
+	STA COLUP1
+
 
 ; After here we are going to update the screen, No more heavy code
 WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
-	STA WSYNC	
+	STA WSYNC ; Seems wastefull, can I live killing vblank midline?
+	STA VBLANK 		
 
-	
-	LDA #0  	  ;2
+ScoreLoop
+	STA WSYNC
+
+	LDA PF0Cache  ;3 Move to a macro?
 	STA PF0		  ;3
-	STA PF1	      ;3
-	STA PF2       ;3 	
-
-	LDA #1
-	STA VBLANK  		
-
-	STA WSYNC
 	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
 	
-	LDA #%11100101
-	STA PF1
+	LDA PF2Cache ;3
+	STA PF2 ;3
+
+	STY Tmp0; Keep Y Value, will be use to alternate text left and right
+	LDX #0 ; LeftScoreOffset
+
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ DrawScore
+RightScoreOffset
+	LDX #5 ; Points to D5 6 7...
+
+DrawScore
+	LDY ScoreD0,X ; 3
+	LDA Font,Y	;4
+	STA PF0Cache ;3
+	DEC ScoreD0,X ;5 Can only DEC with X
+	;14
+
+	LDY ScoreD1,X ; 3
+	LDA Font,Y	;4
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	STA PF1Cache ;3
+	DEC ScoreD1,X ;5
+	;23
+
+	LDY ScoreD2,X ; 3
+	LDA Font,Y	;4
+	AND #%00001111
+	ORA PF1Cache ;3
+	STA PF1Cache ;3
+	DEC ScoreD2,X ;5
+	;18
+
+	LDY ScoreD3,X ; 3
+	LDA Font,Y	;4
+	AND #%11110000
+	STA PF2Cache ;3
+	DEC ScoreD3,X ;5
+	;15
+
+	LDY ScoreD4,X ; 3
+	LDA Font,Y	;4
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	ORA PF2Cache ;3
+	STA PF2Cache ;3
+	DEC ScoreD4,X ;5
+	;26
+
+	LDY Tmp0 ; Restore the current line
+	DEY
+	BPL ScoreLoop
+
+	;STA WSYNC
+
+	JSR LoadPF
+	STA WSYNC
+	STA WSYNC ; Do stuff?
 	STA WSYNC
 
-	STA WSYNC
-	LDA #%10100101
-	STA PF1
+	LDA #PLAYER_1_COLOR
+	STA COLUP0
+	JSR ClearPF
 
-	STA WSYNC
-	STA WSYNC
-	LDA #%11100010
-	STA PF1
-
-	STA WSYNC
-	STA WSYNC
-	LDA #%10100101
-	STA PF1
-
-	STA WSYNC
-	STA WSYNC
-	LDA #%10100101
-	STA PF1
-
-	STA WSYNC
-	STA WSYNC
+PrepareForTraffic
 	LDA #%00000001
 	STA CTRLPF
-
 		;19 cycles worse case before the VSync 
 
 	JSR ClearPF ;30
@@ -624,6 +698,40 @@ ClearPF ; 26
 	STA PF2Cache   ;3 
 	RTS ;6
 
+LoadPF ; 24
+	LDA PF0Cache  ;3
+	STA PF0		  ;3
+	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
+	
+	LDA PF2Cache ;3
+	STA PF2      ;3
+
+	RTS ;6
+
+;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
+	org $FD00
+Font	
+Space
+	.byte %0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+N1	
+	.byte #%11100111;
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%01100110;
+N2
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%11100111; 
+	.byte #%10000001; 
+	.byte #%11100111;
+
 	org $FE00
 AesTable
 	DC.B $63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
@@ -670,26 +778,6 @@ TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$00;  Trafic5 H
 	.byte #$56;  Trafic6 L
 	.byte #$00;  Trafic6 H
-
-Font ;5 x 3, upside down 
-Space
-	.byte %0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
-N1	
-	.byte #%11100000;
-	.byte #%01000000; 
-	.byte #%01000000; 
-	.byte #%01000000; 
-	.byte #%11000000;
-N2
-	.byte #%11100000;
-	.byte #%00100000; 
-	.byte #%11100000; 
-	.byte #%10000000; 
-	.byte #%11100000;
 
 
 	org $FFFC
