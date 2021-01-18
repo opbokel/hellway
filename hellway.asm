@@ -476,13 +476,13 @@ ScanLoop
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;35 Is the last line going to the top of the next frame?
+DrawCache ;39 Is the last line going to the top of the next frame?
 
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 
 	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
-	ORA CollisionCounter
+	ORA CollisionCounter ;3
 	STA GRP0      ;3   ;put it as graphics now
 	
 	LDA PF1Cache ;3
@@ -614,7 +614,7 @@ PrepareOverscan
 	STA WSYNC  	
 	STA VBLANK 	
 	
-	LDA #35 ; two more lines before overscan...
+	LDA #36 ; one more line before overscan...
 	STA TIM64T	
 	;LDA #0
 	;STA VSYNC Is it needed? Why is this here, I don't remember		

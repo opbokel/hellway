@@ -892,13 +892,13 @@
     476  f216		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
     477  f218
     478  f218							;Start of next line!			
-    479  f218				   DrawCache		;35 Is the last line going to the top of the next frame?
+    479  f218				   DrawCache		;39 Is the last line going to the top of the next frame?
     480  f218
     481  f218		       a5 81		      LDA	PF0Cache	;3
     482  f21a		       85 0d		      STA	PF0	;3
     483  f21c
     484  f21c		       b9 00 ff 	      LDA	CarSprite,Y	;4 ;Very fast, in the expense of rom space
-    485  f21f		       05 ba		      ORA	CollisionCounter
+    485  f21f		       05 ba		      ORA	CollisionCounter	;3
     486  f221		       85 1b		      STA	GRP0	;3   ;put it as graphics now
     487  f223
     488  f223		       a5 82		      LDA	PF1Cache	;3
@@ -1030,7 +1030,7 @@
     614  f2cc		       85 02		      STA	WSYNC
     615  f2ce		       85 01		      STA	VBLANK
     616  f2d0
-    617  f2d0		       a9 23		      LDA	#35	; two more lines before overscan...
+    617  f2d0		       a9 24		      LDA	#36	; one more line before overscan...
     618  f2d2		       8d 96 02 	      STA	TIM64T
     619  f2d5							;LDA #0
     620  f2d5							;STA VSYNC Is it needed? Why is this here, I don't remember		
