@@ -8,10 +8,11 @@
 ;contants
 SCREEN_SIZE = 64;(VSy)
 SCORE_SIZE = 5
+GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
+COLLISION_FRAMES = $FF; 4,5 seconds
+COLLISION_SPEED_L = $4A;
 
-CAR_SIZE = 7
 TRAFFIC_LINE_COUNT = 5
-CAR_0_Y = 8
 ;16 bit precision
 ;640 max speed!
 CAR_MAX_SPEED_H = $02
@@ -23,21 +24,19 @@ PLAYER_1_COLOR = $1C ;Yellow
 PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
 BREAK_SPEED = 6
-;For now, will use in aal rows until figure out if make it dynamic or not.
-TRAFFIC_1_MASK = #%11111000
+;For now, will use in all rows until figure out if make it dynamic or not.
+TRAFFIC_1_MASK = #%11111000 ;Min car size... Maybe make different per track
 TRAFFIC_1_CHANCE = #$20
 
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $81
 SCORE_FONT_COLOR = $0F
 	
-;memory	
-Car0Line = $80
 
-GRP0Cache = $81
-PF0Cache = $82
-PF1Cache = $83
-PF2Cache = $84
+GRP0Cache = $80
+PF0Cache = $81
+PF1Cache = $82
+PF2Cache = $83
 
 FrameCount0 = $86;
 FrameCount1 = $87;
@@ -56,7 +55,7 @@ Tmp0=$B0
 Tmp1=$B1
 Tmp2=$B2
 
-Collision=$BA
+CollisionCounter=$BA
 
 GameStatus = $C0 ; Flags, D7 = running, expect more flags
 
@@ -87,7 +86,6 @@ ClearMem
 
 	LDA #PLAYER_1_COLOR
 	STA COLUP0
-	STA Collision
 
 	LDA #PLAYER_2_COLOR
 	STA COLUP1
@@ -145,6 +143,15 @@ CountFrame
 	BNE SkipIncFC1 ;When it is zero again should increase the MSB
 	INC FrameCount1 ; Still not used
 SkipIncFC1
+
+UpdateCounters4 ; Every 4 frames (66.6) ms update counters (times might be off by 66 ms) 
+	LDA FrameCount0
+	AND #%00000011
+	BEQ SkipUpdateCounters4
+	CMP CollisionCounter
+	BEQ SkipCollisionCounter
+SkipCollisionCounter	
+SkipUpdateCounters4
 
 ;Does not update the game if not running
 	LDA GameStatus ;3
@@ -286,16 +293,27 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
-	
+
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
-	LDA FrameCount0	;must be a hit! Change rand color bg
-	STA Collision	;and store as colision (will do more with it!)
+	LDA CollisionCounter ; If colision is alredy happening, ignore!
+	BNE NoCollision	
+	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
+	STA CollisionCounter	;and store as colision (will do more with it!)
+	LDA #COLLISION_SPEED_L ;
+	STA Car0SpeedL	
+	LDA #0
+	STA Car0SpeedH	
 NoCollision
-	STA CXCLR	;reset the collision detection for next frame
+
+DecrementCollision
+	LDA CollisionCounter
+	BEQ FinishDecrementCollision
+	DEC CollisionCounter
+FinishDecrementCollision
 
 SkipUpdateLogic	
 	
@@ -433,42 +451,38 @@ DrawScore
 	STA WSYNC
 	STA WSYNC
 
-	LDA #PLAYER_1_COLOR
-	STA COLUP0
-	JSR ClearPF
-
 PrepareForTraffic
-	; LDA #%00000001
-	; STA CTRLPF
-		;19 cycles worse case before the VSync 
+	JSR ClearPF ; 32
+	STA CXCLR	;3 reset the collision detection for next frame, must be done here to clean score colisions.
 
-	LDA Collision ; Rando color after Collision
+	LDA #TRAFFIC_COLOR ;2
 	STA COLUP0
+	
+	LDA #BACKGROUND_COLOR ;2
+	STA COLUP1 ;3
 
-	LDA #BACKGROUND_COLOR
-	STA COLUP1
-
-	JSR ClearPF ;30
 	;Traffic colour
-	LDA #TRAFFIC_COLOR
-	STA COLUPF  	
+	LDA #TRAFFIC_COLOR ;2
+	STA COLUPF  	;3
 
-	LDY #SCREEN_SIZE - 6 ;2 #63 ; (Score)
+	LDY GAMEPLAY_AREA ;2; (Score)
 
 	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one mor nice blue line
 	STA COLUBK ;3
+
 
 ;main scanline loop...
 ScanLoop 
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;24 Is the last line going to the top of the next frame?
+DrawCache ;35 Is the last line going to the top of the next frame?
 
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 
-	LDA GRP0Cache ;3 ;buffer was set during last scanline
+	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
+	ORA CollisionCounter
 	STA GRP0      ;3   ;put it as graphics now
 	
 	LDA PF1Cache ;3
@@ -482,122 +496,92 @@ DrawCache ;24 Is the last line going to the top of the next frame?
 	STA PF1Cache ;3
 	STA PF2Cache ;3
 
-BeginDrawCar0Block ;20 is the max, since if draw, does not check active
-	LDX Car0Line	;3 check the visible player line...
-	BEQ FinishDrawCar0 ;2	skip the drawing if its zero...
-DrawCar0
-	LDA CarSprite-1,X ;4 (no page cross) otherwise, load the correct line from CarSprite
-				;section below... it's off by 1 though, since at zero
-				;we stop drawing
-	STA GRP0Cache ;3	;put that line as player graphic for the next line
-	DEC Car0Line ;5	and decrement the line count
-	;STA WSYNC
-	JMP SkipActivateCar0 ;3 save some cpu time
-FinishDrawCar0
-
-CheckActivateCar0 ;9 max
-	CPY #CAR_0_Y ;2
-	BNE SkipActivateCar0 ;2
-	LDA #CAR_SIZE ;2
-	STA Car0Line ;3
-	;STA WSYNC
-SkipActivateCar0 ;EndDrawCar0Block
-
-	;STA WSYNC ; 3 71 max
-	
-	;NOP
-	; LDA #TRAFFIC_COLOR ;2
-	; STA COLUPF ;3
-
-;Will set the initial value for PF1Cache
-DrawTraffic1; 
+	;BEQ DrawTraffic3
+DrawTraffic1; 32 
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset1 + 1;3
-	AND #TRAFFIC_1_MASK ;2
-	BCS EorOffsetWithCarry; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset1 + 2 ; 2
+	AND #TRAFFIC_1_MASK ;2 ;#%11111000
+	BCS EorOffsetWithCarry; 2(worse not to jump), 4 if branch
+	EOR TrafficOffset1 + 2 ; 3
 	JMP AfterEorOffsetWithCarry ; 3
 EorOffsetWithCarry
 	EOR TrafficOffset1 + 3 ; 3
-AfterEorOffsetWithCarry ;18
+AfterEorOffsetWithCarry ;17
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic1 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS FinishDrawTraffic1 ; 2
 	LDA #%01100000 ;2
 	STA PF1Cache ;3
 FinishDrawTraffic1
 
-DrawTraffic2;
+DrawTraffic2; 35
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset2 + 1;3
 	AND #TRAFFIC_1_MASK ;2
 	BCS EorOffsetWithCarry2; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset2 + 2 ; 2
+	EOR TrafficOffset2 + 2 ; 3
 	JMP AfterEorOffsetWithCarry2 ; 3
 EorOffsetWithCarry2
 	EOR TrafficOffset2 + 3 ; 3
-AfterEorOffsetWithCarry2 ;18
+AfterEorOffsetWithCarry2 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic2 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS FinishDrawTraffic2 ; 2
 	LDA PF1Cache ;3
 	ORA #%00001100 ;2
 	STA PF1Cache ;3
 FinishDrawTraffic2	
-;36 cyles worse case!
 
 	;STA WSYNC ;65 / 137
 
-DrawTraffic3;
+	; LDA Tmp0 ; Flicker this line if drawing car
+	; BEQ FinishDrawTraffic4
+DrawTraffic3; 38
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset3 + 1;3
 	AND #TRAFFIC_1_MASK ;2
 	BCS EorOffsetWithCarry3; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset3 + 2 ; 2
+	EOR TrafficOffset3 + 2 ; 3
 	JMP AfterEorOffsetWithCarry3 ; 3
 EorOffsetWithCarry3
 	EOR TrafficOffset3 + 3 ; 3
-AfterEorOffsetWithCarry3 ;18
+AfterEorOffsetWithCarry3 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic3 ; Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS FinishDrawTraffic3 ; 2 
 	LDA #%00000001 ;2
 	STA PF2Cache ;3
-	ORA PF1Cache
-	STA PF1Cache
+	ORA PF1Cache ;3
+	STA PF1Cache ;3
 FinishDrawTraffic3	
-;36 max
 	
-	
-	;SLEEP 80
-DrawTraffic4;
+DrawTraffic4; 35
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset4 + 1;3
 	AND #TRAFFIC_1_MASK ;2
 	BCS EorOffsetWithCarry4; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset4 + 2 ; 2
+	EOR TrafficOffset4 + 2 ; 3
 	JMP AfterEorOffsetWithCarry4 ; 3
 EorOffsetWithCarry4
 	EOR TrafficOffset4 + 3 ; 3
-AfterEorOffsetWithCarry4 ;18
+AfterEorOffsetWithCarry4 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
 	CMP #TRAFFIC_1_CHANCE;2
-	BCS FinishDrawTraffic4 ; 4 Greater or equal don't draw; 2 (no branch) or 3 (branch) or 4 (Branch cross page) 
+	BCS FinishDrawTraffic4 ; 2
 	LDA PF2Cache ;3
 	ORA #%00001100 ;2
 	STA PF2Cache ;3	
 FinishDrawTraffic4
 
-
-DrawTraffic0; 16 max, 14 min, traffic 0 is the border
+DrawTraffic0; 24
 	TYA ;2
 	CLC ;2
 	ADC TrafficOffset0 + 1 ; 3
@@ -607,12 +591,12 @@ DrawTraffic0; 16 max, 14 min, traffic 0 is the border
 	STA PF0Cache ;3
 	LDA PF2Cache ;3
 	ORA #%11100000 ;2
-	STA PF2Cache
+	STA PF2Cache ; 3
 SkipDrawTraffic0
 
 WhileScanLoop 
 	DEY	;2
-	BMI FinishScanLoop ;2 or 3 ;two big Breach	
+	BMI FinishScanLoop ;2 two big Breach, needs JMP
 	JMP ScanLoop ;3
 FinishScanLoop ; 7 209 of 222
 
@@ -757,12 +741,13 @@ AesTable
 
 CarSprite ; Upside down
 	.byte #%00000000 ; Easist way to stop drawing
-	.byte #%11111111
+	.byte #%01111110
 	.byte #%00100100
 	.byte #%10111101
 	.byte #%00111100
 	.byte #%10111101
 	.byte #%00111100
+	ds GAMEPLAY_AREA - 8
 
 	
 TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access

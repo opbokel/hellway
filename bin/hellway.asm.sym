@@ -14,30 +14,27 @@ AUDF1                    0018
 AUDV0                    0019                  
 AUDV1                    001a                  
 BACKGROUND_COLOR         0000              (R )
-BeginDrawCar0Block       f21d                  
-Break                    f0af                  
+Break                    f0b7                  
 BREAK_SPEED              0006              (R )
-Car0Line                 0080              (R )
 Car0SpeedH               0089              (R )
 Car0SpeedL               0088              (R )
-CAR_0_Y                  0008              (R )
 CAR_MAX_SPEED_H          0002              (R )
 CAR_MAX_SPEED_L          0080              (R )
 CAR_MIN_SPEED_H          0000              (R )
 CAR_MIN_SPEED_L          0000              (R )
-CAR_SIZE                 0007              (R )
 CarSprite                ff00              (R )
-CheckActivateCar0        f22b                  
 ClearMem                 f007              (R )
 ClearPF                  f2dd              (R )
-Collision                00ba              (R )
+COLLISION_FRAMES         00ff              (R )
+COLLISION_SPEED_L        004a              (R )
+CollisionCounter         00ba              (R )
 COLUBK                   0009              (R )
 COLUP0                   0006              (R )
 COLUP1                   0007              (R )
 COLUPF                   0008              (R )
-CompareLBreakSpeed       f0cb              (R )
-ContinueWithGameLogic    f071              (R )
-CountFrame               f062                  
+CompareLBreakSpeed       f0d3              (R )
+ContinueWithGameLogic    f079              (R )
+CountFrame               f060                  
 CTRLPF                   000a              (R )
 CXBLPF                   0006                  
 CXCLR                    002c              (R )
@@ -48,10 +45,10 @@ CXM1P                    0001
 CXP0FB                   0002              (R )
 CXP1FB                   0003                  
 CXPPMM                   0007                  
-DoNotSetPlayerX          f04d              (R )
-DrawCache                f205                  
-DrawCar0                 f221                  
-DrawScore                f19c              (R )
+DecrementCollision       f135                  
+DoNotSetPlayerX          f04b              (R )
+DrawCache                f218                  
+DrawScore                f1b4              (R )
 DrawTraffic0             f2a7                  
 DrawTraffic1             f233                  
 DrawTraffic2             f24e                  
@@ -64,7 +61,7 @@ EorOffsetWithCarry       f240              (R )
 EorOffsetWithCarry2      f25b              (R )
 EorOffsetWithCarry3      f278              (R )
 EorOffsetWithCarry4      f297              (R )
-FinishDrawCar0           f22b              (R )
+FinishDecrementCollision f13b              (R )
 FinishDrawTraffic1       f24e              (R )
 FinishDrawTraffic2       f26b              (R )
 FinishDrawTraffic3       f28a              (R )
@@ -73,9 +70,10 @@ FinishScanLoop           f2bf              (R )
 Font                     fd00              (R )
 FrameCount0              0086              (R )
 FrameCount1              0087              (R )
+GAMEPLAY_AREA            003a              (R )
 GameStatus               00c0              (R )
 GRP0                     001b              (R )
-GRP0Cache                0081              (R )
+GRP0Cache                0080                  
 GRP1                     001c                  
 HMBL                     0024                  
 HMCLR                    002b                  
@@ -91,10 +89,10 @@ INPT3                    000b
 INPT4                    000c              (R )
 INPT5                    000d                  
 INTIM                    0284              (R )
-LeftScoreOn              f164                  
+LeftScoreOn              f17c                  
 LoadPF                   f2ec              (R )
 macro.h                  0000 ????         (R )
-MainLoop                 f02d              (R )
+MainLoop                 f02b              (R )
 N0                       fd32              (R )
 N1                       fd05              (R )
 N2                       fd0a              (R )
@@ -106,36 +104,36 @@ N7                       fd23              (R )
 N8                       fd28              (R )
 N9                       fd2d              (R )
 NO_ILLEGAL_OPCODES       0001              (R )
-NoCollision              f121              (R )
+NoCollision              f135              (R )
 NUSIZ0                   0004                  
 NUSIZ1                   0005                  
 OverScanWait             f2d5              (R )
 PF0                      000d              (R )
-PF0Cache                 0082              (R )
+PF0Cache                 0081              (R )
 PF1                      000e              (R )
-PF1Cache                 0083              (R )
+PF1Cache                 0082              (R )
 PF2                      000f              (R )
-PF2Cache                 0084              (R )
+PF2Cache                 0083              (R )
 PLAYER_1_COLOR           001c              (R )
 PLAYER_2_COLOR           0085              (R )
-PrepareForTraffic        f1ee                  
-PrepareNextUpdateLoop    f111                  
+PrepareForTraffic        f1ff                  
+PrepareNextUpdateLoop    f119                  
 PrepareOverscan          f2ca                  
 REFP0                    000b                  
 REFP1                    000c                  
 RESBL                    0014                  
-ResetMinSpeed            f0d4              (R )
-ResetToMaxSpeed          f0a7              (R )
+ResetMinSpeed            f0dc              (R )
+ResetToMaxSpeed          f0af              (R )
 RESM0                    0012                  
 RESM1                    0013                  
 RESMP0                   0028                  
 RESMP1                   0029                  
 RESP0                    0010              (R )
 RESP1                    0011                  
-RightScoreOffset         f19a                  
-RightScoreOn             f173              (R )
+RightScoreOffset         f1b2                  
+RightScoreOn             f18b              (R )
 RSYNC                    0003                  
-ScanLoop                 f203              (R )
+ScanLoop                 f216              (R )
 SCORE_BACKGROUND_COLOR   0081              (R )
 SCORE_FONT_COLOR         000f              (R )
 SCORE_SIZE               0005              (R )
@@ -149,17 +147,18 @@ ScoreD6                  00d6              (R )
 ScoreD7                  00d7              (R )
 ScoreD8                  00d8              (R )
 ScoreD9                  00d9              (R )
-ScoreLoop                f186              (R )
+ScoreLoop                f19e              (R )
 SCREEN_SIZE              0040              (R )
-SkipAccelerate           f0af              (R )
-SkipActivateCar0         f233              (R )
-SkipBreak                f0dc              (R )
+SkipAccelerate           f0b7              (R )
+SkipBreak                f0e4              (R )
+SkipCollisionCounter     f070              (R )
 SkipDrawTraffic0         f2b9              (R )
-SkipGameStart            f062              (R )
-SkipIncFC1               f068              (R )
-SkipMoveLeft             f07c              (R )
-SkipMoveRight            f085              (R )
-SkipUpdateLogic          f123              (R )
+SkipGameStart            f060              (R )
+SkipIncFC1               f066              (R )
+SkipMoveLeft             f084              (R )
+SkipMoveRight            f08d              (R )
+SkipUpdateCounters4      f070              (R )
+SkipUpdateLogic          f13b              (R )
 Space                    fd00                  
 Start                    f000              (R )
 SWACNT                   0281                  
@@ -167,7 +166,7 @@ SWBCNT                   0283
 SWCHA                    0280              (R )
 SWCHB                    0282                  
 T1024T                   0297                  
-TestCollision            f117                  
+TestCollision            f11f                  
 TIA_BASE_ADDRESS         0000              (R )
 TIA_BASE_READ_ADDRESS    0000              (R )
 TIA_BASE_WRITE_ADDRESS   0000              (R )
@@ -187,8 +186,9 @@ TrafficOffset1           0094              (R )
 TrafficOffset2           0098              (R )
 TrafficOffset3           009c              (R )
 TrafficOffset4           00a0              (R )
-TrafficSpeeds            ff07              (R )
-UpdateOffsets            f0e0              (R )
+TrafficSpeeds            ff39              (R )
+UpdateCounters4          f066                  
+UpdateOffsets            f0e8              (R )
 VBLANK                   0001              (R )
 vcs.h                    0000 ????         (R )
 VDELBL                   0027                  
@@ -197,7 +197,7 @@ VDELP1                   0026
 VERSION_MACRO            006d                  
 VERSION_VCS              006a                  
 VSYNC                    0000              (R )
-WaitForVblankEnd         f17f              (R )
+WaitForVblankEnd         f197              (R )
 WhileScanLoop            f2b9                  
 WSYNC                    0002              (R )
 --- End of Symbol List.
