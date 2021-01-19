@@ -10,7 +10,7 @@ SCREEN_SIZE = 64;(VSy)
 SCORE_SIZE = 5
 GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
 COLLISION_FRAMES = $FF; 4,5 seconds
-COLLISION_SPEED_L = $4A;
+COLLISION_SPEED_L = $42;
 
 TRAFFIC_LINE_COUNT = 5
 ;16 bit precision
@@ -144,14 +144,6 @@ CountFrame
 	INC FrameCount1 ; Still not used
 SkipIncFC1
 
-UpdateCounters4 ; Every 4 frames (66.6) ms update counters (times might be off by 66 ms) 
-	LDA FrameCount0
-	AND #%00000011
-	BEQ SkipUpdateCounters4
-	CMP CollisionCounter
-	BEQ SkipCollisionCounter
-SkipCollisionCounter	
-SkipUpdateCounters4
 
 ;Does not update the game if not running
 	LDA GameStatus ;3
@@ -169,9 +161,8 @@ ContinueWithGameLogic
 
 ;assum horiz speed will be zero
 
-;Begin read dpad
-	LDX #0	
-
+BeginReadDpad
+	LDX #0
 	LDA #%01000000	;Left
 	BIT SWCHA 
 	BNE SkipMoveLeft
@@ -308,12 +299,21 @@ TestCollision;
 	LDA #0
 	STA Car0SpeedH	
 NoCollision
+	STA CXCLR	;3 reset the collision detection for next frame.
 
 DecrementCollision
-	LDA CollisionCounter
+	LDY CollisionCounter
 	BEQ FinishDecrementCollision
-	DEC CollisionCounter
+	LDX #%00000101; Make player bigger to show colision
+	STX NUSIZ0
+	DEY
+	STY CollisionCounter ; We save some cycles in reset size.
 FinishDecrementCollision
+
+ResetPlayerSize
+	BNE FinishResetPlayerSize
+	STY NUSIZ0;
+FinishResetPlayerSize
 
 SkipUpdateLogic	
 	
@@ -453,8 +453,7 @@ DrawScore
 
 PrepareForTraffic
 	JSR ClearPF ; 32
-	STA CXCLR	;3 reset the collision detection for next frame, must be done here to clean score colisions.
-
+	
 	LDA #TRAFFIC_COLOR ;2
 	STA COLUP0
 	
@@ -467,7 +466,8 @@ PrepareForTraffic
 
 	LDY GAMEPLAY_AREA ;2; (Score)
 
-	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one mor nice blue line
+	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one more nice blue line
+	SLEEP 18; Wait, so the line stay blue
 	STA COLUBK ;3
 
 
@@ -476,13 +476,12 @@ ScanLoop
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;39 Is the last line going to the top of the next frame?
+DrawCache ;36 Is the last line going to the top of the next frame?
 
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 
 	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
-	ORA CollisionCounter ;3
 	STA GRP0      ;3   ;put it as graphics now
 	
 	LDA PF1Cache ;3
@@ -616,10 +615,9 @@ PrepareOverscan
 	
 	LDA #36 ; one more line before overscan...
 	STA TIM64T	
-	;LDA #0
-	;STA VSYNC Is it needed? Why is this here, I don't remember		
-
 ;Do more logic
+
+WriteDistance
 
 OverScanWait
 	LDA INTIM	
@@ -657,6 +655,12 @@ Space
 	.byte #0;
 	.byte #0;
 	.byte #0;
+N0
+	.byte #%11100111;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%11100111;	
 N1	
 	.byte #%11100111;
 	.byte #%01000010; 
@@ -711,12 +715,7 @@ N9
 	.byte #%11100111; 
 	.byte #%10100101; 
 	.byte #%11100111;
-N0
-	.byte #%11100111;
-	.byte #%10100101; 
-	.byte #%10100101; 
-	.byte #%10100101; 
-	.byte #%11100111;
+
 
 	org $FE00
 AesTable
