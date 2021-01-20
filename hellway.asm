@@ -119,24 +119,25 @@ MainLoop
 
 DoNotSetPlayerX
 
-	STA WSYNC	
-	LDA #43 ; We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
-	STA TIM64T	
-	LDA #0
-	STA VSYNC 	
+	STA WSYNC ;3
+	LDA #43 ;2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
+	STA TIM64T ;3	
+	LDA #0 ;2
+	STA VSYNC ;3	
 
 ;Read Fire Button before, will make it start the game for now.
-	LDA INPT4
-	BMI SkipGameStart ;not pressed the fire button in negative in bit 7
-	LDA GameStatus
-	ORA #%10000000
-	STA GameStatus
+StartGame
+	LDA INPT4 ;3
+	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
+	LDA GameStatus ;3
+	ORA #%10000000 ;2
+	STA GameStatus ;3
 SkipGameStart
 	
 CountFrame	
-	INC FrameCount0 ; Used to alternate lines
-	BNE SkipIncFC1 ;When it is zero again should increase the MSB
-	INC FrameCount1 ; Still not used
+	INC FrameCount0 ; 5 Used to alternate lines
+	BNE SkipIncFC1 ; 2 When it is zero again should increase the MSB
+	INC FrameCount1 ; 5 Still not used
 SkipIncFC1
 
 
@@ -174,10 +175,13 @@ SkipMoveRight
 
 
 ;Acelerates / breaks the car
+	LDA INPT4 ;3
+	BPL IncreaseCarSpeed ; Test button and then up, both accelerate.
 	LDA #%00010000	;UP in controller
 	BIT SWCHA 
 	BNE SkipAccelerate
 
+IncreaseCarSpeed
 ;Adds speed
 	CLC
 	LDA Car0SpeedL
@@ -340,6 +344,7 @@ RightScoreOn
 	STA COLUP1
 	LDA #0 ;Jumps faster in the draw loop
 	STA Tmp1
+
 
 ; After here we are going to update the screen, No more heavy code
 WaitForVblankEnd
@@ -578,9 +583,16 @@ PrepareOverscan
 	
 	LDA #36 ; one more line before overscan...
 	STA TIM64T	
-;Do more logic
 
-WriteDistance
+;Could be done during on vblank to save this comparisson time (before draw score), 
+;but I am saving vblank cycles for now, in case of 2 players.
+ChooseSide ; 
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ RightScoreWrite ; Half of the screen with the correct colors.
+
+LeftScoreWrite
+WriteDistance ;Not optimized yet, ugly code.
 LetterS
 	LDA #<CS + #SCORE_SIZE -1 ;3
 	STA ScoreD0 ;3
@@ -620,7 +632,17 @@ Digit3Distance
 	TAX ; 2
 	LDA FontLookup,X ;4
 	STA ScoreD1 ;3
+EndDrawDistance
+	JMP RightScoreWriteEnd;3
 
+RightScoreWrite
+	LDA #<C0 + #SCORE_SIZE -1 ;3
+	STA ScoreD0 ;3
+	STA ScoreD1 ;3
+	STA ScoreD2 ;3
+	STA ScoreD3 ;3
+	STA ScoreD4 ;3
+RightScoreWriteEnd
 
 OverScanWait
 	LDA INTIM	
@@ -628,6 +650,7 @@ OverScanWait
 	JMP MainLoop      
 
 Subroutines
+
 ClearPF ; 26
 	LDA #0  	  ;2
 	STA PF0		  ;3
