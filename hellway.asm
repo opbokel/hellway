@@ -64,11 +64,6 @@ ScoreD1 = $D1
 ScoreD2 = $D2
 ScoreD3 = $D3
 ScoreD4 = $D4
-ScoreD5 = $D5
-ScoreD6 = $D6
-ScoreD7 = $D7
-ScoreD8 = $D8
-ScoreD9 = $D9
 
 ;generic start up stuff, put zero in all...
 Start
@@ -317,20 +312,6 @@ FinishResetPlayerSize
 
 SkipUpdateLogic	
 	
-	;DELETE THIS!
-	LDA #<C0 + #SCORE_SIZE -1
-	STA ScoreD0
-	LDA #<C0 + #SCORE_SIZE -1
-	STA ScoreD1
-	LDA #<C0 + #SCORE_SIZE -1
-	STA ScoreD2
-	LDA #<C0 + #SCORE_SIZE -1
-	STA ScoreD3
-	LDA #<C0 + #SCORE_SIZE -1
-	STA ScoreD4
-
-	;END DELETE THIS
-
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUBK
 	LDA #SCORE_FONT_COLOR
@@ -379,58 +360,50 @@ ScoreLoop ; Runs in 2 lines, this is the best I can do!
 	LDA PF2Cache ;3
 	STA PF2 ;3
 
-	STY Tmp0; 3 Keep Y Value, will be use to load the correct chars
-
-	LDA Tmp1 ;3 Was previouly loaded
-	BEQ DrawScore ;2
-RightScoreOffset
-	LDX #5 ;3 Points to D5 6 7...
-
 ;39
 DrawScore
-	LDY ScoreD0,X ; 4
-	LDA Font,Y	;4
+	LDX ScoreD0 ; 4
+	LDA Font,X	;4
 	STA PF0Cache ;3
-	DEC ScoreD0,X ;6 Can only DEC with X
+	DEC ScoreD0 ;6 Can only DEC with X
 	;17
 
-	LDY ScoreD1,X ; 4
-	LDA Font,Y	;4
+	LDX ScoreD1 ; 4
+	LDA Font,X	;4
 	ASL ;2
 	ASL ;2
 	ASL ;2
 	ASL ;2
 	STA PF1Cache ;3
-	DEC ScoreD1,X ;6
+	DEC ScoreD1 ;6
 	;9 (After Wsync)
 
-	LDY ScoreD2,X ; 4
-	LDA Font,Y	;4
+	LDX ScoreD2 ; 4
+	LDA Font,X	;4
 	AND #%00001111
 	ORA PF1Cache ;3
 	STA PF1Cache ;3
-	DEC ScoreD2,X ;6
+	DEC ScoreD2 ;6
 	;20
 
-	LDY ScoreD3,X ; 3
-	LDA Font,Y	;4
+	LDX ScoreD3 ; 3
+	LDA Font,X	;4
 	LSR ;2
 	LSR ;2
 	LSR ;2
 	LSR ;2
 	STA PF2Cache ;3
-	DEC ScoreD3,X ;5
+	DEC ScoreD3 ;5
 	;23
 
-	LDY ScoreD4,X ; 3
-	LDA Font,Y	;4
+	LDX ScoreD4 ; 3
+	LDA Font,X	;4
 	AND #%11110000
 	ORA PF2Cache ;3
 	STA PF2Cache ;3
-	DEC ScoreD4,X ;5
+	DEC ScoreD4 ;5
 	;18
 
-	LDY Tmp0 ; 3 Restore the current line
 	DEY ;2
 	BPL ScoreLoop ;4
 
@@ -610,14 +583,14 @@ PrepareOverscan
 WriteDistance
 LetterS
 	LDA #<CS + #SCORE_SIZE -1 ;3
-	STA ScoreD5 ;3
+	STA ScoreD0 ;3
 ;We "multiply by 5 to get the real distance in the table"
 Digit0Distance
 	LDA TrafficOffset0 + 1 ;3
 	AND #%00001111 ;2
 	TAX ; 2
 	LDA FontLookup,X ;4 
-	STA ScoreD9 ;3
+	STA ScoreD4 ;3
 
 Digit1Distance
 	LDA TrafficOffset0 + 1 ;3
@@ -628,14 +601,14 @@ Digit1Distance
 	LSR ; 2
 	TAX ; 2
 	LDA FontLookup,X ;4
-	STA ScoreD8 ;3
+	STA ScoreD3 ;3
 
 Digit2Distance
 	LDA TrafficOffset0 + 2 ;3
 	AND #%00001111 ;2
 	TAX ; 2
 	LDA FontLookup,X ;4 
-	STA ScoreD7 ;3
+	STA ScoreD2 ;3
 
 Digit3Distance
 	LDA TrafficOffset0 + 2 ;3
@@ -646,7 +619,7 @@ Digit3Distance
 	LSR ; 2
 	TAX ; 2
 	LDA FontLookup,X ;4
-	STA ScoreD6 ;3
+	STA ScoreD1 ;3
 
 
 OverScanWait

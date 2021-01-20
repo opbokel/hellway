@@ -4,10 +4,10 @@
 2.CYCLES                 0012              (R )
 ACCELERATE_SPEED         0001              (R )
 AesTable                 fe00              (R )
-AfterEorOffsetWithCarry  f234              (R )
-AfterEorOffsetWithCarry2 f24f              (R )
-AfterEorOffsetWithCarry3 f26c              (R )
-AfterEorOffsetWithCarry4 f28b              (R )
+AfterEorOffsetWithCarry  f216              (R )
+AfterEorOffsetWithCarry2 f231              (R )
+AfterEorOffsetWithCarry3 f24e              (R )
+AfterEorOffsetWithCarry4 f26d              (R )
 AUDC0                    0015                  
 AUDC1                    0016                  
 AUDF0                    0017                  
@@ -42,7 +42,7 @@ CD                       fd41              (R )
 CE                       fd46              (R )
 CF                       fd4b              (R )
 ClearMem                 f007              (R )
-ClearPF                  f303              (R )
+ClearPF                  f2e5              (R )
 COLLISION_FRAMES         00ff              (R )
 COLLISION_SPEED_L        0042              (R )
 CollisionCounter         00ba              (R )
@@ -65,32 +65,32 @@ CXP0FB                   0002              (R )
 CXP1FB                   0003                  
 CXPPMM                   0007                  
 DecrementCollision       f12d                  
-Digit0Distance           f2cb                  
-Digit1Distance           f2d5                  
-Digit2Distance           f2e3                  
-Digit3Distance           f2ed                  
+Digit0Distance           f2ad                  
+Digit1Distance           f2b7                  
+Digit2Distance           f2c5                  
+Digit3Distance           f2cf                  
 DoNotSetPlayerX          f04b              (R )
-DrawCache                f20c                  
-DrawScore                f1a1              (R )
-DrawTraffic0             f299                  
-DrawTraffic1             f225                  
-DrawTraffic2             f240                  
-DrawTraffic3             f25d                  
-DrawTraffic4             f27c                  
+DrawCache                f1ee                  
+DrawScore                f185                  
+DrawTraffic0             f27b                  
+DrawTraffic1             f207                  
+DrawTraffic2             f222                  
+DrawTraffic3             f23f                  
+DrawTraffic4             f25e                  
 ENABL                    001f                  
 ENAM0                    001d                  
 ENAM1                    001e                  
-EorOffsetWithCarry       f232              (R )
-EorOffsetWithCarry2      f24d              (R )
-EorOffsetWithCarry3      f26a              (R )
-EorOffsetWithCarry4      f289              (R )
+EorOffsetWithCarry       f214              (R )
+EorOffsetWithCarry2      f22f              (R )
+EorOffsetWithCarry3      f24c              (R )
+EorOffsetWithCarry4      f26b              (R )
 FinishDecrementCollision f138              (R )
-FinishDrawTraffic1       f240              (R )
-FinishDrawTraffic2       f25d              (R )
-FinishDrawTraffic3       f27c              (R )
-FinishDrawTraffic4       f299              (R )
+FinishDrawTraffic1       f222              (R )
+FinishDrawTraffic2       f23f              (R )
+FinishDrawTraffic3       f25e              (R )
+FinishDrawTraffic4       f27b              (R )
 FinishResetPlayerSize    f13c              (R )
-FinishScanLoop           f2b1              (R )
+FinishScanLoop           f293              (R )
 Font                     fd00              (R )
 FontLookup               fd5a              (R )
 FrameCount0              0086              (R )
@@ -114,16 +114,16 @@ INPT3                    000b
 INPT4                    000c              (R )
 INPT5                    000d                  
 INTIM                    0284              (R )
-LeftScoreOn              f169                  
-LetterS                  f2c7                  
-LoadPF                   f312              (R )
+LeftScoreOn              f155                  
+LetterS                  f2a9                  
+LoadPF                   f2f4              (R )
 macro.h                  0000 ????         (R )
 MainLoop                 f02b              (R )
 NO_ILLEGAL_OPCODES       0001              (R )
 NoCollision              f12b              (R )
 NUSIZ0                   0004              (R )
 NUSIZ1                   0005                  
-OverScanWait             f2fb              (R )
+OverScanWait             f2dd              (R )
 PF0                      000d              (R )
 PF0Cache                 0081              (R )
 PF1                      000e              (R )
@@ -132,9 +132,9 @@ PF2                      000f              (R )
 PF2Cache                 0083              (R )
 PLAYER_1_COLOR           001c              (R )
 PLAYER_2_COLOR           0085              (R )
-PrepareForTraffic        f1ec                  
+PrepareForTraffic        f1ce                  
 PrepareNextUpdateLoop    f10f                  
-PrepareOverscan          f2bc                  
+PrepareOverscan          f29e                  
 REFP0                    000b                  
 REFP1                    000c                  
 RESBL                    0014                  
@@ -147,10 +147,9 @@ RESMP0                   0028
 RESMP1                   0029                  
 RESP0                    0010              (R )
 RESP1                    0011                  
-RightScoreOffset         f19f                  
-RightScoreOn             f178              (R )
+RightScoreOn             f164              (R )
 RSYNC                    0003                  
-ScanLoop                 f20a              (R )
+ScanLoop                 f1ec              (R )
 SCORE_BACKGROUND_COLOR   0081              (R )
 SCORE_FONT_COLOR         000f              (R )
 SCORE_SIZE               0005              (R )
@@ -159,16 +158,11 @@ ScoreD1                  00d1              (R )
 ScoreD2                  00d2              (R )
 ScoreD3                  00d3              (R )
 ScoreD4                  00d4              (R )
-ScoreD5                  00d5              (R )
-ScoreD6                  00d6              (R )
-ScoreD7                  00d7              (R )
-ScoreD8                  00d8              (R )
-ScoreD9                  00d9              (R )
-ScoreLoop                f18b              (R )
+ScoreLoop                f177              (R )
 SCREEN_SIZE              0040              (R )
 SkipAccelerate           f0ad              (R )
 SkipBreak                f0da              (R )
-SkipDrawTraffic0         f2ab              (R )
+SkipDrawTraffic0         f28d              (R )
 SkipGameStart            f060              (R )
 SkipIncFC1               f066              (R )
 SkipMoveLeft             f07a              (R )
@@ -176,7 +170,7 @@ SkipMoveRight            f083              (R )
 SkipUpdateLogic          f13c              (R )
 Space                    fd50                  
 Start                    f000              (R )
-Subroutines              f303                  
+Subroutines              f2e5                  
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
@@ -212,8 +206,8 @@ VDELP1                   0026
 VERSION_MACRO            006d                  
 VERSION_VCS              006a                  
 VSYNC                    0000              (R )
-WaitForVblankEnd         f184              (R )
-WhileScanLoop            f2ab                  
-WriteDistance            f2c7                  
+WaitForVblankEnd         f170              (R )
+WhileScanLoop            f28d                  
+WriteDistance            f2a9                  
 WSYNC                    0002              (R )
 --- End of Symbol List.
