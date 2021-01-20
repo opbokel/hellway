@@ -318,27 +318,17 @@ FinishResetPlayerSize
 SkipUpdateLogic	
 	
 	;DELETE THIS!
-	LDA #<N1 + #SCORE_SIZE -1
+	LDA #<C0 + #SCORE_SIZE -1
 	STA ScoreD0
-	LDA #<N2 + #SCORE_SIZE -1
+	LDA #<C0 + #SCORE_SIZE -1
 	STA ScoreD1
-	LDA #<N3 + #SCORE_SIZE -1
+	LDA #<C0 + #SCORE_SIZE -1
 	STA ScoreD2
-	LDA #<N4 + #SCORE_SIZE -1
+	LDA #<C0 + #SCORE_SIZE -1
 	STA ScoreD3
-	LDA #<N5 + #SCORE_SIZE -1
+	LDA #<C0 + #SCORE_SIZE -1
 	STA ScoreD4
 
-	LDA #<N6 + #SCORE_SIZE -1
-	STA ScoreD5
-	LDA #<N7 + #SCORE_SIZE -1
-	STA ScoreD6
-	LDA #<N8 + #SCORE_SIZE -1
-	STA ScoreD7
-	LDA #<N9 + #SCORE_SIZE -1
-	STA ScoreD8
-	LDA #<N0 + #SCORE_SIZE -1
-	STA ScoreD9
 	;END DELETE THIS
 
 	LDA #SCORE_BACKGROUND_COLOR
@@ -618,12 +608,53 @@ PrepareOverscan
 ;Do more logic
 
 WriteDistance
+LetterS
+	LDA #<CS + #SCORE_SIZE -1 ;3
+	STA ScoreD5 ;3
+;We "multiply by 5 to get the real distance in the table"
+Digit0Distance
+	LDA TrafficOffset0 + 1 ;3
+	AND #%00001111 ;2
+	TAX ; 2
+	LDA FontLookup,X ;4 
+	STA ScoreD9 ;3
+
+Digit1Distance
+	LDA TrafficOffset0 + 1 ;3
+	AND #%11110000 ;2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	TAX ; 2
+	LDA FontLookup,X ;4
+	STA ScoreD8 ;3
+
+Digit2Distance
+	LDA TrafficOffset0 + 2 ;3
+	AND #%00001111 ;2
+	TAX ; 2
+	LDA FontLookup,X ;4 
+	STA ScoreD7 ;3
+
+Digit3Distance
+	LDA TrafficOffset0 + 2 ;3
+	AND #%11110000 ;2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	TAX ; 2
+	LDA FontLookup,X ;4
+	STA ScoreD6 ;3
+
 
 OverScanWait
 	LDA INTIM	
 	BNE OverScanWait ;Is there a better way?	
 	JMP MainLoop      
 
+Subroutines
 ClearPF ; 26
 	LDA #0  	  ;2
 	STA PF0		  ;3
@@ -649,72 +680,137 @@ LoadPF ; 24
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
 	org $FD00
 Font	
-Space
-	.byte %0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
-N0
+C0
 	.byte #%11100111;
 	.byte #%10100101; 
 	.byte #%10100101; 
 	.byte #%10100101; 
 	.byte #%11100111;	
-N1	
+C1	
 	.byte #%11100111;
 	.byte #%01000010; 
 	.byte #%01000010; 
 	.byte #%01000010; 
 	.byte #%01100110;
-N2
+C2
 	.byte #%11100111;
 	.byte #%00100100; 
 	.byte #%11100111; 
 	.byte #%10000001; 
 	.byte #%11100111;
-N3
+C3
 	.byte #%11100111;
 	.byte #%10000001; 
 	.byte #%11100111; 
 	.byte #%10000001; 
 	.byte #%11100111;
-N4
+C4
 	.byte #%10000001;
 	.byte #%10000001; 
 	.byte #%11100111; 
 	.byte #%10100101; 
 	.byte #%10100101;
-N5
+C5
 	.byte #%11100111;
 	.byte #%10000001; 
 	.byte #%11100111; 
 	.byte #%00100100; 
 	.byte #%11100111;
-N6
+C6
 	.byte #%11100111;
 	.byte #%10100101; 
 	.byte #%11100111; 
 	.byte #%00100100; 
 	.byte #%11100111;
-N7
+C7
 	.byte #%10000001;
 	.byte #%10000001; 
 	.byte #%10000001; 
 	.byte #%10000001; 
 	.byte #%11100111;
-N8
+C8
 	.byte #%11100111;
 	.byte #%10100101; 
 	.byte #%11100111; 
 	.byte #%10100101; 
 	.byte #%11100111;
-N9
+C9
 	.byte #%11100111;
 	.byte #%10000001; 
 	.byte #%11100111; 
 	.byte #%10100101; 
 	.byte #%11100111;
+CA
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%11100111;
+CB
+	.byte #%01100110;
+	.byte #%10100101; 
+	.byte #%01100110; 
+	.byte #%10100101;
+	.byte #%01100110;
+CC
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%00100100; 
+	.byte #%00100100;
+	.byte #%11100111;
+
+CD
+	.byte #%01100110;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101;
+	.byte #%01100110;
+
+CE
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%11100111; 
+	.byte #%00100100; 
+	.byte #%11100111;
+
+CF
+	.byte #%00100100;
+	.byte #%00100100; 
+	.byte #%11100111; 
+	.byte #%00100100; 
+	.byte #%11100111;
+
+Space ; Moved from the beggining so 0 to F is fast to draw.
+	.byte %0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+
+CS
+	.byte #%01100110;
+	.byte #%10000001; 
+	.byte #%01000010; 
+	.byte #%00100100; 
+	.byte #%11000011;
+
+FontLookup ; Very fast font lookup for dynamic values!
+	.byte #<C0 + #SCORE_SIZE -1
+	.byte #<C1 + #SCORE_SIZE -1 
+	.byte #<C2 + #SCORE_SIZE -1 
+	.byte #<C3 + #SCORE_SIZE -1 
+	.byte #<C4 + #SCORE_SIZE -1 
+	.byte #<C5 + #SCORE_SIZE -1 
+	.byte #<C6 + #SCORE_SIZE -1 
+	.byte #<C7 + #SCORE_SIZE -1 
+	.byte #<C8 + #SCORE_SIZE -1 
+	.byte #<C9 + #SCORE_SIZE -1 
+	.byte #<CA + #SCORE_SIZE -1 
+	.byte #<CB + #SCORE_SIZE -1 
+	.byte #<CC + #SCORE_SIZE -1 
+	.byte #<CD + #SCORE_SIZE -1 
+	.byte #<CE + #SCORE_SIZE -1 
+	.byte #<CF + #SCORE_SIZE -1 
 
 
 	org $FE00
