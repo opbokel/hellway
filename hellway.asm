@@ -214,7 +214,7 @@ Break
 	BIT SWCHA 
 	BNE SkipBreak
 
-;Decrease speed
+DecreaseSpeed
 	SEC
 	LDA Car0SpeedL
 	SBC #BREAK_SPEED
@@ -223,7 +223,7 @@ Break
 	SBC #0
 	STA Car0SpeedH
 
-;Checks if is min speed
+ChecksMinSpeed
 	BMI ResetMinSpeed; Overflow d7 is set
 	CMP #CAR_MIN_SPEED_H
 	BEQ CompareLBreakSpeed; is the same as minimun, compare other byte.
@@ -259,7 +259,7 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	STA Tmp2
 
 
-;Adds the result
+AddsTheResult
 	CLC
 	LDA Tmp0
 	ADC TrafficOffset0,X
@@ -296,7 +296,9 @@ TestCollision;
 	LDA #COLLISION_SPEED_L ;
 	STA Car0SpeedL	
 	LDA #0
-	STA Car0SpeedH	
+	STA Car0SpeedH
+	LDX #$40	;Move car left 4 color clocks, to center the stretch (+4)	
+	STX HMP0
 NoCollision
 	STA CXCLR	;3 reset the collision detection for next frame.
 
@@ -313,6 +315,13 @@ ResetPlayerSize
 	BNE FinishResetPlayerSize
 	STY NUSIZ0;
 FinishResetPlayerSize
+
+ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina size
+	CPY #1 ; Last frame before reset
+	BNE SkipResetPlayerPosition
+	LDX #$C0	;Move car left 4 color clocks, to center the stretch (-4)
+	STX HMP0
+SkipResetPlayerPosition
 
 SkipUpdateLogic	
 	
