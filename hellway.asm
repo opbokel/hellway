@@ -10,7 +10,7 @@ SCREEN_SIZE = 64;(VSy)
 SCORE_SIZE = 5
 GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
 COLLISION_FRAMES = $FF; 4,5 seconds
-COLLISION_SPEED_L = $42;
+COLLISION_SPEED_L = $10;
 
 TRAFFIC_LINE_COUNT = 5
 ;16 bit precision
@@ -31,6 +31,8 @@ TRAFFIC_1_CHANCE = #$20
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $81
 SCORE_FONT_COLOR = $0F
+PLAYER_0_X_START = $3A;
+PLAYER_0_MAX_X = $44 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 	
 
 GRP0Cache = $80
@@ -56,8 +58,9 @@ Tmp1=$B1
 Tmp2=$B2
 
 CollisionCounter=$BA
+Player0X = $BB
 
-GameStatus = $C0 ; Flags, D7 = running, expect more flags
+GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -99,22 +102,39 @@ ClearMem
 	LDA TrafficSpeeds + 4 * 2 ; Same as the line he is in.
 	STA Car0SpeedL	
 	
+	LDA PLAYER_0_X_START
+	STA Player0X
 	
 ;VSYNC time
 MainLoop
 	LDA #2
 	STA VSYNC	
-	STA WSYNC	
+	STA WSYNC
+TestPlayer0Outside	
+	LDA #PLAYER_0_MAX_X
+	CMP Player0X
+	BCS SkipPlayer0Outside
+ResetPlayerInitialPosition
+	LDA GameStatus
+	ORA #%01000000 ; Must reset player position
+	STA GameStatus
+
+SkipPlayer0Outside	
 	STA WSYNC
 ;Cool, can put code here! It removed the black line on top
 ;Make Objects move in the X axys
 	STA HMOVE  ;2
 ;This must be done after a WSync, otherwise it is impossible to predict the X position
 	LDA GameStatus ;3
-	EOR #%10000000 ;2 game running, we get 0 and not reset the position.
+	EOR #%10000000 ;2 game running, we get 0 and not reset the position. But we still get if reset player area
 	BEQ DoNotSetPlayerX ;3
+	LDX PLAYER_0_X_START ; 2
+	STX Player0X ; 3
+	LDA #%10111111 ;2 Erase the reset flag
+	AND GameStatus
+	STA GameStatus
 	;Do something better with this 32 cycles
-	SLEEP 27; Maybe fine position with hmove...
+	SLEEP 13;
 	STA RESP0 ;3
 
 DoNotSetPlayerX
@@ -143,8 +163,8 @@ SkipIncFC1
 
 ;Does not update the game if not running
 	LDA GameStatus ;3
-	EOR #%10000000 ;2 game is running...
-	BEQ ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
+	AND #%10000000 ;2 game is running...
+	BNE ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
 	JMP SkipUpdateLogic
 
 ContinueWithGameLogic
@@ -163,12 +183,13 @@ BeginReadDpad
 	BIT SWCHA 
 	BNE SkipMoveLeft
 	LDX #$10	;a 1 in the left nibble means go left
+	DEC Player0X
 SkipMoveLeft
-	
 	LDA #%10000000	;Right
 	BIT SWCHA 
 	BNE SkipMoveRight
 	LDX #$F0	;a -1 in the left nibble means go right...
+	INC Player0X
 SkipMoveRight
 
 	STX HMP0	;set the move for player 0, not the missile like last time...
