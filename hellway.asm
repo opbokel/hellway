@@ -19,7 +19,6 @@ CAR_MAX_SPEED_H = $02
 CAR_MAX_SPEED_L = $80
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
-BACKGROUND_COLOR = $00 ;Black
 PLAYER_1_COLOR = $1C ;Yellow
 PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
@@ -28,9 +27,10 @@ BREAK_SPEED = 6
 TRAFFIC_1_MASK = #%11111000 ;Min car size... Maybe make different per track
 TRAFFIC_1_CHANCE = #$20
 
+BACKGROUND_COLOR = $03 ;Grey
 TRAFFIC_COLOR = $34
-SCORE_BACKGROUND_COLOR = $81
-SCORE_FONT_COLOR = $0F
+SCORE_BACKGROUND_COLOR = $87
+SCORE_FONT_COLOR = $0C
 PLAYER_0_X_START = $3A;
 PLAYER_0_MAX_X = $44 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 	

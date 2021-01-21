@@ -15,7 +15,7 @@ AUDF0                    0017
 AUDF1                    0018                  
 AUDV0                    0019                  
 AUDV1                    001a                  
-BACKGROUND_COLOR         0000              (R )
+BACKGROUND_COLOR         0003              (R )
 BeginReadDpad            f082                  
 Break                    f0c8                  
 BREAK_SPEED              0006              (R )
@@ -164,8 +164,8 @@ RightScoreWrite          f30d              (R )
 RightScoreWriteEnd       f319              (R )
 RSYNC                    0003                  
 ScanLoop                 f213              (R )
-SCORE_BACKGROUND_COLOR   0081              (R )
-SCORE_FONT_COLOR         000f              (R )
+SCORE_BACKGROUND_COLOR   0087              (R )
+SCORE_FONT_COLOR         000c              (R )
 SCORE_SIZE               0005              (R )
 ScoreD0                  00d0              (R )
 ScoreD1                  00d1              (R )

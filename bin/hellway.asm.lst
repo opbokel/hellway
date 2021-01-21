@@ -394,18 +394,18 @@
      19  f000		       00 80	   CAR_MAX_SPEED_L =	$80
      20  f000		       00 00	   CAR_MIN_SPEED_H =	0
      21  f000		       00 00	   CAR_MIN_SPEED_L =	0
-     22  f000		       00 00	   BACKGROUND_COLOR =	$00	;Black
-     23  f000		       00 1c	   PLAYER_1_COLOR =	$1C	;Yellow
-     24  f000		       00 85	   PLAYER_2_COLOR =	$85	;Blue
-     25  f000		       00 01	   ACCELERATE_SPEED =	1
-     26  f000		       00 06	   BREAK_SPEED =	6
-     27  f000							;For now, will use in all rows until figure out if make it dynamic or not.
-     28  f000		       00 f8	   TRAFFIC_1_MASK =	#%11111000	;Min car size... Maybe make different per track
-     29  f000		       00 20	   TRAFFIC_1_CHANCE =	#$20
-     30  f000
+     22  f000		       00 1c	   PLAYER_1_COLOR =	$1C	;Yellow
+     23  f000		       00 85	   PLAYER_2_COLOR =	$85	;Blue
+     24  f000		       00 01	   ACCELERATE_SPEED =	1
+     25  f000		       00 06	   BREAK_SPEED =	6
+     26  f000							;For now, will use in all rows until figure out if make it dynamic or not.
+     27  f000		       00 f8	   TRAFFIC_1_MASK =	#%11111000	;Min car size... Maybe make different per track
+     28  f000		       00 20	   TRAFFIC_1_CHANCE =	#$20
+     29  f000
+     30  f000		       00 03	   BACKGROUND_COLOR =	$03	;Grey
      31  f000		       00 34	   TRAFFIC_COLOR =	$34
-     32  f000		       00 81	   SCORE_BACKGROUND_COLOR =	$81
-     33  f000		       00 0f	   SCORE_FONT_COLOR =	$0F
+     32  f000		       00 87	   SCORE_BACKGROUND_COLOR =	$87
+     33  f000		       00 0c	   SCORE_FONT_COLOR =	$0C
      34  f000		       00 3a	   PLAYER_0_X_START =	$3A	;
      35  f000		       00 44	   PLAYER_0_MAX_X =	$44	; Going left will underflow to FF, so it only have to be less (unsigned) than this
      36  f000
@@ -748,9 +748,9 @@
     346  f163
     347  f163				   SkipUpdateLogic
     348  f163
-    349  f163		       a9 81		      LDA	#SCORE_BACKGROUND_COLOR
+    349  f163		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
     350  f165		       85 09		      STA	COLUBK
-    351  f167		       a9 0f		      LDA	#SCORE_FONT_COLOR
+    351  f167		       a9 0c		      LDA	#SCORE_FONT_COLOR
     352  f169		       85 08		      STA	COLUPF
     353  f16b		       20 21 f3 	      JSR	ClearPF
     354  f16e		       a9 02		      LDA	#%00000010	; Score mode
@@ -762,17 +762,17 @@
     360  f178		       29 01		      AND	#%00000001	;2
     361  f17a		       f0 0f		      BEQ	RightScoreOn	; Half of the screen with the correct colors.
     362  f17c				   LeftScoreOn
-    363  f17c		       a9 0f		      LDA	#SCORE_FONT_COLOR
+    363  f17c		       a9 0c		      LDA	#SCORE_FONT_COLOR
     364  f17e		       85 07		      STA	COLUP1
-    365  f180		       a9 81		      LDA	#SCORE_BACKGROUND_COLOR
+    365  f180		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
     366  f182		       85 06		      STA	COLUP0
     367  f184		       a9 01		      LDA	#1	;Jumps faster in the draw loop
     368  f186		       85 b1		      STA	Tmp1
     369  f188		       4c 97 f1 	      JMP	WaitForVblankEnd
     370  f18b				   RightScoreOn
-    371  f18b		       a9 0f		      LDA	#SCORE_FONT_COLOR
+    371  f18b		       a9 0c		      LDA	#SCORE_FONT_COLOR
     372  f18d		       85 06		      STA	COLUP0
-    373  f18f		       a9 81		      LDA	#SCORE_BACKGROUND_COLOR
+    373  f18f		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
     374  f191		       85 07		      STA	COLUP1
     375  f193		       a9 00		      LDA	#0	;Jumps faster in the draw loop
     376  f195		       85 b1		      STA	Tmp1
@@ -857,7 +857,7 @@
     455  f1f8		       a9 34		      LDA	#TRAFFIC_COLOR	;2
     456  f1fa		       85 06		      STA	COLUP0
     457  f1fc
-    458  f1fc		       a9 00		      LDA	#BACKGROUND_COLOR	;2
+    458  f1fc		       a9 03		      LDA	#BACKGROUND_COLOR	;2
     459  f1fe		       85 07		      STA	COLUP1	;3
     460  f200
     461  f200							;Traffic colour
@@ -866,7 +866,7 @@
     464  f204
     465  f204		       a4 3a		      LDY	GAMEPLAY_AREA	;2; (Score)
     466  f206
-    467  f206		       a9 00		      LDA	#BACKGROUND_COLOR	;2 Make it in the very end, so we have one more nice blue line
+    467  f206		       a9 03		      LDA	#BACKGROUND_COLOR	;2 Make it in the very end, so we have one more nice blue line
       0  f208					      SLEEP	18	; Wait, so the line stay blue
       1  f208				   .CYCLES    SET	18
       2  f208
