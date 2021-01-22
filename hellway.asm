@@ -31,8 +31,8 @@ BACKGROUND_COLOR = $03 ;Grey
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $87
 SCORE_FONT_COLOR = $0C
-PLAYER_0_X_START = $3A;
-PLAYER_0_MAX_X = $44 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
+PLAYER_0_X_START = $28;
+PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 	
 
 GRP0Cache = $80
@@ -43,8 +43,8 @@ PF2Cache = $83
 FrameCount0 = $86;
 FrameCount1 = $87;
 
-Car0SpeedL = $88
-Car0SpeedH = $89
+Player0SpeedL = $88
+Player0SpeedH = $89
 
 TrafficOffset0 = $90; Border $91 $92 (24 bit) $93 is cache
 TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
@@ -100,7 +100,7 @@ ClearMem
 	LDA #$A0
 
 	LDA TrafficSpeeds + 4 * 2 ; Same as the line he is in.
-	STA Car0SpeedL	
+	STA Player0SpeedL	
 	
 	LDA PLAYER_0_X_START
 	STA Player0X
@@ -110,31 +110,17 @@ MainLoop
 	LDA #2
 	STA VSYNC	
 	STA WSYNC
-TestPlayer0Outside	
-	LDA #PLAYER_0_MAX_X
-	CMP Player0X
-	BCS SkipPlayer0Outside
-ResetPlayerInitialPosition
-	LDA GameStatus
-	ORA #%01000000 ; Must reset player position
-	STA GameStatus
-
-SkipPlayer0Outside	
 	STA WSYNC
-;Cool, can put code here! It removed the black line on top
-;Make Objects move in the X axys
+;Apply Movement, must be done after a WSYNC
 	STA HMOVE  ;2
 ;This must be done after a WSync, otherwise it is impossible to predict the X position
 	LDA GameStatus ;3
-	EOR #%10000000 ;2 game running, we get 0 and not reset the position. But we still get if reset player area
-	BEQ DoNotSetPlayerX ;3
+	AND #%10000000 ;2 game running, we get 0 and not reset the position.
+	BNE DoNotSetPlayerX ;3
 	LDX PLAYER_0_X_START ; 2
 	STX Player0X ; 3
-	LDA #%10111111 ;2 Erase the reset flag
-	AND GameStatus
-	STA GameStatus
-	;Do something better with this 32 cycles
-	SLEEP 13;
+	;Do something better than sleep
+	SLEEP 21;
 	STA RESP0 ;3
 
 DoNotSetPlayerX
@@ -169,31 +155,6 @@ SkipIncFC1
 
 ContinueWithGameLogic
 
-; for left and right, we're gonna 
-; set the horizontal speed, and then do
-; a single HMOVE.  We'll use X to hold the
-; horizontal speed, then store it in the 
-; appropriate register
-
-;assum horiz speed will be zero
-
-BeginReadDpad
-	LDX #0
-	LDA #%01000000	;Left
-	BIT SWCHA 
-	BNE SkipMoveLeft
-	LDX #$10	;a 1 in the left nibble means go left
-	DEC Player0X
-SkipMoveLeft
-	LDA #%10000000	;Right
-	BIT SWCHA 
-	BNE SkipMoveRight
-	LDX #$F0	;a -1 in the left nibble means go right...
-	INC Player0X
-SkipMoveRight
-
-	STX HMP0	;set the move for player 0, not the missile like last time...
-
 
 ;Acelerates / breaks the car
 	LDA INPT4 ;3
@@ -205,28 +166,28 @@ SkipMoveRight
 IncreaseCarSpeed
 ;Adds speed
 	CLC
-	LDA Car0SpeedL
+	LDA Player0SpeedL
 	ADC #ACCELERATE_SPEED
-	STA Car0SpeedL
-	LDA Car0SpeedH
+	STA Player0SpeedL
+	LDA Player0SpeedH
 	ADC #0
-	STA Car0SpeedH
+	STA Player0SpeedH
 
 ;Checks if already max
 	CMP #CAR_MAX_SPEED_H
 	BCC SkipAccelerate ; less than my max speed
 	BNE ResetToMaxSpeed ; Not equal, so if I am less, and not equal, I am more!
 	;High bit is max, compare the low
-	LDA Car0SpeedL
+	LDA Player0SpeedL
 	CMP #CAR_MAX_SPEED_L
 	BCC SkipAccelerate ; High bit is max, but low bit is not
 	;BEQ SkipAccelerate ; Optimize best case, but not worse case
 
 ResetToMaxSpeed ; Speed is more, or is already max
 	LDA #CAR_MAX_SPEED_H
-	STA Car0SpeedH
+	STA Player0SpeedH
 	LDA #CAR_MAX_SPEED_L
-	STA Car0SpeedL
+	STA Player0SpeedL
 
 SkipAccelerate
 
@@ -237,12 +198,12 @@ Break
 
 DecreaseSpeed
 	SEC
-	LDA Car0SpeedL
+	LDA Player0SpeedL
 	SBC #BREAK_SPEED
-	STA Car0SpeedL
-	LDA Car0SpeedH
+	STA Player0SpeedL
+	LDA Player0SpeedH
 	SBC #0
-	STA Car0SpeedH
+	STA Player0SpeedH
 
 ChecksMinSpeed
 	BMI ResetMinSpeed; Overflow d7 is set
@@ -251,16 +212,16 @@ ChecksMinSpeed
 	BCS SkipBreak; Greater than min, we are ok! 
 
 CompareLBreakSpeed	
-	LDA Car0SpeedL
+	LDA Player0SpeedL
 	CMP #CAR_MIN_SPEED_L	
 	BCC ResetMinSpeed ; Less than memory
 	JMP SkipBreak ; We are greather than min speed in the low byte.
 
 ResetMinSpeed
 	LDA #CAR_MIN_SPEED_H
-	STA Car0SpeedH
+	STA Player0SpeedH
 	LDA #CAR_MIN_SPEED_L
-	STA Car0SpeedL
+	STA Player0SpeedL
 SkipBreak
 
 ;Updates all offsets 24 bits
@@ -268,11 +229,11 @@ SkipBreak
 	LDY #0 ; Line Speeds 16 bits
 UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SEC
-	LDA Car0SpeedL
+	LDA Player0SpeedL
 	SBC TrafficSpeeds,Y
 	STA Tmp0
 	INY
-	LDA Car0SpeedH
+	LDA Player0SpeedH
 	SBC TrafficSpeeds,Y
 	STA Tmp1
 	LDA #0; Hard to figure out, makes the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
@@ -315,13 +276,43 @@ TestCollision;
 	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
 	STA CollisionCounter	;and store as colision (will do more with it!)
 	LDA #COLLISION_SPEED_L ;
-	STA Car0SpeedL	
+	STA Player0SpeedL	
 	LDA #0
-	STA Car0SpeedH
+	STA Player0SpeedH
 	LDX #$40	;Move car left 4 color clocks, to center the stretch (+4)	
-	STX HMP0
+	JMP StoreHMove ; We keep position consistent
 NoCollision
-	STA CXCLR	;3 reset the collision detection for next frame.
+	;Will reset after reading inputs to save cycles
+
+; for left and right, we're gonna 
+; set the horizontal speed, and then do
+; a single HMOVE.  We'll use X to hold the
+; horizontal speed, then store it in the 
+; appropriate register
+PrepareReadXAxis
+	LDX #0
+	LDY Player0X
+BeginReadLeft
+	BEQ SkipMoveLeft ; We do not move after maximum
+	LDA #%01000000	;Left
+	BIT SWCHA 
+	BNE SkipMoveLeft
+	LDX #$10	;a 1 in the left nibble means go left
+	DEC Player0X
+	JMP StoreHMove ; Cannot move left and right...
+SkipMoveLeft
+BeginReadRight
+	CPY #PLAYER_0_MAX_X
+	BEQ SkipMoveRight ; At max already
+	LDA #%10000000	;Right
+	BIT SWCHA 
+	BNE SkipMoveRight
+	LDX #$F0	;a -1 in the left nibble means go right...
+	INC Player0X
+SkipMoveRight
+StoreHMove
+	STX HMP0	;set the move for player 0, not the missile like last time...
+	STA CXCLR	;reset the collision detection for next frame.
 
 DecrementCollision
 	LDY CollisionCounter
