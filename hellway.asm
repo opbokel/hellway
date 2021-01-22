@@ -266,6 +266,7 @@ PrepareNextUpdateLoop
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
 
+;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
 ; see if car0 and playfield collide, and change the background color if so
 	LDA #%10000000
@@ -282,7 +283,27 @@ TestCollision;
 	LDX #$40	;Move car left 4 color clocks, to center the stretch (+4)	
 	JMP StoreHMove ; We keep position consistent
 NoCollision
-	;Will reset after reading inputs to save cycles
+
+DecrementCollision
+	LDY CollisionCounter
+	BEQ FinishDecrementCollision
+	LDA #%00000101; Make player bigger to show colision
+	STA NUSIZ0
+	DEY
+	STY CollisionCounter ; We save some cycles in reset size.
+FinishDecrementCollision
+
+ResetPlayerSize
+	BNE FinishResetPlayerSize
+	STY NUSIZ0;
+FinishResetPlayerSize
+
+ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina size
+	CPY #1 ; Last frame before reset
+	BNE SkipResetPlayerPosition
+	LDX #$C0	;Move car left 4 color clocks, to center the stretch (-4)
+	JMP StoreHMove
+SkipResetPlayerPosition
 
 ; for left and right, we're gonna 
 ; set the horizontal speed, and then do
@@ -314,29 +335,8 @@ StoreHMove
 	STX HMP0	;set the move for player 0, not the missile like last time...
 	STA CXCLR	;reset the collision detection for next frame.
 
-DecrementCollision
-	LDY CollisionCounter
-	BEQ FinishDecrementCollision
-	LDX #%00000101; Make player bigger to show colision
-	STX NUSIZ0
-	DEY
-	STY CollisionCounter ; We save some cycles in reset size.
-FinishDecrementCollision
-
-ResetPlayerSize
-	BNE FinishResetPlayerSize
-	STY NUSIZ0;
-FinishResetPlayerSize
-
-ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina size
-	CPY #1 ; Last frame before reset
-	BNE SkipResetPlayerPosition
-	LDX #$C0	;Move car left 4 color clocks, to center the stretch (-4)
-	STX HMP0
-SkipResetPlayerPosition
 
 SkipUpdateLogic	
-	
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUBK
 	LDA #SCORE_FONT_COLOR
