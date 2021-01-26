@@ -10,6 +10,7 @@ SCREEN_SIZE = 64;(VSy)
 SCORE_SIZE = 5
 GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
 COLLISION_FRAMES = $FF; 4,5 seconds
+SCORE_FONT_HOLD_CHANGE = $FF; 4,5 seconds
 COLLISION_SPEED_L = $10;
 
 TRAFFIC_LINE_COUNT = 5
@@ -25,14 +26,20 @@ ACCELERATE_SPEED = 1
 BREAK_SPEED = 6
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = #%11111000 ;Min car size... Maybe make different per track
-TRAFFIC_1_CHANCE = #$20
+TRAFFIC_1_CHANCE = #0;$20
 
 BACKGROUND_COLOR = $03 ;Grey
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $87
 SCORE_FONT_COLOR = $0C
+SCORE_FONT_COLOR_GOOD = $D8
+SCORE_FONT_COLOR_BAD = $33
 PLAYER_0_X_START = $28;
 PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
+INITIAL_COUNTDOWN_TIME = 60;
+CHECKPOINT_ADD_TIME = 30;
+
+CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 	
 
 GRP0Cache = $80
@@ -59,6 +66,10 @@ Tmp2=$B2
 
 CollisionCounter=$BA
 Player0X = $BB
+CountdownTimer = $BC
+Traffic0Msb=$BD
+
+
 
 GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
 
@@ -67,6 +78,10 @@ ScoreD1 = $D1
 ScoreD2 = $D2
 ScoreD3 = $D3
 ScoreD4 = $D4
+ScoreFontColor=$D5
+ScoreFontColorHoldChange=$D6
+NextCheckpoint=$D7
+
 
 ;generic start up stuff, put zero in all...
 Start
@@ -89,6 +104,8 @@ ClearMem
 	STA COLUP1
 
 	;Loop ?
+	LDA #1
+	STA TrafficOffset1 + 0 ; So we can detect loop
 	LDA #$20
 	STA TrafficOffset1 + 2
 	LDA #$40
@@ -104,6 +121,12 @@ ClearMem
 	
 	LDA PLAYER_0_X_START
 	STA Player0X
+
+	LDA #INITIAL_COUNTDOWN_TIME
+	STA CountdownTimer
+
+	LDA #CHECKPOINT_INTERVAL
+	STA NextCheckpoint
 	
 ;VSYNC time
 MainLoop
@@ -136,8 +159,13 @@ StartGame
 	LDA INPT4 ;3
 	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
 	LDA GameStatus ;3
+	AND #%10000000
+	BNE SkipGameStart
 	ORA #%10000000 ;2
 	STA GameStatus ;3
+	LDA #0;
+	STA FrameCount0
+	STA FrameCount1
 SkipGameStart
 	
 CountFrame	
@@ -146,7 +174,6 @@ CountFrame
 	INC FrameCount1 ; 5 Still not used
 SkipIncFC1
 
-
 ;Does not update the game if not running
 	LDA GameStatus ;3
 	AND #%10000000 ;2 game is running...
@@ -154,6 +181,13 @@ SkipIncFC1
 	JMP SkipUpdateLogic
 
 ContinueWithGameLogic
+
+EverySecond ; 64 frames to be more precise
+	LDA #%00111111
+	AND FrameCount0
+	BNE SkipEverySecondAction
+	DEC CountdownTimer
+SkipEverySecondAction
 
 
 ;Acelerates / breaks the car
@@ -254,17 +288,24 @@ AddsTheResult
 	LDA Tmp2 ; Carry
 	ADC TrafficOffset0,X
 	STA TrafficOffset0,X
+	BCC CalculateOffsetCache
+	CPX #2 ;MSB offset 0
+	BNE CalculateOffsetCache
+	INC Traffic0Msb
+
+CalculateOffsetCache
 	INX
 	SEC
 	ADC #0 ;Increment by one
 	STA TrafficOffset0,X ; cache of the other possible value for the MSB in the frame, make drawing faster.
-
 
 PrepareNextUpdateLoop
 	INY
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
+
+
 
 ;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
@@ -339,7 +380,7 @@ StoreHMove
 SkipUpdateLogic	
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUBK
-	LDA #SCORE_FONT_COLOR
+	LDA ScoreFontColor
 	STA COLUPF  
 	JSR ClearPF
 	LDA #%00000010 ; Score mode
@@ -351,7 +392,7 @@ SkipUpdateLogic
 	AND #%00000001 ;2
 	BEQ RightScoreOn ; Half of the screen with the correct colors.
 LeftScoreOn
-	LDA #SCORE_FONT_COLOR
+	LDA ScoreFontColor
 	STA COLUP1
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP0
@@ -359,7 +400,7 @@ LeftScoreOn
 	STA Tmp1
 	JMP WaitForVblankEnd
 RightScoreOn
-	LDA #SCORE_FONT_COLOR
+	LDA ScoreFontColor
 	STA COLUP0
 	LDA #SCORE_BACKGROUND_COLOR
 	STA COLUP1
@@ -605,6 +646,39 @@ PrepareOverscan
 	LDA #36 ; one more line before overscan...
 	STA TIM64T	
 
+ProcessScoreFontColor
+	LDX ScoreFontColorHoldChange
+	BEQ ResetScoreFontColor
+	DEX
+	STX ScoreFontColorHoldChange
+	JMP SkipScoreFontColor
+ResetScoreFontColor
+	LDA #SCORE_FONT_COLOR
+	STA ScoreFontColor
+SkipScoreFontColor
+
+IsCheckpoint
+	LDA NextCheckpoint
+	CMP TrafficOffset0 + 2
+	BNE SkipIsCheckpoint
+	CLC
+	ADC #CHECKPOINT_INTERVAL
+	STA NextCheckpoint
+	LDA #SCORE_FONT_COLOR_GOOD
+	STA ScoreFontColor
+	LDA #SCORE_FONT_HOLD_CHANGE
+	STA ScoreFontColorHoldChange
+	LDA CountdownTimer
+	CLC
+	ADC #CHECKPOINT_ADD_TIME
+	STA CountdownTimer
+	JMP SkipIsTimeOver ; Checkpoints will add time, so no time over routine, should also override time over.
+SkipIsCheckpoint
+
+IsTimeOver
+
+SkipIsTimeOver
+
 ;Could be done during on vblank to save this comparisson time (before draw score), 
 ;but I am saving vblank cycles for now, in case of 2 players.
 ChooseSide ; 
@@ -614,18 +688,8 @@ ChooseSide ;
 
 LeftScoreWrite
 WriteDistance ;Not optimized yet, ugly code.
-LetterS
-	LDA #<CS + #SCORE_SIZE -1 ;3
-	STA ScoreD0 ;3
-;We "multiply by 5 to get the real distance in the table"
-Digit0Distance
-	LDA TrafficOffset0 + 1 ;3
-	AND #%00001111 ;2
-	TAX ; 2
-	LDA FontLookup,X ;4 
-	STA ScoreD4 ;3
 
-Digit1Distance
+Digit0Distance
 	LDA TrafficOffset0 + 1 ;3
 	AND #%11110000 ;2
 	LSR ; 2
@@ -636,14 +700,14 @@ Digit1Distance
 	LDA FontLookup,X ;4
 	STA ScoreD3 ;3
 
-Digit2Distance
+Digit1Distance
 	LDA TrafficOffset0 + 2 ;3
 	AND #%00001111 ;2
 	TAX ; 2
 	LDA FontLookup,X ;4 
 	STA ScoreD2 ;3
 
-Digit3Distance
+Digit2Distance
 	LDA TrafficOffset0 + 2 ;3
 	AND #%11110000 ;2
 	LSR ; 2
@@ -653,16 +717,65 @@ Digit3Distance
 	TAX ; 2
 	LDA FontLookup,X ;4
 	STA ScoreD1 ;3
+
+Digit3Distance
+	LDA Traffic0Msb ;3
+	AND #%00001111 ;2
+	TAX ; 2
+	LDA FontLookup,X ;4 
+	STA ScoreD0 ;3
+
+	LDA #<Pipe + #SCORE_SIZE -1 ;3
+	STA ScoreD4 ;3
 EndDrawDistance
 	JMP RightScoreWriteEnd;3
 
 RightScoreWrite
-	LDA #<C0 + #SCORE_SIZE -1 ;3
-	STA ScoreD0 ;3
+Digit0Timer
+	LDA CountdownTimer ;3
+	AND #%00001111 ;2
+	TAX ; 2
+	LDA FontLookup,X ;4 
 	STA ScoreD1 ;3
+
+Digit1Timer
+	LDA CountdownTimer ;3
+	AND #%11110000 ;2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	TAX ; 2
+	LDA FontLookup,X ;4
+	STA ScoreD0 ;3
+
+	LDA #<Pipe + #SCORE_SIZE -1 ;3
 	STA ScoreD2 ;3
-	STA ScoreD3 ;3
+
+Digit0Speed
+	LDA Player0SpeedL
+	AND #%00111100 ;2 Discard the last bits
+	LSR ; 2
+	LSR ; 2
+	TAX ; 2
+	LDA FontLookup,X ;4
 	STA ScoreD4 ;3
+
+Digit1Speed
+	LDA Player0SpeedL
+	AND #%11000000 ;2 Discard the last bits
+	ROL ;First goes into carry
+	ROL
+	ROL
+	STA Tmp0
+	LDA Player0SpeedH
+	ASL
+	ASL
+	ORA Tmp0
+	TAX ; 2
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+
 RightScoreWriteEnd
 
 OverScanWait
@@ -810,6 +923,20 @@ CS
 	.byte #%01000010; 
 	.byte #%00100100; 
 	.byte #%11000011;
+
+CT 
+	.byte #%01000010;
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%11100111;
+
+Pipe
+	.byte #%01000010;
+	.byte #%00000000; 
+	.byte #%01000010; 
+	.byte #%00000000; 
+	.byte #%01000010;
 
 FontLookup ; Very fast font lookup for dynamic values!
 	.byte #<C0 + #SCORE_SIZE -1
