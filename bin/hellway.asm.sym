@@ -19,7 +19,7 @@ BACKGROUND_COLOR         0003              (R )
 BeginReadLeft            f165                  
 BeginReadRight           f175                  
 Break                    f0be                  
-BREAK_SPEED              0006              (R )
+BREAK_SPEED              000a              (R )
 C0                       fd00              (R )
 C1                       fd05              (R )
 C2                       fd0a              (R )
@@ -122,7 +122,7 @@ HMOVE                    002a              (R )
 HMP0                     0020              (R )
 HMP1                     0021                  
 IncreaseCarSpeed         f09d              (R )
-INITIAL_COUNTDOWN_TIME   003c              (R )
+INITIAL_COUNTDOWN_TIME   005a              (R )
 INPT0                    0008                  
 INPT1                    0009                  
 INPT2                    000a                  
@@ -231,7 +231,7 @@ Tmp0                     00b0              (R )
 Tmp1                     00b1              (R )
 Tmp2                     00b2              (R )
 Traffic0Msb              00bd              (R )
-TRAFFIC_1_CHANCE         0000              (R )
+TRAFFIC_1_CHANCE         001c              (R )
 TRAFFIC_1_MASK           00f8              (R )
 TRAFFIC_COLOR            0034              (R )
 TRAFFIC_LINE_COUNT       0005              (R )

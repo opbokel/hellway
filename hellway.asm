@@ -23,10 +23,10 @@ CAR_MIN_SPEED_L = 0
 PLAYER_1_COLOR = $1C ;Yellow
 PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
-BREAK_SPEED = 6
+BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = #%11111000 ;Min car size... Maybe make different per track
-TRAFFIC_1_CHANCE = #0;$20
+TRAFFIC_1_CHANCE = #28
 
 BACKGROUND_COLOR = $03 ;Grey
 TRAFFIC_COLOR = $34
@@ -36,7 +36,7 @@ SCORE_FONT_COLOR_GOOD = $D8
 SCORE_FONT_COLOR_BAD = $33
 PLAYER_0_X_START = $28;
 PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
-INITIAL_COUNTDOWN_TIME = 60;
+INITIAL_COUNTDOWN_TIME = 90;
 CHECKPOINT_ADD_TIME = 30;
 
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3

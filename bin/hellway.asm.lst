@@ -398,10 +398,10 @@
      23  f000		       00 1c	   PLAYER_1_COLOR =	$1C	;Yellow
      24  f000		       00 85	   PLAYER_2_COLOR =	$85	;Blue
      25  f000		       00 01	   ACCELERATE_SPEED =	1
-     26  f000		       00 06	   BREAK_SPEED =	6
+     26  f000		       00 0a	   BREAK_SPEED =	10
      27  f000							;For now, will use in all rows until figure out if make it dynamic or not.
      28  f000		       00 f8	   TRAFFIC_1_MASK =	#%11111000	;Min car size... Maybe make different per track
-     29  f000		       00 00	   TRAFFIC_1_CHANCE =	#0	;$20
+     29  f000		       00 1c	   TRAFFIC_1_CHANCE =	#28
      30  f000
      31  f000		       00 03	   BACKGROUND_COLOR =	$03	;Grey
      32  f000		       00 34	   TRAFFIC_COLOR =	$34
@@ -411,7 +411,7 @@
      36  f000		       00 33	   SCORE_FONT_COLOR_BAD =	$33
      37  f000		       00 28	   PLAYER_0_X_START =	$28	;
      38  f000		       00 2a	   PLAYER_0_MAX_X =	$2A	; Going left will underflow to FF, so it only have to be less (unsigned) than this
-     39  f000		       00 3c	   INITIAL_COUNTDOWN_TIME =	60	;
+     39  f000		       00 5a	   INITIAL_COUNTDOWN_TIME =	90	;
      40  f000		       00 1e	   CHECKPOINT_ADD_TIME =	30	;
      41  f000
      42  f000		       00 10	   CHECKPOINT_INTERVAL =	$10	; Acts uppon TrafficOffset0 + 3
@@ -497,7 +497,7 @@
     122  f02f		       a5 28		      LDA	PLAYER_0_X_START
     123  f031		       85 bb		      STA	Player0X
     124  f033
-    125  f033		       a9 3c		      LDA	#INITIAL_COUNTDOWN_TIME
+    125  f033		       a9 5a		      LDA	#INITIAL_COUNTDOWN_TIME
     126  f035		       85 bc		      STA	CountdownTimer
     127  f037
     128  f037		       a9 10		      LDA	#CHECKPOINT_INTERVAL
@@ -643,7 +643,7 @@
     233  f0c5				   DecreaseSpeed
     234  f0c5		       38		      SEC
     235  f0c6		       a5 88		      LDA	Player0SpeedL
-    236  f0c8		       e9 06		      SBC	#BREAK_SPEED
+    236  f0c8		       e9 0a		      SBC	#BREAK_SPEED
     237  f0ca		       85 88		      STA	Player0SpeedL
     238  f0cc		       a5 89		      LDA	Player0SpeedH
     239  f0ce		       e9 00		      SBC	#0
@@ -984,7 +984,7 @@
     539  f262				   AfterEorOffsetWithCarry		;17
     540  f262		       aa		      TAX		;2
     541  f263		       bd 00 fe 	      LDA	AesTable,X	; 4
-    542  f266		       c9 00		      CMP	#TRAFFIC_1_CHANCE	;2
+    542  f266		       c9 1c		      CMP	#TRAFFIC_1_CHANCE	;2
     543  f268		       b0 04		      BCS	FinishDrawTraffic1	; 2
     544  f26a		       a9 60		      LDA	#%01100000	;2
     545  f26c		       85 82		      STA	PF1Cache	;3
@@ -1003,7 +1003,7 @@
     558  f27d				   AfterEorOffsetWithCarry2		;17
     559  f27d		       aa		      TAX		;2
     560  f27e		       bd 00 fe 	      LDA	AesTable,X	; 4
-    561  f281		       c9 00		      CMP	#TRAFFIC_1_CHANCE	;2
+    561  f281		       c9 1c		      CMP	#TRAFFIC_1_CHANCE	;2
     562  f283		       b0 06		      BCS	FinishDrawTraffic2	; 2
     563  f285		       a5 82		      LDA	PF1Cache	;3
     564  f287		       09 0c		      ORA	#%00001100	;2
@@ -1027,7 +1027,7 @@
     582  f29a				   AfterEorOffsetWithCarry3		;17
     583  f29a		       aa		      TAX		;2
     584  f29b		       bd 00 fe 	      LDA	AesTable,X	; 4
-    585  f29e		       c9 00		      CMP	#TRAFFIC_1_CHANCE	;2
+    585  f29e		       c9 1c		      CMP	#TRAFFIC_1_CHANCE	;2
     586  f2a0		       b0 08		      BCS	FinishDrawTraffic3	; 2 
     587  f2a2		       a9 01		      LDA	#%00000001	;2
     588  f2a4		       85 83		      STA	PF2Cache	;3
@@ -1048,7 +1048,7 @@
     603  f2b9				   AfterEorOffsetWithCarry4		;17
     604  f2b9		       aa		      TAX		;2
     605  f2ba		       bd 00 fe 	      LDA	AesTable,X	; 4
-    606  f2bd		       c9 00		      CMP	#TRAFFIC_1_CHANCE	;2
+    606  f2bd		       c9 1c		      CMP	#TRAFFIC_1_CHANCE	;2
     607  f2bf		       b0 06		      BCS	FinishDrawTraffic4	; 2
     608  f2c1		       a5 83		      LDA	PF2Cache	;3
     609  f2c3		       09 0c		      ORA	#%00001100	;2
