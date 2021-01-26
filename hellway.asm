@@ -31,15 +31,20 @@ TRAFFIC_1_CHANCE = #28
 BACKGROUND_COLOR = $03 ;Grey
 TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $87
+
 SCORE_FONT_COLOR = $0C
 SCORE_FONT_COLOR_GOOD = $D8
-SCORE_FONT_COLOR_BAD = $33
+SCORE_FONT_COLOR_BAD = $34
+SCORE_FONT_COLOR_OVER = $2F
+
 PLAYER_0_X_START = $28;
 PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
-INITIAL_COUNTDOWN_TIME = 90;
-CHECKPOINT_ADD_TIME = 30;
 
+INITIAL_COUNTDOWN_TIME = 90;
+CHECKPOINT_ADD_TIME = 35;
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
+TIMEOVER_BREAK_SPEED = 1
+TIMEOVER_BREAK_INTERVAL = #%00000111 ; Every 8 frames
 	
 
 GRP0Cache = $80
@@ -68,7 +73,6 @@ CollisionCounter=$BA
 Player0X = $BB
 CountdownTimer = $BC
 Traffic0Msb=$BD
-
 
 
 GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
@@ -186,11 +190,15 @@ EverySecond ; 64 frames to be more precise
 	LDA #%00111111
 	AND FrameCount0
 	BNE SkipEverySecondAction
+	CMP CountdownTimer
+	BEQ SkipEverySecondAction ; Stop at Zero
 	DEC CountdownTimer
 SkipEverySecondAction
 
 
-;Acelerates / breaks the car
+Acelerates
+	LDA CountdownTimer
+	BEQ SkipAccelerate; cannot accelerate if timer is zero
 	LDA INPT4 ;3
 	BPL IncreaseCarSpeed ; Test button and then up, both accelerate.
 	LDA #%00010000	;UP in controller
@@ -222,24 +230,38 @@ ResetToMaxSpeed ; Speed is more, or is already max
 	STA Player0SpeedH
 	LDA #CAR_MAX_SPEED_L
 	STA Player0SpeedL
-
 SkipAccelerate
 
+BreakOnTimeOver ; Uses LDX as the breaking speed
+	LDX #0
+	LDA CountdownTimer
+	BNE Break
+	LDA FrameCount0
+	AND #TIMEOVER_BREAK_INTERVAL
+	BNE Break 
+	LDX #TIMEOVER_BREAK_SPEED
+	
 Break
 	LDA #%00100000	;Down in controller
 	BIT SWCHA 
-	BNE SkipBreak
+	BNE BreakNonZero
+	LDX #BREAK_SPEED
+
+BreakNonZero
+	CPX #0
+	BEQ SkipBreak
+	STX Tmp0
 
 DecreaseSpeed
 	SEC
 	LDA Player0SpeedL
-	SBC #BREAK_SPEED
+	SBC Tmp0
 	STA Player0SpeedL
 	LDA Player0SpeedH
 	SBC #0
 	STA Player0SpeedH
 
-ChecksMinSpeed
+CheckMinSpeed
 	BMI ResetMinSpeed; Overflow d7 is set
 	CMP #CAR_MIN_SPEED_H
 	BEQ CompareLBreakSpeed; is the same as minimun, compare other byte.
@@ -309,16 +331,19 @@ PrepareNextUpdateLoop
 
 ;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
-; see if car0 and playfield collide, and change the background color if so
+; see if car0 and playfield collide.
 	LDA #%10000000
 	BIT CXP0FB		
 	BEQ NoCollision	;skip if not hitting...
 	LDA CollisionCounter ; If colision is alredy happening, ignore!
 	BNE NoCollision	
 	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
-	STA CollisionCounter	;and store as colision (will do more with it!)
+	STA CollisionCounter	;and store as colision.
 	LDA #COLLISION_SPEED_L ;
-	STA Player0SpeedL	
+	CMP Player0SpeedL
+	BCS SkipSetColisionSpeed
+	STA Player0SpeedL
+SkipSetColisionSpeed	
 	LDA #0
 	STA Player0SpeedH
 	LDX #$40	;Move car left 4 color clocks, to center the stretch (+4)	
@@ -630,9 +655,7 @@ WhileScanLoop
 FinishScanLoop ; 7 209 of 222
 
 	STA WSYNC ;3 Draw the last line, without wrapping
-	
 	JSR LoadPF
-
 	STA WSYNC ; do stuff!
 	STA WSYNC
 	STA WSYNC
@@ -657,6 +680,17 @@ ResetScoreFontColor
 	STA ScoreFontColor
 SkipScoreFontColor
 
+IsGameOver
+	LDA CountdownTimer
+	ORA Player0SpeedL
+	ORA Player0SpeedH
+	BNE IsCheckpoint
+	LDA #1
+	STA ScoreFontColorHoldChange
+	LDA #SCORE_FONT_COLOR_OVER
+	STA ScoreFontColor
+	JMP SkipIsTimeOver
+
 IsCheckpoint
 	LDA NextCheckpoint
 	CMP TrafficOffset0 + 2
@@ -672,11 +706,20 @@ IsCheckpoint
 	CLC
 	ADC #CHECKPOINT_ADD_TIME
 	STA CountdownTimer
+	BCC JumpSkipTimeOver
+	LDA #$FF
+	STA CountdownTimer ; Does not overflow!
+JumpSkipTimeOver
 	JMP SkipIsTimeOver ; Checkpoints will add time, so no time over routine, should also override time over.
 SkipIsCheckpoint
 
 IsTimeOver
-
+	LDA CountdownTimer
+	BNE SkipIsTimeOver
+	LDA #1 ; Red while 0, so just sets for the next frame, might still pass a checkpoint by inertia
+	STA ScoreFontColorHoldChange
+	LDA #SCORE_FONT_COLOR_BAD
+	STA ScoreFontColor
 SkipIsTimeOver
 
 ;Could be done during on vblank to save this comparisson time (before draw score), 
