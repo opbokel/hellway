@@ -40,11 +40,13 @@ SCORE_FONT_COLOR_OVER = $2F
 PLAYER_0_X_START = $28;
 PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 
-INITIAL_COUNTDOWN_TIME = 90;
-CHECKPOINT_ADD_TIME = 35;
+INITIAL_COUNTDOWN_TIME = 90; Seconds +-
+CHECKPOINT_ADD_TIME = 35; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = #%00000111 ; Every 8 frames
+
+SWITCHES_DEBOUNCE_TIME = #40 ; Frames
 	
 
 GRP0Cache = $80
@@ -73,6 +75,7 @@ CollisionCounter=$BA
 Player0X = $BB
 CountdownTimer = $BC
 Traffic0Msb=$BD
+SwitchDebounceCounter=$BE
 
 
 GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
@@ -88,6 +91,10 @@ NextCheckpoint=$D7
 
 
 ;generic start up stuff, put zero in all...
+BeforeStart ;All variables that are kept on game reset or select
+	LDY #0
+	STY SwitchDebounceCounter
+
 Start
 	SEI	
 	CLD 	
@@ -95,8 +102,12 @@ Start
 	TXS	
 	LDA #0		
 ClearMem 
+	CPX #SwitchDebounceCounter
+	BEQ SkipClean
 	STA 0,X		
-	DEX		
+SkipClean	
+	DEX
+
 	BNE ClearMem	
 	
 ;Setting some variables...
@@ -171,6 +182,21 @@ StartGame
 	STA FrameCount0
 	STA FrameCount1
 SkipGameStart
+
+ReadSwitches
+	LDX SwitchDebounceCounter
+	BNE DecrementSwitchDebounceCounter
+	LDA #%00000001
+	BIT SWCHB
+	BNE SkipReset 
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+	JMP Start
+SkipReset
+	JMP EndReadSwitches
+DecrementSwitchDebounceCounter
+	DEC SwitchDebounceCounter
+EndReadSwitches
 	
 CountFrame	
 	INC FrameCount0 ; 5 Used to alternate lines
@@ -183,7 +209,6 @@ SkipIncFC1
 	AND #%10000000 ;2 game is running...
 	BNE ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
 	JMP SkipUpdateLogic
-
 ContinueWithGameLogic
 
 EverySecond ; 64 frames to be more precise
@@ -195,6 +220,58 @@ EverySecond ; 64 frames to be more precise
 	DEC CountdownTimer
 SkipEverySecondAction
 
+
+
+BreakOnTimeOver ; Uses LDX as the breaking speed
+	LDX #0
+	LDA CountdownTimer
+	BNE Break
+	LDA FrameCount0
+	AND #TIMEOVER_BREAK_INTERVAL
+	BNE Break 
+	LDX #TIMEOVER_BREAK_SPEED
+	
+Break
+	LDA #%00100000	;Down in controller
+	BIT SWCHA 
+	BNE BreakNonZero
+	LDX #BREAK_SPEED
+
+BreakNonZero
+	CPX #0
+	BEQ SkipBreak
+	STX Tmp0
+
+DecreaseSpeed
+	SEC
+	LDA Player0SpeedL
+	SBC Tmp0
+	STA Player0SpeedL
+	LDA Player0SpeedH
+	SBC #0
+	STA Player0SpeedH
+
+CheckMinSpeed
+	BMI ResetMinSpeed; Overflow d7 is set
+	CMP #CAR_MIN_SPEED_H
+	BEQ CompareLBreakSpeed; is the same as minimun, compare other byte.
+	BCS SkipAccelerateIfBreaking; Greater than min, we are ok! 
+
+CompareLBreakSpeed	
+	LDA Player0SpeedL
+	CMP #CAR_MIN_SPEED_L	
+	BCC ResetMinSpeed ; Less than memory
+	JMP SkipAccelerateIfBreaking ; We are greather than min speed in the low byte.
+
+ResetMinSpeed
+	LDA #CAR_MIN_SPEED_H
+	STA Player0SpeedH
+	LDA #CAR_MIN_SPEED_L
+	STA Player0SpeedL
+
+SkipAccelerateIfBreaking
+	JMP SkipAccelerate
+SkipBreak
 
 Acelerates
 	LDA CountdownTimer
@@ -231,54 +308,6 @@ ResetToMaxSpeed ; Speed is more, or is already max
 	LDA #CAR_MAX_SPEED_L
 	STA Player0SpeedL
 SkipAccelerate
-
-BreakOnTimeOver ; Uses LDX as the breaking speed
-	LDX #0
-	LDA CountdownTimer
-	BNE Break
-	LDA FrameCount0
-	AND #TIMEOVER_BREAK_INTERVAL
-	BNE Break 
-	LDX #TIMEOVER_BREAK_SPEED
-	
-Break
-	LDA #%00100000	;Down in controller
-	BIT SWCHA 
-	BNE BreakNonZero
-	LDX #BREAK_SPEED
-
-BreakNonZero
-	CPX #0
-	BEQ SkipBreak
-	STX Tmp0
-
-DecreaseSpeed
-	SEC
-	LDA Player0SpeedL
-	SBC Tmp0
-	STA Player0SpeedL
-	LDA Player0SpeedH
-	SBC #0
-	STA Player0SpeedH
-
-CheckMinSpeed
-	BMI ResetMinSpeed; Overflow d7 is set
-	CMP #CAR_MIN_SPEED_H
-	BEQ CompareLBreakSpeed; is the same as minimun, compare other byte.
-	BCS SkipBreak; Greater than min, we are ok! 
-
-CompareLBreakSpeed	
-	LDA Player0SpeedL
-	CMP #CAR_MIN_SPEED_L	
-	BCC ResetMinSpeed ; Less than memory
-	JMP SkipBreak ; We are greather than min speed in the low byte.
-
-ResetMinSpeed
-	LDA #CAR_MIN_SPEED_H
-	STA Player0SpeedH
-	LDA #CAR_MIN_SPEED_L
-	STA Player0SpeedL
-SkipBreak
 
 ;Updates all offsets 24 bits
 	LDX #0 ; Memory Offset 24 bit
