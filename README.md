@@ -4,7 +4,7 @@
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
 
 It can be played online at https://javatari.org/?ROM=https://github.com/opbokel/hellway/blob/master/bin/hellway.asm.bin?raw=true
-Or downloaded as a emulator compatible binnary (in the bin folder). The code will be keept open.
+Or downloaded as a emulator compatible binnary (in the bin folder). The code will be kept open.
 
 ## License
 Feel free to download, play, burn to a cartridge and have fun. The only restriction is to not sell it in order to make profit. If no profit is made or it is fully donated, I am ok with it. If you do any derivative work, please give the proper credits.
