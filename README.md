@@ -9,7 +9,7 @@ Or downloaded as a emulator compatible binnary (in the bin folder). The code wil
 ## License
 Feel free to download, play, burn to a cartridge and have fun. The only restriction is to not sell it in order to make profit. If no profit is made or it is fully donated, I am ok with it. If you do any derivative work, please give the proper credits.
 
-I will sell physical copies in the near future and donate every profit I made to charity projects and people in need. If you like the game, please consider making any action to make a better day for another person or buying a copy. Also, feel free to talk about it in social medias using the hashtag #hellway2600
+I will sell physical copies in the near future and donate every profit I made to charity projects and people in need. If you like the game, please consider doing any action to make a better day for another person or buying a copy. Also, feel free to talk about it in social medias using the hashtag #hellway2600
 
 ## Instructions
 The button starts the game and accelerates. Up also accelerates, down breaks, and you can move left to right.
