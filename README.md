@@ -12,8 +12,6 @@ Feel free to download, play, burn to a cartridge and have fun. The only restrict
 I will sell physical copies in the near future and donate every profit I made to charity projects and people in need. If you like the game, please consider doing any action to make a better day for another person or buying a copy. Also, feel free to talk about it in social medias using the hashtag #hellway2600
 
 ## Instructions
-The button starts the game and accelerates. Up also accelerates, down breaks, and you can move left to right.
-
 Every track has its own speed, and the car generation is deterministic. Accelerating and breaking are equally important.
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
@@ -24,10 +22,20 @@ If the time is over the score turns red, but you still can reach a checkpoint, s
 
 The game is over when the time is over and the car is stopped. The score turns yellow.
 
-Reset restarts the game
+## Switches
+* The two difficulty switches change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants of color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color choises.
+    * 0 - BB = Light traffic, Green
+    * 1 - BA = Regular traffic, Red (ish) That is the traffic level I personally enjoy the most.
+    * 3 - AB = Intense Traffic, Yellow
+    * 4 - AA = Rush Hour, White (ish)
+    
+* Reset restarts the the current game mode and apply the difficulty switches.
+
+## Controls
+* The button starts the game and accelerates.
+* Up also accelerates, down breaks, and you can move left to right.
 
 ## Current Roadmap (the priorities might change):
-* Read the difficulty switch to adjust the traffic intensity in all game modes.
 * A mode where the tracks start at a random position.
 * A mode where the tracks speeds are also random.
 * A mode where the car is always slowly accelerating, if a limited number of collisions.
