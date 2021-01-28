@@ -20,16 +20,28 @@ CAR_MAX_SPEED_H = $02
 CAR_MAX_SPEED_L = $80
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
-PLAYER_1_COLOR = $1C ;Yellow
-PLAYER_2_COLOR = $85 ;Blue
 ACCELERATE_SPEED = 1
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = #%11111000 ;Min car size... Maybe make different per track
-TRAFFIC_1_CHANCE = #28
+
+TRAFFIC_CHANCE_LIGHT = #18
+CHECKPOINT_TIME_LIGHT = #30
+TRAFFIC_COLOR_LIGHT = $D4
+
+TRAFFIC_CHANCE_REGULAR = #28
+CHECKPOINT_TIME_REGULAR = #35
+TRAFFIC_COLOR_REGULAR = $34
+
+TRAFFIC_CHANCE_INTENSE = #38
+CHECKPOINT_TIME_INTENSE = #42
+TRAFFIC_COLOR_INTENSE = $16
+
+TRAFFIC_CHANCE_RUSH_HOUR = #48
+CHECKPOINT_TIME_RUSH_HOUR = #50
+TRAFFIC_COLOR_RUSH_HOUR = $09
 
 BACKGROUND_COLOR = $03 ;Grey
-TRAFFIC_COLOR = $34
 SCORE_BACKGROUND_COLOR = $87
 
 SCORE_FONT_COLOR = $0C
@@ -41,12 +53,11 @@ PLAYER_0_X_START = $28;
 PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 
 INITIAL_COUNTDOWN_TIME = 90; Seconds +-
-CHECKPOINT_ADD_TIME = 35; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = #%00000111 ; Every 8 frames
 
-SWITCHES_DEBOUNCE_TIME = #40 ; Frames
+SWITCHES_DEBOUNCE_TIME = #60 ; Frames
 	
 
 GRP0Cache = $80
@@ -79,6 +90,9 @@ SwitchDebounceCounter=$BE
 
 
 GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
+TrafficChance=$C1
+CheckpointTime=$C2
+TrafficColor=$C3
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -112,12 +126,6 @@ SkipClean
 	
 ;Setting some variables...
 
-	LDA #PLAYER_1_COLOR
-	STA COLUP0
-
-	LDA #PLAYER_2_COLOR
-	STA COLUP1
-
 	;Loop ?
 	LDA #1
 	STA TrafficOffset1 + 0 ; So we can detect loop
@@ -142,6 +150,41 @@ SkipClean
 
 	LDA #CHECKPOINT_INTERVAL
 	STA NextCheckpoint
+
+	LDA SWCHB ; Reading the switches as binary number A = 1, B = 0
+	AND #%11000000
+	BEQ ConfigureLightTraffic
+	CMP #%10000000
+	BEQ ConfigureRegularTraffic
+	CMP #%01000000
+	BEQ ConfigureIntenseTraffic
+	CMP #%11000000
+	BEQ ConfigureRushHourTraffic
+
+ConfigureLightTraffic 
+	LDX #TRAFFIC_CHANCE_LIGHT
+	LDY #CHECKPOINT_TIME_LIGHT
+	LDA #TRAFFIC_COLOR_LIGHT
+	JMP StoreTrafficChance
+ConfigureRegularTraffic
+	LDX #TRAFFIC_CHANCE_REGULAR
+	LDY #CHECKPOINT_TIME_REGULAR
+	LDA #TRAFFIC_COLOR_REGULAR
+	JMP StoreTrafficChance
+ConfigureIntenseTraffic
+	LDX #TRAFFIC_CHANCE_INTENSE
+	LDY #CHECKPOINT_TIME_INTENSE
+	LDA #TRAFFIC_COLOR_INTENSE
+	JMP StoreTrafficChance
+ConfigureRushHourTraffic
+	LDX #TRAFFIC_CHANCE_RUSH_HOUR
+	LDY #CHECKPOINT_TIME_RUSH_HOUR
+	LDA #TRAFFIC_COLOR_RUSH_HOUR
+
+StoreTrafficChance
+	STX TrafficChance
+	STY CheckpointTime
+	STA TrafficColor
 	
 ;VSYNC time
 MainLoop
@@ -538,15 +581,11 @@ DrawScore
 PrepareForTraffic
 	JSR ClearPF ; 32
 	
-	LDA #TRAFFIC_COLOR ;2
+	LDA TrafficColor ;2
 	STA COLUP0
 	
 	LDA #BACKGROUND_COLOR ;2
 	STA COLUP1 ;3
-
-	;Traffic colour
-	LDA #TRAFFIC_COLOR ;2
-	STA COLUPF  	;3
 
 	LDY GAMEPLAY_AREA ;2; (Score)
 
@@ -580,7 +619,7 @@ DrawCache ;36 Is the last line going to the top of the next frame?
 	STA PF2Cache ;3
 
 	;BEQ DrawTraffic3
-DrawTraffic1; 32 
+DrawTraffic1; 33
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset1 + 1;3
@@ -593,7 +632,7 @@ EorOffsetWithCarry
 AfterEorOffsetWithCarry ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP #TRAFFIC_1_CHANCE;2
+	CMP TrafficChance;3
 	BCS FinishDrawTraffic1 ; 2
 	LDA #%01100000 ;2
 	STA PF1Cache ;3
@@ -612,7 +651,7 @@ EorOffsetWithCarry2
 AfterEorOffsetWithCarry2 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP #TRAFFIC_1_CHANCE;2
+	CMP TrafficChance;2
 	BCS FinishDrawTraffic2 ; 2
 	LDA PF1Cache ;3
 	ORA #%00001100 ;2
@@ -636,7 +675,7 @@ EorOffsetWithCarry3
 AfterEorOffsetWithCarry3 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP #TRAFFIC_1_CHANCE;2
+	CMP TrafficChance;2
 	BCS FinishDrawTraffic3 ; 2 
 	LDA #%00000001 ;2
 	STA PF2Cache ;3
@@ -657,7 +696,7 @@ EorOffsetWithCarry4
 AfterEorOffsetWithCarry4 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP #TRAFFIC_1_CHANCE;2
+	CMP TrafficChance;2
 	BCS FinishDrawTraffic4 ; 2
 	LDA PF2Cache ;3
 	ORA #%00001100 ;2
@@ -733,7 +772,7 @@ IsCheckpoint
 	STA ScoreFontColorHoldChange
 	LDA CountdownTimer
 	CLC
-	ADC #CHECKPOINT_ADD_TIME
+	ADC CheckpointTime
 	STA CountdownTimer
 	BCC JumpSkipTimeOver
 	LDA #$FF
