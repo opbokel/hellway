@@ -45,5 +45,5 @@ The game is over when the time is over and the car is stopped. The score turns y
 * Evaluate the need for decimal score.
 
 ## Closing Thoughts
-A very special thanks to all the https://www.atariage.com/ community!
+A very special thanks to all the AtariAge community. You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
 
