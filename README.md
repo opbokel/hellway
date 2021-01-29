@@ -34,6 +34,7 @@ The game is over when the time is over and the car is stopped. The score turns y
 ## Controls
 * The button starts the game and accelerates.
 * Up also accelerates, down breaks, and you can move left to right.
+* It is possible to break and accelerate at the same time, this will break with half intensity (Heel-and-toe).
 
 ## Current Roadmap (the priorities might change):
 * A mode where the tracks start at a random position.
