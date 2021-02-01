@@ -26,7 +26,7 @@ The game is over when the time is over and the car is stopped. The score turns y
 * The two difficulty switches change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants of color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme.
     * 0 - BB = Light traffic, Green
     * 1 - BA = Regular traffic, Red (ish) That is the traffic level I personally enjoy the most.
-    * 3 - AB = Intense Traffic, Yellow
+    * 3 - AB = Intense Traffic, Blue (ish)
     * 4 - AA = Rush Hour, White (ish)
     
 * Reset restarts the the current game mode and apply the difficulty switches.
@@ -39,11 +39,8 @@ The game is over when the time is over and the car is stopped. The score turns y
 ## Current Roadmap (the priorities might change):
 * A mode where the tracks start at a random position.
 * A mode where the tracks speeds are also random.
-* A mode where the car is always slowly accelerating, if a limited number of collisions.
-* 2 players mode of the above (Very easy since it will be a matter of not hiding the second playfield duplication if players cannot control acceleration)
 * Sound (Engine and collision)
-* A real 2 players mode where each half of the screen has its own state (hard, and not sure if possible). The game will flicker at 30Hz.
-* Evaluate the need for decimal score.
+* Parallax (Screen edges)
 
 ## Closing Thoughts
 A very special thanks to all the AtariAge community. You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/

@@ -35,7 +35,7 @@ TRAFFIC_COLOR_REGULAR = $34
 
 TRAFFIC_CHANCE_INTENSE = 38
 CHECKPOINT_TIME_INTENSE = 40
-TRAFFIC_COLOR_INTENSE = $16
+TRAFFIC_COLOR_INTENSE = $A9
 
 TRAFFIC_CHANCE_RUSH_HOUR = 48
 CHECKPOINT_TIME_RUSH_HOUR = 45
@@ -44,13 +44,17 @@ TRAFFIC_COLOR_RUSH_HOUR = $09
 BACKGROUND_COLOR = $03 ;Grey
 SCORE_BACKGROUND_COLOR = $87
 
+PLAYER0_COLOR = $F9
+
+PLAYER1_COLOR = $A4
+
 SCORE_FONT_COLOR = $0C
 SCORE_FONT_COLOR_GOOD = $D8
 SCORE_FONT_COLOR_BAD = $34
 SCORE_FONT_COLOR_OVER = $2F
 
-PLAYER_0_X_START = $28;
-PLAYER_0_MAX_X = $2A ; Going left will underflow to FF, so it only have to be less (unsigned) than this
+PLAYER_0_X_START = $35;
+PLAYER_0_MAX_X = $36 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 
 INITIAL_COUNTDOWN_TIME = 90; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
@@ -64,12 +68,16 @@ GRP0Cache = $80
 PF0Cache = $81
 PF1Cache = $82
 PF2Cache = $83
+GRP1Cache = $84
+ENABLCache = $85
+ENAM0Cache = $86
+ENAM1Cache = $87
 
-FrameCount0 = $86;
-FrameCount1 = $87;
+FrameCount0 = $8C;
+FrameCount1 = $8D;
 
-Player0SpeedL = $88
-Player0SpeedH = $89
+Player0SpeedL = $8E
+Player0SpeedH = $8F
 
 TrafficOffset0 = $90; Border $91 $92 (24 bit) $93 is cache
 TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
@@ -121,12 +129,11 @@ ClearMem
 	STA 0,X		
 SkipClean	
 	DEX
-
 	BNE ClearMem	
 	
 ;Setting some variables...
 
-	;Loop ?
+	STA WSYNC ;We will set player position
 	LDA #1
 	STA TrafficOffset1 + 0 ; So we can detect loop
 	LDA #$20
@@ -140,17 +147,11 @@ SkipClean
 	LDA #$A0
 
 	LDA TrafficSpeeds + 4 * 2 ; Same as the line he is in.
-	STA Player0SpeedL	
+	STA Player0SpeedL
 	
-	LDA PLAYER_0_X_START
-	STA Player0X
-
-	LDA #INITIAL_COUNTDOWN_TIME
-	STA CountdownTimer
-
-	LDA #CHECKPOINT_INTERVAL
-	STA NextCheckpoint
-
+	SLEEP 18
+	STA RESP0
+		
 	LDA SWCHB ; Reading the switches as binary number A = 1, B = 0
 	AND #%11000000
 	BEQ ConfigureLightTraffic
@@ -185,25 +186,53 @@ StoreTrafficChance
 	STX TrafficChance
 	STY CheckpointTime
 	STA TrafficColor
-	
+
+HPositioning
+	STA WSYNC
+
+	LDA #%00110000;2 Missile Size
+	STA NUSIZ0 ;3
+	STA NUSIZ1 ;3
+
+	LDA #PLAYER_0_X_START ;2
+	STA Player0X ;3
+
+	LDA #INITIAL_COUNTDOWN_TIME ;2
+	STA CountdownTimer ;3
+
+	LDA #CHECKPOINT_INTERVAL ;2
+	STA NextCheckpoint ;3
+
+	LDA #0 ; Avoid missile reseting position 
+	SLEEP 11;
+	STA RESP1
+	SLEEP 2;
+	STA RESBL
+	SLEEP 2;
+	STA RESM0
+	SLEEP 2
+	STA RESM1
+
+	LDA #$F0
+	STA HMBL
+	STA HMM0
+	STA HMM1
+	STA WSYNC
+	STA HMOVE
+	STA WSYNC ; Time is irrelevant before sync to TV, ROM space is not!
+	STA HMCLR
+
+	;SLEEP 24
+	;STA HMCLR
+
 ;VSYNC time
 MainLoop
 	LDA #2
 	STA VSYNC	
 	STA WSYNC
-	STA WSYNC
-;Apply Movement, must be done after a WSYNC
+	STA WSYNC					;Apply Movement, must be done after a WSYNC
 	STA HMOVE  ;2
 ;This must be done after a WSync, otherwise it is impossible to predict the X position
-	LDA GameStatus ;3
-	AND #%10000000 ;2 game running, we get 0 and not reset the position.
-	BNE DoNotSetPlayerX ;3
-	LDX PLAYER_0_X_START ; 2
-	STX Player0X ; 3
-	;Do something better than sleep
-	SLEEP 21;
-	STA RESP0 ;3
-
 DoNotSetPlayerX
 
 	STA WSYNC ;3
@@ -404,13 +433,15 @@ PrepareNextUpdateLoop
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
 
-
-
 ;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
-; see if car0 and playfield collide.
-	LDA #%10000000
-	BIT CXP0FB		
+; see if player0 colides with the rest
+	LDA CXM0P
+	ORA CXM1P
+	ORA CXM1P
+	ORA CXP0FB
+	ORA CXPPMM
+	AND #%11000000 ; Accounting for random noise in the bus		
 	BEQ NoCollision	;skip if not hitting...
 	LDA CollisionCounter ; If colision is alredy happening, ignore!
 	BNE NoCollision	
@@ -430,7 +461,7 @@ NoCollision
 DecrementCollision
 	LDY CollisionCounter
 	BEQ FinishDecrementCollision
-	LDA #%00000101; Make player bigger to show colision
+	LDA #%00110101; Make player bigger to show colision
 	STA NUSIZ0
 	DEY
 	STY CollisionCounter ; We save some cycles in reset size.
@@ -438,7 +469,8 @@ FinishDecrementCollision
 
 ResetPlayerSize
 	BNE FinishResetPlayerSize
-	STY NUSIZ0;
+	LDA #%00110000
+	STA NUSIZ0;
 FinishResetPlayerSize
 
 ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina size
@@ -484,7 +516,7 @@ SkipUpdateLogic
 	STA COLUBK
 	LDA ScoreFontColor
 	STA COLUPF  
-	JSR ClearPF
+	JSR ClearAll
 	LDA #%00000010 ; Score mode
 	STA CTRLPF
 	LDY #SCORE_SIZE - 1
@@ -578,24 +610,30 @@ DrawScore
 
 	STA WSYNC
 
-	JSR LoadPF
+	JSR LoadAll
 
 	STA WSYNC
 	STA WSYNC
 
 PrepareForTraffic
 	JSR ClearPF ; 32
+
+	LDA #%00110001 ; Score mode
+	STA CTRLPF
 	
 	LDA TrafficColor ;2
-	STA COLUP0
+	STA COLUPF
 	
-	LDA #BACKGROUND_COLOR ;2
+	LDA #PLAYER1_COLOR ;2
 	STA COLUP1 ;3
+
+	LDA #PLAYER0_COLOR ;2
+	STA COLUP0 ;3
 
 	LDY GAMEPLAY_AREA ;2; (Score)
 
-	LDA #BACKGROUND_COLOR ;2 Make it in the very end, so we have one more nice blue line
-	SLEEP 18; Wait, so the line stay blue
+	LDA #BACKGROUND_COLOR ;2 
+	SLEEP 12 ; Make it in the very end, so we have one more nice blue line
 	STA COLUBK ;3
 
 
@@ -606,22 +644,30 @@ ScanLoop
 ;Start of next line!			
 DrawCache ;36 Is the last line going to the top of the next frame?
 
-	LDA PF0Cache  ;3
-	STA PF0		  ;3
-
 	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
 	STA GRP0      ;3   ;put it as graphics now
 	
 	LDA PF1Cache ;3
 	STA PF1	     ;3
 	
-	LDA PF2Cache ;3
-	STA PF2      ;3
+	LDA GRP1Cache ;3
+	STA GRP1      ;3
+
+	LDA ENABLCache
+	STA ENABL
+
+	LDA ENAM0Cache
+	STA ENAM0
+
+	LDA ENAM1Cache
+	STA ENAM1
 
 	LDA #0		 ;2
-	STA PF0Cache ;3
 	STA PF1Cache ;3
-	STA PF2Cache ;3
+	STA GRP1Cache ;3
+	STA ENABLCache ;3
+	STA ENAM0Cache ;3
+	STA ENAM1Cache; 3
 
 	;BEQ DrawTraffic3
 DrawTraffic1; 33
@@ -639,8 +685,8 @@ AfterEorOffsetWithCarry ;17
 	LDA AesTable,X ; 4
 	CMP TrafficChance;3
 	BCS FinishDrawTraffic1 ; 2
-	LDA #%01100000 ;2
-	STA PF1Cache ;3
+	LDA #$FF ;2
+	STA GRP1Cache ;3
 FinishDrawTraffic1
 
 DrawTraffic2; 35
@@ -658,9 +704,8 @@ AfterEorOffsetWithCarry2 ;17
 	LDA AesTable,X ; 4
 	CMP TrafficChance;2
 	BCS FinishDrawTraffic2 ; 2
-	LDA PF1Cache ;3
-	ORA #%00001100 ;2
-	STA PF1Cache ;3
+	LDA #%00000010 ;2
+	STA ENABLCache;3
 FinishDrawTraffic2	
 
 	;STA WSYNC ;65 / 137
@@ -682,10 +727,8 @@ AfterEorOffsetWithCarry3 ;17
 	LDA AesTable,X ; 4
 	CMP TrafficChance;2
 	BCS FinishDrawTraffic3 ; 2 
-	LDA #%00000001 ;2
-	STA PF2Cache ;3
-	ORA PF1Cache ;3
-	STA PF1Cache ;3
+	LDA #%00000010 ;2
+	STA ENAM0Cache
 FinishDrawTraffic3	
 	
 DrawTraffic4; 35
@@ -703,9 +746,8 @@ AfterEorOffsetWithCarry4 ;17
 	LDA AesTable,X ; 4
 	CMP TrafficChance;2
 	BCS FinishDrawTraffic4 ; 2
-	LDA PF2Cache ;3
-	ORA #%00001100 ;2
-	STA PF2Cache ;3	
+	LDA #%00000010 ;2
+	STA ENAM1Cache	
 FinishDrawTraffic4
 
 DrawTraffic0; 24
@@ -714,11 +756,9 @@ DrawTraffic0; 24
 	ADC TrafficOffset0 + 1 ; 3
 	AND #%00000100 ;2 Every 4 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2
-	LDA #%11110000; 2
-	STA PF0Cache ;3
-	LDA PF2Cache ;3
-	ORA #%11100000 ;2
-	STA PF2Cache ; 3
+	LDA #$FF; 2
+	STA PF1Cache
+
 SkipDrawTraffic0
 
 WhileScanLoop 
@@ -728,7 +768,7 @@ WhileScanLoop
 FinishScanLoop ; 7 209 of 222
 
 	STA WSYNC ;3 Draw the last line, without wrapping
-	JSR LoadPF
+	JSR LoadAll
 	STA WSYNC ; do stuff!
 	STA WSYNC
 	STA WSYNC
@@ -901,8 +941,22 @@ OverScanWait
 
 Subroutines
 
+ClearAll ; 56
+	LDA #0  	  ;2
+	STA GRP1      ;3
+	STA ENABL     ;3
+	STA ENAM0     ;3
+	STA ENAM1
+	STA GRP1Cache ;3
+	STA ENABLCache ;3
+	STA ENAM0Cache ;3
+	STA ENAM1Cache ;3
+	JSR ClearPFSkipLDA0 ; 30
+	RTS ;6
+
 ClearPF ; 26
 	LDA #0  	  ;2
+ClearPFSkipLDA0
 	STA PF0		  ;3
 	STA PF1	      ;3
 	STA PF2       ;3 	
@@ -911,7 +965,7 @@ ClearPF ; 26
 	STA PF2Cache   ;3 
 	RTS ;6
 
-LoadPF ; 24
+LoadAll ; 36
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 	
@@ -920,6 +974,15 @@ LoadPF ; 24
 	
 	LDA PF2Cache ;3
 	STA PF2      ;3
+
+	LDA GRP1Cache ;3
+	STA GRP1      ;3
+
+	LDA ENABLCache ;3
+	STA ENABL      ;3
+
+	LDA ENAM0Cache
+	STA ENAM0
 
 	RTS ;6
 
