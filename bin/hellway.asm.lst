@@ -400,130 +400,129 @@
      25  f000							;For now, will use in all rows until figure out if make it dynamic or not.
      26  f000		       00 f8	   TRAFFIC_1_MASK =	%11111000	;Min car size... Maybe make different per track
      27  f000
-     28  f000		       00 12	   TRAFFIC_CHANCE_LIGHT =	18
+     28  f000		       00 0e	   TRAFFIC_CHANCE_LIGHT =	14
      29  f000		       00 1e	   CHECKPOINT_TIME_LIGHT =	30
      30  f000		       00 d4	   TRAFFIC_COLOR_LIGHT =	$D4
      31  f000
-     32  f000		       00 1c	   TRAFFIC_CHANCE_REGULAR =	28
+     32  f000		       00 18	   TRAFFIC_CHANCE_REGULAR =	24
      33  f000		       00 23	   CHECKPOINT_TIME_REGULAR =	35
      34  f000		       00 34	   TRAFFIC_COLOR_REGULAR =	$34
      35  f000
-     36  f000		       00 26	   TRAFFIC_CHANCE_INTENSE =	38
+     36  f000		       00 22	   TRAFFIC_CHANCE_INTENSE =	34
      37  f000		       00 28	   CHECKPOINT_TIME_INTENSE =	40
-     38  f000		       00 a9	   TRAFFIC_COLOR_INTENSE =	$A9
+     38  f000		       00 99	   TRAFFIC_COLOR_INTENSE =	$99
      39  f000
-     40  f000		       00 30	   TRAFFIC_CHANCE_RUSH_HOUR =	48
+     40  f000		       00 2c	   TRAFFIC_CHANCE_RUSH_HOUR =	44
      41  f000		       00 2d	   CHECKPOINT_TIME_RUSH_HOUR =	45
      42  f000		       00 09	   TRAFFIC_COLOR_RUSH_HOUR =	$09
      43  f000
      44  f000		       00 03	   BACKGROUND_COLOR =	$03	;Grey
      45  f000		       00 87	   SCORE_BACKGROUND_COLOR =	$87
      46  f000
-     47  f000		       00 f9	   PLAYER0_COLOR =	$F9
+     47  f000		       00 a5	   PLAYER1_COLOR =	$A5
      48  f000
-     49  f000		       00 a4	   PLAYER1_COLOR =	$A4
-     50  f000
-     51  f000		       00 0c	   SCORE_FONT_COLOR =	$0C
-     52  f000		       00 d8	   SCORE_FONT_COLOR_GOOD =	$D8
-     53  f000		       00 34	   SCORE_FONT_COLOR_BAD =	$34
-     54  f000		       00 2f	   SCORE_FONT_COLOR_OVER =	$2F
-     55  f000
-     56  f000		       00 35	   PLAYER_0_X_START =	$35	;
-     57  f000		       00 36	   PLAYER_0_MAX_X =	$36	; Going left will underflow to FF, so it only have to be less (unsigned) than this
-     58  f000
-     59  f000		       00 5a	   INITIAL_COUNTDOWN_TIME =	90	; Seconds +-
-     60  f000		       00 10	   CHECKPOINT_INTERVAL =	$10	; Acts uppon TrafficOffset0 + 3
-     61  f000		       00 01	   TIMEOVER_BREAK_SPEED =	1
-     62  f000		       00 07	   TIMEOVER_BREAK_INTERVAL =	%00000111	; Every 8 frames
+     49  f000		       00 f9	   SCORE_FONT_COLOR =	$F9
+     50  f000		       00 d8	   SCORE_FONT_COLOR_GOOD =	$D8
+     51  f000		       00 34	   SCORE_FONT_COLOR_BAD =	$34
+     52  f000		       00 0c	   SCORE_FONT_COLOR_OVER =	$0C
+     53  f000
+     54  f000		       00 35	   PLAYER_0_X_START =	$35	;
+     55  f000		       00 36	   PLAYER_0_MAX_X =	$36	; Going left will underflow to FF, so it only have to be less (unsigned) than this
+     56  f000
+     57  f000		       00 5a	   INITIAL_COUNTDOWN_TIME =	90	; Seconds +-
+     58  f000		       00 10	   CHECKPOINT_INTERVAL =	$10	; Acts uppon TrafficOffset0 + 3
+     59  f000		       00 01	   TIMEOVER_BREAK_SPEED =	1
+     60  f000		       00 07	   TIMEOVER_BREAK_INTERVAL =	%00000111	; Every 8 frames
+     61  f000
+     62  f000		       00 3c	   SWITCHES_DEBOUNCE_TIME =	60	; Frames
      63  f000
-     64  f000		       00 3c	   SWITCHES_DEBOUNCE_TIME =	60	; Frames
-     65  f000
-     66  f000
-     67  f000		       00 80	   GRP0Cache  =	$80
-     68  f000		       00 81	   PF0Cache   =	$81
-     69  f000		       00 82	   PF1Cache   =	$82
-     70  f000		       00 83	   PF2Cache   =	$83
-     71  f000		       00 84	   GRP1Cache  =	$84
-     72  f000		       00 85	   ENABLCache =	$85
-     73  f000		       00 86	   ENAM0Cache =	$86
-     74  f000		       00 87	   ENAM1Cache =	$87
-     75  f000
-     76  f000		       00 8c	   FrameCount0 =	$8C	;
-     77  f000		       00 8d	   FrameCount1 =	$8D	;
-     78  f000
-     79  f000		       00 8e	   Player0SpeedL =	$8E
-     80  f000		       00 8f	   Player0SpeedH =	$8F
-     81  f000
-     82  f000		       00 90	   TrafficOffset0 =	$90	; Border $91 $92 (24 bit) $93 is cache
-     83  f000		       00 94	   TrafficOffset1 =	$94	; Traffic 1 $94 $95 (24 bit) $96 is cache
-     84  f000		       00 98	   TrafficOffset2 =	$98	; Traffic 1 $99 $9A (24 bit) $9B is cache
-     85  f000		       00 9c	   TrafficOffset3 =	$9C	; Traffic 1 $9D $9E (24 bit) $9F is cache
-     86  f000		       00 a0	   TrafficOffset4 =	$A0	; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
-     87  f000
-     88  f000							;Temporary variables, multiple uses
-     89  f000		       00 b0	   Tmp0       =	$B0
-     90  f000		       00 b1	   Tmp1       =	$B1
-     91  f000		       00 b2	   Tmp2       =	$B2
-     92  f000
-     93  f000		       00 ba	   CollisionCounter =	$BA
-     94  f000		       00 bb	   Player0X   =	$BB
-     95  f000		       00 bc	   CountdownTimer =	$BC
-     96  f000		       00 bd	   Traffic0Msb =	$BD
-     97  f000		       00 be	   SwitchDebounceCounter =	$BE
-     98  f000
-     99  f000
-    100  f000		       00 c0	   GameStatus =	$C0	; Flags, D7 = running, D6 = player 0 outside area
-    101  f000		       00 c1	   TrafficChance =	$C1
-    102  f000		       00 c2	   CheckpointTime =	$C2
-    103  f000		       00 c3	   TrafficColor =	$C3
-    104  f000
-    105  f000		       00 d0	   ScoreD0    =	$D0
-    106  f000		       00 d1	   ScoreD1    =	$D1
-    107  f000		       00 d2	   ScoreD2    =	$D2
-    108  f000		       00 d3	   ScoreD3    =	$D3
-    109  f000		       00 d4	   ScoreD4    =	$D4
-    110  f000		       00 d5	   ScoreFontColor =	$D5
-    111  f000		       00 d6	   ScoreFontColorHoldChange =	$D6
-    112  f000		       00 d7	   NextCheckpoint =	$D7
+     64  f000
+     65  f000		       00 80	   GRP0Cache  =	$80
+     66  f000		       00 81	   PF0Cache   =	$81
+     67  f000		       00 82	   PF1Cache   =	$82
+     68  f000		       00 83	   PF2Cache   =	$83
+     69  f000		       00 84	   GRP1Cache  =	$84
+     70  f000		       00 85	   ENABLCache =	$85
+     71  f000		       00 86	   ENAM0Cache =	$86
+     72  f000		       00 87	   ENAM1Cache =	$87
+     73  f000
+     74  f000		       00 8c	   FrameCount0 =	$8C	;
+     75  f000		       00 8d	   FrameCount1 =	$8D	;
+     76  f000
+     77  f000		       00 8e	   Player0SpeedL =	$8E
+     78  f000		       00 8f	   Player0SpeedH =	$8F
+     79  f000
+     80  f000		       00 90	   TrafficOffset0 =	$90	; Border $91 $92 (24 bit) $93 is cache
+     81  f000		       00 94	   TrafficOffset1 =	$94	; Traffic 1 $94 $95 (24 bit) $96 is cache
+     82  f000		       00 98	   TrafficOffset2 =	$98	; Traffic 1 $99 $9A (24 bit) $9B is cache
+     83  f000		       00 9c	   TrafficOffset3 =	$9C	; Traffic 1 $9D $9E (24 bit) $9F is cache
+     84  f000		       00 a0	   TrafficOffset4 =	$A0	; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
+     85  f000
+     86  f000							;Temporary variables, multiple uses
+     87  f000		       00 b0	   Tmp0       =	$B0
+     88  f000		       00 b1	   Tmp1       =	$B1
+     89  f000		       00 b2	   Tmp2       =	$B2
+     90  f000
+     91  f000		       00 ba	   CollisionCounter =	$BA
+     92  f000		       00 bb	   Player0X   =	$BB
+     93  f000		       00 bc	   CountdownTimer =	$BC
+     94  f000		       00 bd	   Traffic0Msb =	$BD
+     95  f000		       00 be	   SwitchDebounceCounter =	$BE
+     96  f000
+     97  f000
+     98  f000		       00 c0	   GameStatus =	$C0	; Not zero is running! No need to make it byte a flag for now.
+     99  f000		       00 c1	   TrafficChance =	$C1
+    100  f000		       00 c2	   CheckpointTime =	$C2
+    101  f000		       00 c3	   TrafficColor =	$C3
+    102  f000		       00 c4	   CurrentDifficulty =	$C4
+    103  f000
+    104  f000		       00 d0	   ScoreD0    =	$D0
+    105  f000		       00 d1	   ScoreD1    =	$D1
+    106  f000		       00 d2	   ScoreD2    =	$D2
+    107  f000		       00 d3	   ScoreD3    =	$D3
+    108  f000		       00 d4	   ScoreD4    =	$D4
+    109  f000		       00 d5	   ScoreFontColor =	$D5
+    110  f000		       00 d6	   ScoreFontColorHoldChange =	$D6
+    111  f000		       00 d7	   NextCheckpoint =	$D7
+    112  f000
     113  f000
-    114  f000
-    115  f000							;generic start up stuff, put zero in all...
-    116  f000				   BeforeStart		;All variables that are kept on game reset or select
-    117  f000		       a0 00		      LDY	#0
-    118  f002		       84 be		      STY	SwitchDebounceCounter
-    119  f004
-    120  f004				   Start
-    121  f004		       78		      SEI
-    122  f005		       d8		      CLD
-    123  f006		       a2 ff		      LDX	#$FF
-    124  f008		       9a		      TXS
-    125  f009		       a9 00		      LDA	#0
-    126  f00b				   ClearMem
-    127  f00b		       e0 be		      CPX	#SwitchDebounceCounter
-    128  f00d		       f0 02		      BEQ	SkipClean
-    129  f00f		       95 00		      STA	0,X
-    130  f011				   SkipClean
-    131  f011		       ca		      DEX
-    132  f012		       d0 f7		      BNE	ClearMem
-    133  f014
-    134  f014							;Setting some variables...
-    135  f014
-    136  f014		       85 02		      STA	WSYNC	;We will set player position
-    137  f016		       a9 01		      LDA	#1
-    138  f018		       85 94		      STA	TrafficOffset1 + 0	; So we can detect loop
-    139  f01a		       a9 20		      LDA	#$20
-    140  f01c		       85 96		      STA	TrafficOffset1 + 2
-    141  f01e		       a9 40		      LDA	#$40
-    142  f020		       85 9a		      STA	TrafficOffset2 + 2	;Initial Y Position
-    143  f022		       a9 60		      LDA	#$60
-    144  f024		       85 9e		      STA	TrafficOffset3 + 2	;Initial Y Position
-    145  f026		       a9 80		      LDA	#$80
-    146  f028		       85 a2		      STA	TrafficOffset4 + 2	;Initial Y Position
-    147  f02a		       a9 a0		      LDA	#$A0
-    148  f02c
-    149  f02c		       ad 41 ff 	      LDA	TrafficSpeeds + 4 * 2	; Same as the line he is in.
-    150  f02f		       85 8e		      STA	Player0SpeedL
-    151  f031
+    114  f000							;generic start up stuff, put zero in all...
+    115  f000				   BeforeStart		;All variables that are kept on game reset or select
+    116  f000		       a0 00		      LDY	#0
+    117  f002		       84 be		      STY	SwitchDebounceCounter
+    118  f004
+    119  f004				   Start
+    120  f004		       78		      SEI
+    121  f005		       d8		      CLD
+    122  f006		       a2 ff		      LDX	#$FF
+    123  f008		       9a		      TXS
+    124  f009		       a9 00		      LDA	#0
+    125  f00b				   ClearMem
+    126  f00b		       e0 be		      CPX	#SwitchDebounceCounter
+    127  f00d		       f0 02		      BEQ	SkipClean
+    128  f00f		       95 00		      STA	0,X
+    129  f011				   SkipClean
+    130  f011		       ca		      DEX
+    131  f012		       d0 f7		      BNE	ClearMem
+    132  f014
+    133  f014							;Setting some variables...
+    134  f014
+    135  f014		       85 02		      STA	WSYNC	;We will set player position
+    136  f016		       a9 01		      LDA	#1
+    137  f018		       85 94		      STA	TrafficOffset1 + 0	; So we can detect loop
+    138  f01a		       a9 20		      LDA	#$20
+    139  f01c		       85 96		      STA	TrafficOffset1 + 2
+    140  f01e		       a9 40		      LDA	#$40
+    141  f020		       85 9a		      STA	TrafficOffset2 + 2	;Initial Y Position
+    142  f022		       a9 60		      LDA	#$60
+    143  f024		       85 9e		      STA	TrafficOffset3 + 2	;Initial Y Position
+    144  f026		       a9 80		      LDA	#$80
+    145  f028		       85 a2		      STA	TrafficOffset4 + 2	;Initial Y Position
+    146  f02a		       a9 a0		      LDA	#$A0
+    147  f02c
+    148  f02c		       ad 41 ff 	      LDA	TrafficSpeeds + 4 * 2	; Same as the line he is in.
+    149  f02f		       85 8e		      STA	Player0SpeedL
+    150  f031
       0  f031					      SLEEP	18
       1  f031				   .CYCLES    SET	18
       2  f031
@@ -560,1148 +559,1174 @@
      17  f038					      REPEND
      18  f039		       ea		      nop
      19  f03a					      REPEND
-    153  f03a		       85 10		      STA	RESP0
-    154  f03c
-    155  f03c		       ad 82 02 	      LDA	SWCHB	; Reading the switches as binary number A = 1, B = 0
-    156  f03f		       29 c0		      AND	#%11000000
-    157  f041		       f0 0c		      BEQ	ConfigureLightTraffic
-    158  f043		       c9 80		      CMP	#%10000000
-    159  f045		       f0 11		      BEQ	ConfigureRegularTraffic
-    160  f047		       c9 40		      CMP	#%01000000
-    161  f049		       f0 16		      BEQ	ConfigureIntenseTraffic
-    162  f04b		       c9 c0		      CMP	#%11000000
-    163  f04d		       f0 1b		      BEQ	ConfigureRushHourTraffic
-    164  f04f
-    165  f04f				   ConfigureLightTraffic
-    166  f04f		       a2 12		      LDX	#TRAFFIC_CHANCE_LIGHT
-    167  f051		       a0 1e		      LDY	#CHECKPOINT_TIME_LIGHT
-    168  f053		       a9 d4		      LDA	#TRAFFIC_COLOR_LIGHT
-    169  f055		       4c 70 f0 	      JMP	StoreTrafficChance
-    170  f058				   ConfigureRegularTraffic
-    171  f058		       a2 1c		      LDX	#TRAFFIC_CHANCE_REGULAR
-    172  f05a		       a0 23		      LDY	#CHECKPOINT_TIME_REGULAR
-    173  f05c		       a9 34		      LDA	#TRAFFIC_COLOR_REGULAR
-    174  f05e		       4c 70 f0 	      JMP	StoreTrafficChance
-    175  f061				   ConfigureIntenseTraffic
-    176  f061		       a2 26		      LDX	#TRAFFIC_CHANCE_INTENSE
-    177  f063		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
-    178  f065		       a9 a9		      LDA	#TRAFFIC_COLOR_INTENSE
-    179  f067		       4c 70 f0 	      JMP	StoreTrafficChance
-    180  f06a				   ConfigureRushHourTraffic
-    181  f06a		       a2 30		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
-    182  f06c		       a0 2d		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
-    183  f06e		       a9 09		      LDA	#TRAFFIC_COLOR_RUSH_HOUR
-    184  f070
-    185  f070				   StoreTrafficChance
-    186  f070		       86 c1		      STX	TrafficChance
-    187  f072		       84 c2		      STY	CheckpointTime
-    188  f074		       85 c3		      STA	TrafficColor
-    189  f076
-    190  f076				   HPositioning
-    191  f076		       85 02		      STA	WSYNC
-    192  f078
-    193  f078		       a9 30		      LDA	#%00110000	;2 Missile Size
-    194  f07a		       85 04		      STA	NUSIZ0	;3
-    195  f07c		       85 05		      STA	NUSIZ1	;3
-    196  f07e
-    197  f07e		       a9 35		      LDA	#PLAYER_0_X_START	;2
-    198  f080		       85 bb		      STA	Player0X	;3
-    199  f082
-    200  f082		       a9 5a		      LDA	#INITIAL_COUNTDOWN_TIME	;2
-    201  f084		       85 bc		      STA	CountdownTimer	;3
-    202  f086
-    203  f086		       a9 10		      LDA	#CHECKPOINT_INTERVAL	;2
-    204  f088		       85 d7		      STA	NextCheckpoint	;3
-    205  f08a
-    206  f08a		       a9 00		      LDA	#0	; Avoid missile reseting position 
-      0  f08c					      SLEEP	11	;
-      1  f08c				   .CYCLES    SET	11
-      2  f08c
-      3  f08c				  -	      IF	.CYCLES < 2
-      4  f08c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f08c				  -	      ERR
-      6  f08c					      ENDIF
-      7  f08c
-      8  f08c					      IF	.CYCLES & 1
-      9  f08c				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f08c				  -	      nop	0
-     11  f08c					      ELSE
-     12  f08c		       24 00		      bit	VSYNC
-     13  f08e					      ENDIF
-     14  f08e				   .CYCLES    SET	.CYCLES - 3
-     15  f08e					      ENDIF
-     16  f08e
-     17  f08e					      REPEAT	.CYCLES / 2
-     18  f08e		       ea		      nop
-     17  f08e					      REPEND
-     18  f08f		       ea		      nop
-     17  f08f					      REPEND
-     18  f090		       ea		      nop
-     17  f090					      REPEND
-     18  f091		       ea		      nop
-     19  f092					      REPEND
-    208  f092		       85 11		      STA	RESP1
-      0  f094					      SLEEP	2	;
-      1  f094				   .CYCLES    SET	2
-      2  f094
-      3  f094				  -	      IF	.CYCLES < 2
-      4  f094				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f094				  -	      ERR
-      6  f094					      ENDIF
-      7  f094
-      8  f094				  -	      IF	.CYCLES & 1
-      9  f094				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f094				  -	      nop	0
-     11  f094				  -	      ELSE
-     12  f094				  -	      bit	VSYNC
-     13  f094				  -	      ENDIF
-     14  f094				  -.CYCLES    SET	.CYCLES - 3
-     15  f094					      ENDIF
-     16  f094
-     17  f094					      REPEAT	.CYCLES / 2
-     18  f094		       ea		      nop
-     19  f095					      REPEND
-    210  f095		       85 14		      STA	RESBL
-      0  f097					      SLEEP	2	;
-      1  f097				   .CYCLES    SET	2
-      2  f097
-      3  f097				  -	      IF	.CYCLES < 2
-      4  f097				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f097				  -	      ERR
-      6  f097					      ENDIF
-      7  f097
-      8  f097				  -	      IF	.CYCLES & 1
-      9  f097				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f097				  -	      nop	0
-     11  f097				  -	      ELSE
-     12  f097				  -	      bit	VSYNC
-     13  f097				  -	      ENDIF
-     14  f097				  -.CYCLES    SET	.CYCLES - 3
-     15  f097					      ENDIF
-     16  f097
-     17  f097					      REPEAT	.CYCLES / 2
-     18  f097		       ea		      nop
-     19  f098					      REPEND
-    212  f098		       85 12		      STA	RESM0
-      0  f09a					      SLEEP	2
-      1  f09a				   .CYCLES    SET	2
-      2  f09a
-      3  f09a				  -	      IF	.CYCLES < 2
-      4  f09a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f09a				  -	      ERR
-      6  f09a					      ENDIF
-      7  f09a
-      8  f09a				  -	      IF	.CYCLES & 1
-      9  f09a				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f09a				  -	      nop	0
-     11  f09a				  -	      ELSE
-     12  f09a				  -	      bit	VSYNC
-     13  f09a				  -	      ENDIF
-     14  f09a				  -.CYCLES    SET	.CYCLES - 3
-     15  f09a					      ENDIF
-     16  f09a
-     17  f09a					      REPEAT	.CYCLES / 2
-     18  f09a		       ea		      nop
-     19  f09b					      REPEND
-    214  f09b		       85 13		      STA	RESM1
-    215  f09d
-    216  f09d		       a9 f0		      LDA	#$F0
-    217  f09f		       85 24		      STA	HMBL
-    218  f0a1		       85 22		      STA	HMM0
-    219  f0a3		       85 23		      STA	HMM1
-    220  f0a5		       85 02		      STA	WSYNC
-    221  f0a7		       85 2a		      STA	HMOVE
-    222  f0a9		       85 02		      STA	WSYNC	; Time is irrelevant before sync to TV, ROM space is not!
-    223  f0ab		       85 2b		      STA	HMCLR
-    224  f0ad
-    225  f0ad							;SLEEP 24
-    226  f0ad							;STA HMCLR
-    227  f0ad
-    228  f0ad							;VSYNC time
-    229  f0ad				   MainLoop
-    230  f0ad		       a9 02		      LDA	#2
-    231  f0af		       85 00		      STA	VSYNC
-    232  f0b1		       85 02		      STA	WSYNC
-    233  f0b3		       85 02		      STA	WSYNC	;Apply Movement, must be done after a WSYNC
-    234  f0b5		       85 2a		      STA	HMOVE	;2
-    235  f0b7							;This must be done after a WSync, otherwise it is impossible to predict the X position
-    236  f0b7				   DoNotSetPlayerX
-    237  f0b7
-    238  f0b7		       85 02		      STA	WSYNC	;3
-    239  f0b9		       a9 2b		      LDA	#43	;2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
-    240  f0bb		       8d 96 02 	      STA	TIM64T	;3	
-    241  f0be		       a9 00		      LDA	#0	;2
-    242  f0c0		       85 00		      STA	VSYNC	;3	
-    243  f0c2
-    244  f0c2							;Read Fire Button before, will make it start the game for now.
-    245  f0c2				   StartGame
-    246  f0c2		       a5 0c		      LDA	INPT4	;3
-    247  f0c4		       30 10		      BMI	SkipGameStart	;2 ;not pressed the fire button in negative in bit 7
-    248  f0c6		       a5 c0		      LDA	GameStatus	;3
-    249  f0c8		       29 80		      AND	#%10000000
-    250  f0ca		       d0 0a		      BNE	SkipGameStart
-    251  f0cc		       09 80		      ORA	#%10000000	;2
-    252  f0ce		       85 c0		      STA	GameStatus	;3
-    253  f0d0		       a9 00		      LDA	#0	;
-    254  f0d2		       85 8c		      STA	FrameCount0
-    255  f0d4		       85 8d		      STA	FrameCount1
-    256  f0d6				   SkipGameStart
-    257  f0d6
-    258  f0d6				   ReadSwitches
-    259  f0d6		       a6 be		      LDX	SwitchDebounceCounter
-    260  f0d8		       d0 11		      BNE	DecrementSwitchDebounceCounter
-    261  f0da		       a9 01		      LDA	#%00000001
-    262  f0dc		       2c 82 02 	      BIT	SWCHB
-    263  f0df		       d0 07		      BNE	SkipReset
-    264  f0e1		       a9 3c		      LDA	#SWITCHES_DEBOUNCE_TIME
-    265  f0e3		       85 be		      STA	SwitchDebounceCounter
-    266  f0e5		       4c 04 f0 	      JMP	Start
-    267  f0e8				   SkipReset
-    268  f0e8		       4c ed f0 	      JMP	EndReadSwitches
-    269  f0eb				   DecrementSwitchDebounceCounter
-    270  f0eb		       c6 be		      DEC	SwitchDebounceCounter
-    271  f0ed				   EndReadSwitches
-    272  f0ed
-    273  f0ed				   CountFrame
-    274  f0ed		       e6 8c		      INC	FrameCount0	; 5 Used to alternate lines
-    275  f0ef		       d0 02		      BNE	SkipIncFC1	; 2 When it is zero again should increase the MSB
-    276  f0f1		       e6 8d		      INC	FrameCount1	; 5 Still not used
-    277  f0f3				   SkipIncFC1
-    278  f0f3
-    279  f0f3							;Does not update the game if not running
-    280  f0f3		       a5 c0		      LDA	GameStatus	;3
-    281  f0f5		       29 80		      AND	#%10000000	;2 game is running...
-    282  f0f7		       d0 03		      BNE	ContinueWithGameLogic	;3 Cannot branch more than 128 bytes, so we have to use JMP
-    283  f0f9		       4c 32 f2 	      JMP	SkipUpdateLogic
-    284  f0fc				   ContinueWithGameLogic
-    285  f0fc
-    286  f0fc				   EverySecond		; 64 frames to be more precise
-    287  f0fc		       a9 3f		      LDA	#%00111111
-    288  f0fe		       25 8c		      AND	FrameCount0
-    289  f100		       d0 06		      BNE	SkipEverySecondAction
-    290  f102		       c5 bc		      CMP	CountdownTimer
-    291  f104		       f0 02		      BEQ	SkipEverySecondAction	; Stop at Zero
-    292  f106		       c6 bc		      DEC	CountdownTimer
-    293  f108				   SkipEverySecondAction
-    294  f108
-    295  f108
-    296  f108
-    297  f108				   BreakOnTimeOver		; Uses LDX as the breaking speed
-    298  f108		       a2 00		      LDX	#0
-    299  f10a		       a5 bc		      LDA	CountdownTimer
-    300  f10c		       d0 08		      BNE	Break
-    301  f10e		       a5 8c		      LDA	FrameCount0
-    302  f110		       29 07		      AND	#TIMEOVER_BREAK_INTERVAL
-    303  f112		       d0 02		      BNE	Break
-    304  f114		       a2 01		      LDX	#TIMEOVER_BREAK_SPEED
-    305  f116
-    306  f116				   Break
-    307  f116		       a9 20		      LDA	#%00100000	;Down in controller
-    308  f118		       2c 80 02 	      BIT	SWCHA
-    309  f11b		       d0 0b		      BNE	BreakNonZero
-    310  f11d		       a5 0c		      LDA	INPT4	;3
-    311  f11f		       10 05		      BPL	BreakWhileAccelerating
-    312  f121		       a2 0a		      LDX	#BREAK_SPEED
-    313  f123		       4c 28 f1 	      JMP	BreakNonZero
-    314  f126				   BreakWhileAccelerating		; Allow better control while breaking.
-    315  f126		       a2 05		      LDX	#BREAK_SPEED / 2
-    316  f128
-    317  f128				   BreakNonZero
-    318  f128		       e0 00		      CPX	#0
-    319  f12a		       f0 2b		      BEQ	SkipBreak
-    320  f12c		       86 b0		      STX	Tmp0
-    321  f12e
-    322  f12e				   DecreaseSpeed
-    323  f12e		       38		      SEC
-    324  f12f		       a5 8e		      LDA	Player0SpeedL
-    325  f131		       e5 b0		      SBC	Tmp0
-    326  f133		       85 8e		      STA	Player0SpeedL
-    327  f135		       a5 8f		      LDA	Player0SpeedH
-    328  f137		       e9 00		      SBC	#0
-    329  f139		       85 8f		      STA	Player0SpeedH
-    330  f13b
-    331  f13b				   CheckMinSpeed
-    332  f13b		       30 0f		      BMI	ResetMinSpeed	; Overflow d7 is set
-    333  f13d		       c9 00		      CMP	#CAR_MIN_SPEED_H
-    334  f13f		       f0 02		      BEQ	CompareLBreakSpeed	; is the same as minimun, compare other byte.
-    335  f141		       b0 11		      BCS	SkipAccelerateIfBreaking	; Greater than min, we are ok! 
-    336  f143
-    337  f143				   CompareLBreakSpeed
-    338  f143		       a5 8e		      LDA	Player0SpeedL
-    339  f145		       c9 00		      CMP	#CAR_MIN_SPEED_L
-    340  f147		       90 03		      BCC	ResetMinSpeed	; Less than memory
-    341  f149		       4c 54 f1 	      JMP	SkipAccelerateIfBreaking	; We are greather than min speed in the low byte.
-    342  f14c
-    343  f14c				   ResetMinSpeed
-    344  f14c		       a9 00		      LDA	#CAR_MIN_SPEED_H
-    345  f14e		       85 8f		      STA	Player0SpeedH
-    346  f150		       a9 00		      LDA	#CAR_MIN_SPEED_L
-    347  f152		       85 8e		      STA	Player0SpeedL
-    348  f154
-    349  f154				   SkipAccelerateIfBreaking
-    350  f154		       4c 87 f1 	      JMP	SkipAccelerate
-    351  f157				   SkipBreak
-    352  f157
-    353  f157				   Acelerates
-    354  f157		       a5 bc		      LDA	CountdownTimer
-    355  f159		       f0 2c		      BEQ	SkipAccelerate	; cannot accelerate if timer is zero
-    356  f15b		       a5 0c		      LDA	INPT4	;3
-    357  f15d		       10 07		      BPL	IncreaseCarSpeed	; Test button and then up, both accelerate.
-    358  f15f		       a9 10		      LDA	#%00010000	;UP in controller
-    359  f161		       2c 80 02 	      BIT	SWCHA
-    360  f164		       d0 21		      BNE	SkipAccelerate
-    361  f166
-    362  f166				   IncreaseCarSpeed
-    363  f166							;Adds speed
-    364  f166		       18		      CLC
-    365  f167		       a5 8e		      LDA	Player0SpeedL
-    366  f169		       69 01		      ADC	#ACCELERATE_SPEED
-    367  f16b		       85 8e		      STA	Player0SpeedL
-    368  f16d		       a5 8f		      LDA	Player0SpeedH
-    369  f16f		       69 00		      ADC	#0
-    370  f171		       85 8f		      STA	Player0SpeedH
-    371  f173
-    372  f173							;Checks if already max
-    373  f173		       c9 02		      CMP	#CAR_MAX_SPEED_H
-    374  f175		       90 10		      BCC	SkipAccelerate	; less than my max speed
-    375  f177		       d0 06		      BNE	ResetToMaxSpeed	; Not equal, so if I am less, and not equal, I am more!
-    376  f179							;High bit is max, compare the low
-    377  f179		       a5 8e		      LDA	Player0SpeedL
-    378  f17b		       c9 80		      CMP	#CAR_MAX_SPEED_L
-    379  f17d		       90 08		      BCC	SkipAccelerate	; High bit is max, but low bit is not
-    380  f17f							;BEQ SkipAccelerate ; Optimize best case, but not worse case
-    381  f17f
-    382  f17f				   ResetToMaxSpeed		; Speed is more, or is already max
-    383  f17f		       a9 02		      LDA	#CAR_MAX_SPEED_H
-    384  f181		       85 8f		      STA	Player0SpeedH
-    385  f183		       a9 80		      LDA	#CAR_MAX_SPEED_L
-    386  f185		       85 8e		      STA	Player0SpeedL
-    387  f187				   SkipAccelerate
-    388  f187
-    389  f187							;Updates all offsets 24 bits
-    390  f187		       a2 00		      LDX	#0	; Memory Offset 24 bit
-    391  f189		       a0 00		      LDY	#0	; Line Speeds 16 bits
-    392  f18b				   UpdateOffsets		; Car sped - traffic speed = how much to change offet (signed)
-    393  f18b		       38		      SEC
-    394  f18c		       a5 8e		      LDA	Player0SpeedL
-    395  f18e		       f9 39 ff 	      SBC	TrafficSpeeds,Y
-    396  f191		       85 b0		      STA	Tmp0
-    397  f193		       c8		      INY
-    398  f194		       a5 8f		      LDA	Player0SpeedH
-    399  f196		       f9 39 ff 	      SBC	TrafficSpeeds,Y
-    400  f199		       85 b1		      STA	Tmp1
-    401  f19b		       a9 00		      LDA	#0	; Hard to figure out, makes the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
-    402  f19d		       e9 00		      SBC	#0
-    403  f19f		       85 b2		      STA	Tmp2
-    404  f1a1
-    405  f1a1
-    406  f1a1				   AddsTheResult
-    407  f1a1		       18		      CLC
-    408  f1a2		       a5 b0		      LDA	Tmp0
-    409  f1a4		       75 90		      ADC	TrafficOffset0,X
-    410  f1a6		       95 90		      STA	TrafficOffset0,X
-    411  f1a8		       e8		      INX
-    412  f1a9		       a5 b1		      LDA	Tmp1
-    413  f1ab		       75 90		      ADC	TrafficOffset0,X
-    414  f1ad		       95 90		      STA	TrafficOffset0,X
-    415  f1af		       e8		      INX
-    416  f1b0		       a5 b2		      LDA	Tmp2	; Carry
-    417  f1b2		       75 90		      ADC	TrafficOffset0,X
-    418  f1b4		       95 90		      STA	TrafficOffset0,X
-    419  f1b6		       90 06		      BCC	CalculateOffsetCache
-    420  f1b8		       e0 02		      CPX	#2	;MSB offset 0
-    421  f1ba		       d0 02		      BNE	CalculateOffsetCache
-    422  f1bc		       e6 bd		      INC	Traffic0Msb
-    423  f1be
-    424  f1be				   CalculateOffsetCache
-    425  f1be		       e8		      INX
-    426  f1bf		       38		      SEC
-    427  f1c0		       69 00		      ADC	#0	;Increment by one
-    428  f1c2		       95 90		      STA	TrafficOffset0,X	; cache of the other possible value for the MSB in the frame, make drawing faster.
-    429  f1c4
-    430  f1c4				   PrepareNextUpdateLoop
-    431  f1c4		       c8		      INY
-    432  f1c5		       e8		      INX
-    433  f1c6		       e0 14		      CPX	#TRAFFIC_LINE_COUNT * 4	;
-    434  f1c8		       d0 c1		      BNE	UpdateOffsets
-    435  f1ca
-    436  f1ca							;Until store the movemnt, LDX contains the value to be stored.
-    437  f1ca				   TestCollision		;
-    438  f1ca							; see if player0 colides with the rest
-    439  f1ca		       a5 00		      LDA	CXM0P
-    440  f1cc		       05 01		      ORA	CXM1P
-    441  f1ce		       05 01		      ORA	CXM1P
-    442  f1d0		       05 02		      ORA	CXP0FB
-    443  f1d2		       05 07		      ORA	CXPPMM
-    444  f1d4		       29 c0		      AND	#%11000000	; Accounting for random noise in the bus		
-    445  f1d6		       f0 19		      BEQ	NoCollision	;skip if not hitting...
-    446  f1d8		       a5 ba		      LDA	CollisionCounter	; If colision is alredy happening, ignore!
-    447  f1da		       d0 15		      BNE	NoCollision
-    448  f1dc		       a9 ff		      LDA	#COLLISION_FRAMES	;must be a hit! Change rand color bg
-    449  f1de		       85 ba		      STA	CollisionCounter	;and store as colision.
-    450  f1e0		       a9 10		      LDA	#COLLISION_SPEED_L	;
-    451  f1e2		       c5 8e		      CMP	Player0SpeedL
-    452  f1e4		       b0 02		      BCS	SkipSetColisionSpeed
-    453  f1e6		       85 8e		      STA	Player0SpeedL
-    454  f1e8				   SkipSetColisionSpeed
-    455  f1e8		       a9 00		      LDA	#0
-    456  f1ea		       85 8f		      STA	Player0SpeedH
-    457  f1ec		       a2 40		      LDX	#$40	;Move car left 4 color clocks, to center the stretch (+4)	
-    458  f1ee		       4c 2e f2 	      JMP	StoreHMove	; We keep position consistent
-    459  f1f1				   NoCollision
-    460  f1f1
-    461  f1f1				   DecrementCollision
-    462  f1f1		       a4 ba		      LDY	CollisionCounter
-    463  f1f3		       f0 07		      BEQ	FinishDecrementCollision
-    464  f1f5		       a9 35		      LDA	#%00110101	; Make player bigger to show colision
-    465  f1f7		       85 04		      STA	NUSIZ0
-    466  f1f9		       88		      DEY
-    467  f1fa		       84 ba		      STY	CollisionCounter	; We save some cycles in reset size.
-    468  f1fc				   FinishDecrementCollision
-    469  f1fc
-    470  f1fc				   ResetPlayerSize
-    471  f1fc		       d0 04		      BNE	FinishResetPlayerSize
-    472  f1fe		       a9 30		      LDA	#%00110000
-    473  f200		       85 04		      STA	NUSIZ0	;
-    474  f202				   FinishResetPlayerSize
-    475  f202
-    476  f202				   ResetPlayerPosition		;For 1 frame, he will not colide, but will have the origina size
-    477  f202		       c0 01		      CPY	#1	; Last frame before reset
-    478  f204		       d0 05		      BNE	SkipResetPlayerPosition
-    479  f206		       a2 c0		      LDX	#$C0	;Move car left 4 color clocks, to center the stretch (-4)
-    480  f208		       4c 2e f2 	      JMP	StoreHMove
-    481  f20b				   SkipResetPlayerPosition
-    482  f20b
-    483  f20b							; for left and right, we're gonna 
-    484  f20b							; set the horizontal speed, and then do
-    485  f20b							; a single HMOVE.  We'll use X to hold the
-    486  f20b							; horizontal speed, then store it in the 
-    487  f20b							; appropriate register
-    488  f20b				   PrepareReadXAxis
-    489  f20b		       a2 00		      LDX	#0
-    490  f20d		       a4 bb		      LDY	Player0X
-    491  f20f				   BeginReadLeft
-    492  f20f		       f0 0e		      BEQ	SkipMoveLeft	; We do not move after maximum
-    493  f211		       a9 40		      LDA	#%01000000	;Left
-    494  f213		       2c 80 02 	      BIT	SWCHA
-    495  f216		       d0 07		      BNE	SkipMoveLeft
-    496  f218		       a2 10		      LDX	#$10	;a 1 in the left nibble means go left
-    497  f21a		       c6 bb		      DEC	Player0X
-    498  f21c		       4c 2e f2 	      JMP	StoreHMove	; Cannot move left and right...
-    499  f21f				   SkipMoveLeft
-    500  f21f				   BeginReadRight
-    501  f21f		       c0 36		      CPY	#PLAYER_0_MAX_X
-    502  f221		       f0 0b		      BEQ	SkipMoveRight	; At max already
-    503  f223		       a9 80		      LDA	#%10000000	;Right
-    504  f225		       2c 80 02 	      BIT	SWCHA
-    505  f228		       d0 04		      BNE	SkipMoveRight
-    506  f22a		       a2 f0		      LDX	#$F0	;a -1 in the left nibble means go right...
-    507  f22c		       e6 bb		      INC	Player0X
-    508  f22e				   SkipMoveRight
-    509  f22e				   StoreHMove
-    510  f22e		       86 20		      STX	HMP0	;set the move for player 0, not the missile like last time...
-    511  f230		       85 2c		      STA	CXCLR	;reset the collision detection for next frame.
-    512  f232
-    513  f232
-    514  f232				   SkipUpdateLogic
-    515  f232		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
-    516  f234		       85 09		      STA	COLUBK
-    517  f236		       a5 d5		      LDA	ScoreFontColor
-    518  f238		       85 08		      STA	COLUPF
-    519  f23a		       20 70 f4 	      JSR	ClearAll
-    520  f23d		       a9 02		      LDA	#%00000010	; Score mode
-    521  f23f		       85 0a		      STA	CTRLPF
-    522  f241		       a0 04		      LDY	#SCORE_SIZE - 1
-    523  f243		       a2 00		      LDX	#0
-    524  f245
-    525  f245		       a5 8c		      LDA	FrameCount0	;3
-    526  f247		       29 01		      AND	#%00000001	;2
-    527  f249		       f0 0f		      BEQ	RightScoreOn	; Half of the screen with the correct colors.
-    528  f24b				   LeftScoreOn
-    529  f24b		       a5 d5		      LDA	ScoreFontColor
-    530  f24d		       85 07		      STA	COLUP1
-    531  f24f		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
-    532  f251		       85 06		      STA	COLUP0
-    533  f253		       a9 01		      LDA	#1	;Jumps faster in the draw loop
-    534  f255		       85 b1		      STA	Tmp1
-    535  f257		       4c 66 f2 	      JMP	WaitForVblankEnd
-    536  f25a				   RightScoreOn
-    537  f25a		       a5 d5		      LDA	ScoreFontColor
-    538  f25c		       85 06		      STA	COLUP0
-    539  f25e		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
-    540  f260		       85 07		      STA	COLUP1
-    541  f262		       a9 00		      LDA	#0	;Jumps faster in the draw loop
-    542  f264		       85 b1		      STA	Tmp1
-    543  f266
-    544  f266
-    545  f266							; After here we are going to update the screen, No more heavy code
-    546  f266				   WaitForVblankEnd
-    547  f266		       ad 84 02 	      LDA	INTIM
-    548  f269		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
-    549  f26b							;STA WSYNC ; Seems wastefull, can I live killing vblank midline?
-    550  f26b		       85 01		      STA	VBLANK
-    551  f26d
-    552  f26d				   ScoreLoop		; Runs in 2 lines, this is the best I can do!
-    553  f26d		       85 02		      STA	WSYNC
-    554  f26f
-    555  f26f		       a5 81		      LDA	PF0Cache	;3 Move to a macro?
-    556  f271		       85 0d		      STA	PF0	;3
-    557  f273
-    558  f273		       a5 82		      LDA	PF1Cache	;3
-    559  f275		       85 0e		      STA	PF1	;3
-    560  f277
-    561  f277		       a5 83		      LDA	PF2Cache	;3
-    562  f279		       85 0f		      STA	PF2	;3
-    563  f27b
-    564  f27b							;39
-    565  f27b				   DrawScore
-    566  f27b		       a6 d0		      LDX	ScoreD0	; 4
-    567  f27d		       bd 00 fd 	      LDA	Font,X	;4
-    568  f280		       85 81		      STA	PF0Cache	;3
-    569  f282		       c6 d0		      DEC	ScoreD0	;6 Can only DEC with X
-    570  f284							;17
-    571  f284
-    572  f284		       a6 d1		      LDX	ScoreD1	; 4
-    573  f286		       bd 00 fd 	      LDA	Font,X	;4
-    574  f289		       0a		      ASL		;2
-    575  f28a		       0a		      ASL		;2
-    576  f28b		       0a		      ASL		;2
-    577  f28c		       0a		      ASL		;2
-    578  f28d		       85 82		      STA	PF1Cache	;3
-    579  f28f		       c6 d1		      DEC	ScoreD1	;6
-    580  f291							;9 (After Wsync)
-    581  f291
-    582  f291		       a6 d2		      LDX	ScoreD2	; 4
-    583  f293		       bd 00 fd 	      LDA	Font,X	;4
-    584  f296		       29 0f		      AND	#%00001111
-    585  f298		       05 82		      ORA	PF1Cache	;3
-    586  f29a		       85 82		      STA	PF1Cache	;3
-    587  f29c		       c6 d2		      DEC	ScoreD2	;6
-    588  f29e							;20
-    589  f29e
-    590  f29e		       a6 d3		      LDX	ScoreD3	; 3
-    591  f2a0		       bd 00 fd 	      LDA	Font,X	;4
-    592  f2a3		       4a		      LSR		;2
-    593  f2a4		       4a		      LSR		;2
-    594  f2a5		       4a		      LSR		;2
-    595  f2a6		       4a		      LSR		;2
-    596  f2a7		       85 83		      STA	PF2Cache	;3
-    597  f2a9		       c6 d3		      DEC	ScoreD3	;5
-    598  f2ab							;23
-    599  f2ab
-    600  f2ab		       a6 d4		      LDX	ScoreD4	; 3
-    601  f2ad		       bd 00 fd 	      LDA	Font,X	;4
-    602  f2b0		       29 f0		      AND	#%11110000
-    603  f2b2		       05 83		      ORA	PF2Cache	;3
-    604  f2b4		       85 83		      STA	PF2Cache	;3
-    605  f2b6		       c6 d4		      DEC	ScoreD4	;5
-    606  f2b8							;18
-    607  f2b8
-    608  f2b8		       88		      DEY		;2
-    609  f2b9		       10 b2		      BPL	ScoreLoop	;4
-    610  f2bb
-    611  f2bb		       85 02		      STA	WSYNC
-    612  f2bd
-    613  f2bd		       20 95 f4 	      JSR	LoadAll
-    614  f2c0
-    615  f2c0		       85 02		      STA	WSYNC
-    616  f2c2		       85 02		      STA	WSYNC
-    617  f2c4
-    618  f2c4				   PrepareForTraffic
-    619  f2c4		       20 86 f4 	      JSR	ClearPF	; 32
-    620  f2c7
-    621  f2c7		       a9 31		      LDA	#%00110001	; Score mode
-    622  f2c9		       85 0a		      STA	CTRLPF
-    623  f2cb
-    624  f2cb		       a5 c3		      LDA	TrafficColor	;2
-    625  f2cd		       85 08		      STA	COLUPF
-    626  f2cf
-    627  f2cf		       a9 a4		      LDA	#PLAYER1_COLOR	;2
-    628  f2d1		       85 07		      STA	COLUP1	;3
-    629  f2d3
-    630  f2d3		       a9 f9		      LDA	#PLAYER0_COLOR	;2
-    631  f2d5		       85 06		      STA	COLUP0	;3
-    632  f2d7
-    633  f2d7		       a4 3a		      LDY	GAMEPLAY_AREA	;2; (Score)
-    634  f2d9
-    635  f2d9		       a9 03		      LDA	#BACKGROUND_COLOR	;2 
-      0  f2db					      SLEEP	12	; Make it in the very end, so we have one more nice blue line
-      1  f2db				   .CYCLES    SET	12
-      2  f2db
-      3  f2db				  -	      IF	.CYCLES < 2
-      4  f2db				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f2db				  -	      ERR
-      6  f2db					      ENDIF
-      7  f2db
-      8  f2db				  -	      IF	.CYCLES & 1
-      9  f2db				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f2db				  -	      nop	0
-     11  f2db				  -	      ELSE
-     12  f2db				  -	      bit	VSYNC
-     13  f2db				  -	      ENDIF
-     14  f2db				  -.CYCLES    SET	.CYCLES - 3
-     15  f2db					      ENDIF
-     16  f2db
-     17  f2db					      REPEAT	.CYCLES / 2
-     18  f2db		       ea		      nop
-     17  f2db					      REPEND
-     18  f2dc		       ea		      nop
-     17  f2dc					      REPEND
-     18  f2dd		       ea		      nop
-     17  f2dd					      REPEND
-     18  f2de		       ea		      nop
-     17  f2de					      REPEND
-     18  f2df		       ea		      nop
-     17  f2df					      REPEND
-     18  f2e0		       ea		      nop
-     19  f2e1					      REPEND
-    637  f2e1		       85 09		      STA	COLUBK	;3
-    638  f2e3
-    639  f2e3
-    640  f2e3							;main scanline loop...
-    641  f2e3				   ScanLoop
-    642  f2e3		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
-    643  f2e5
-    644  f2e5							;Start of next line!			
-    645  f2e5				   DrawCache		;36 Is the last line going to the top of the next frame?
-    646  f2e5
-    647  f2e5		       b9 00 ff 	      LDA	CarSprite,Y	;4 ;Very fast, in the expense of rom space
-    648  f2e8		       85 1b		      STA	GRP0	;3   ;put it as graphics now
-    649  f2ea
-    650  f2ea		       a5 82		      LDA	PF1Cache	;3
-    651  f2ec		       85 0e		      STA	PF1	;3
-    652  f2ee
-    653  f2ee		       a5 84		      LDA	GRP1Cache	;3
-    654  f2f0		       85 1c		      STA	GRP1	;3
-    655  f2f2
-    656  f2f2		       a5 85		      LDA	ENABLCache
-    657  f2f4		       85 1f		      STA	ENABL
-    658  f2f6
-    659  f2f6		       a5 86		      LDA	ENAM0Cache
-    660  f2f8		       85 1d		      STA	ENAM0
-    661  f2fa
-    662  f2fa		       a5 87		      LDA	ENAM1Cache
-    663  f2fc		       85 1e		      STA	ENAM1
-    664  f2fe
-    665  f2fe		       a9 00		      LDA	#0	;2
-    666  f300		       85 82		      STA	PF1Cache	;3
-    667  f302		       85 84		      STA	GRP1Cache	;3
-    668  f304		       85 85		      STA	ENABLCache	;3
-    669  f306		       85 86		      STA	ENAM0Cache	;3
-    670  f308		       85 87		      STA	ENAM1Cache	; 3
-    671  f30a
-    672  f30a							;BEQ DrawTraffic3
-    673  f30a				   DrawTraffic1 		; 33
-    674  f30a		       98		      TYA		; 2
-    675  f30b		       18		      CLC		; 2 
-    676  f30c		       65 95		      ADC	TrafficOffset1 + 1	;3
-    677  f30e		       29 f8		      AND	#TRAFFIC_1_MASK	;2 ;#%11111000
-    678  f310		       b0 05		      BCS	EorOffsetWithCarry	; 2(worse not to jump), 4 if branch
-    679  f312		       45 96		      EOR	TrafficOffset1 + 2	; 3
-    680  f314		       4c 19 f3 	      JMP	AfterEorOffsetWithCarry	; 3
-    681  f317				   EorOffsetWithCarry
-    682  f317		       45 97		      EOR	TrafficOffset1 + 3	; 3
-    683  f319				   AfterEorOffsetWithCarry		;17
-    684  f319		       aa		      TAX		;2
-    685  f31a		       bd 00 fe 	      LDA	AesTable,X	; 4
-    686  f31d		       c5 c1		      CMP	TrafficChance	;3
-    687  f31f		       b0 04		      BCS	FinishDrawTraffic1	; 2
-    688  f321		       a9 ff		      LDA	#$FF	;2
-    689  f323		       85 84		      STA	GRP1Cache	;3
-    690  f325				   FinishDrawTraffic1
-    691  f325
-    692  f325				   DrawTraffic2 		; 35
-    693  f325		       98		      TYA		; 2
-    694  f326		       18		      CLC		; 2 
-    695  f327		       65 99		      ADC	TrafficOffset2 + 1	;3
-    696  f329		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    697  f32b		       b0 05		      BCS	EorOffsetWithCarry2	; 4 max if branch max, 2 otherwise
-    698  f32d		       45 9a		      EOR	TrafficOffset2 + 2	; 3
-    699  f32f		       4c 34 f3 	      JMP	AfterEorOffsetWithCarry2	; 3
-    700  f332				   EorOffsetWithCarry2
-    701  f332		       45 9b		      EOR	TrafficOffset2 + 3	; 3
-    702  f334				   AfterEorOffsetWithCarry2		;17
-    703  f334		       aa		      TAX		;2
-    704  f335		       bd 00 fe 	      LDA	AesTable,X	; 4
-    705  f338		       c5 c1		      CMP	TrafficChance	;2
-    706  f33a		       b0 04		      BCS	FinishDrawTraffic2	; 2
-    707  f33c		       a9 02		      LDA	#%00000010	;2
-    708  f33e		       85 85		      STA	ENABLCache	;3
-    709  f340				   FinishDrawTraffic2
-    710  f340
-    711  f340							;STA WSYNC ;65 / 137
-    712  f340
-    713  f340							; LDA Tmp0 ; Flicker this line if drawing car
-    714  f340							; BEQ FinishDrawTraffic4
-    715  f340				   DrawTraffic3 		; 38
-    716  f340		       98		      TYA		; 2
-    717  f341		       18		      CLC		; 2 
-    718  f342		       65 9d		      ADC	TrafficOffset3 + 1	;3
-    719  f344		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    720  f346		       b0 05		      BCS	EorOffsetWithCarry3	; 4 max if branch max, 2 otherwise
-    721  f348		       45 9e		      EOR	TrafficOffset3 + 2	; 3
-    722  f34a		       4c 4f f3 	      JMP	AfterEorOffsetWithCarry3	; 3
-    723  f34d				   EorOffsetWithCarry3
-    724  f34d		       45 9f		      EOR	TrafficOffset3 + 3	; 3
-    725  f34f				   AfterEorOffsetWithCarry3		;17
-    726  f34f		       aa		      TAX		;2
-    727  f350		       bd 00 fe 	      LDA	AesTable,X	; 4
-    728  f353		       c5 c1		      CMP	TrafficChance	;2
-    729  f355		       b0 04		      BCS	FinishDrawTraffic3	; 2 
-    730  f357		       a9 02		      LDA	#%00000010	;2
-    731  f359		       85 86		      STA	ENAM0Cache
-    732  f35b				   FinishDrawTraffic3
-    733  f35b
-    734  f35b				   DrawTraffic4 		; 35
-    735  f35b		       98		      TYA		; 2
-    736  f35c		       18		      CLC		; 2 
-    737  f35d		       65 a1		      ADC	TrafficOffset4 + 1	;3
-    738  f35f		       29 f8		      AND	#TRAFFIC_1_MASK	;2
-    739  f361		       b0 05		      BCS	EorOffsetWithCarry4	; 4 max if branch max, 2 otherwise
-    740  f363		       45 a2		      EOR	TrafficOffset4 + 2	; 3
-    741  f365		       4c 6a f3 	      JMP	AfterEorOffsetWithCarry4	; 3
-    742  f368				   EorOffsetWithCarry4
-    743  f368		       45 a3		      EOR	TrafficOffset4 + 3	; 3
-    744  f36a				   AfterEorOffsetWithCarry4		;17
-    745  f36a		       aa		      TAX		;2
-    746  f36b		       bd 00 fe 	      LDA	AesTable,X	; 4
-    747  f36e		       c5 c1		      CMP	TrafficChance	;2
-    748  f370		       b0 04		      BCS	FinishDrawTraffic4	; 2
-    749  f372		       a9 02		      LDA	#%00000010	;2
-    750  f374		       85 87		      STA	ENAM1Cache
-    751  f376				   FinishDrawTraffic4
-    752  f376
-    753  f376				   DrawTraffic0 		; 24
-    754  f376		       98		      TYA		;2
-    755  f377		       18		      CLC		;2
-    756  f378		       65 91		      ADC	TrafficOffset0 + 1	; 3
-    757  f37a		       29 04		      AND	#%00000100	;2 Every 4 game lines, draw the border
-    758  f37c		       f0 04		      BEQ	SkipDrawTraffic0	; 2
-    759  f37e		       a9 ff		      LDA	#$FF	; 2
-    760  f380		       85 82		      STA	PF1Cache
-    761  f382
-    762  f382				   SkipDrawTraffic0
-    763  f382
-    764  f382				   WhileScanLoop
-    765  f382		       88		      DEY		;2
-    766  f383		       30 03		      BMI	FinishScanLoop	;2 two big Breach, needs JMP
-    767  f385		       4c e3 f2 	      JMP	ScanLoop	;3
-    768  f388				   FinishScanLoop		; 7 209 of 222
+    152  f03a		       85 10		      STA	RESP0
+    153  f03c
+    154  f03c		       a6 00		      LDX	0
+    155  f03e		       ad 82 02 	      LDA	SWCHB	; Reading the switches and mapping to difficulty id
+    156  f041		       29 c0		      AND	#%11000000
+    157  f043		       f0 0b		      BEQ	CallConfigureDifficulty
+    158  f045		       e8		      INX
+    159  f046		       c9 80		      CMP	#%10000000
+    160  f048		       f0 06		      BEQ	CallConfigureDifficulty
+    161  f04a		       e8		      INX
+    162  f04b		       c9 40		      CMP	#%01000000
+    163  f04d		       f0 01		      BEQ	CallConfigureDifficulty
+    164  f04f		       e8		      INX
+    165  f050
+    166  f050				   CallConfigureDifficulty
+    167  f050		       86 c4		      STX	CurrentDifficulty
+    168  f052		       20 a4 f4 	      JSR	ConfigureDifficulty
+    169  f055
+    170  f055				   HPositioning
+    171  f055		       85 02		      STA	WSYNC
+    172  f057
+    173  f057		       a9 30		      LDA	#%00110000	;2 Missile Size
+    174  f059		       85 04		      STA	NUSIZ0	;3
+    175  f05b		       85 05		      STA	NUSIZ1	;3
+    176  f05d
+    177  f05d		       a9 35		      LDA	#PLAYER_0_X_START	;2
+    178  f05f		       85 bb		      STA	Player0X	;3
+    179  f061
+    180  f061		       a9 5a		      LDA	#INITIAL_COUNTDOWN_TIME	;2
+    181  f063		       85 bc		      STA	CountdownTimer	;3
+    182  f065
+    183  f065		       a9 10		      LDA	#CHECKPOINT_INTERVAL
+    184  f067		       85 d7		      STA	NextCheckpoint
+    185  f069
+    186  f069		       a9 00		      LDA	#0	; Avoid missile reseting position 
+      0  f06b					      SLEEP	11	;
+      1  f06b				   .CYCLES    SET	11
+      2  f06b
+      3  f06b				  -	      IF	.CYCLES < 2
+      4  f06b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f06b				  -	      ERR
+      6  f06b					      ENDIF
+      7  f06b
+      8  f06b					      IF	.CYCLES & 1
+      9  f06b				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f06b				  -	      nop	0
+     11  f06b					      ELSE
+     12  f06b		       24 00		      bit	VSYNC
+     13  f06d					      ENDIF
+     14  f06d				   .CYCLES    SET	.CYCLES - 3
+     15  f06d					      ENDIF
+     16  f06d
+     17  f06d					      REPEAT	.CYCLES / 2
+     18  f06d		       ea		      nop
+     17  f06d					      REPEND
+     18  f06e		       ea		      nop
+     17  f06e					      REPEND
+     18  f06f		       ea		      nop
+     17  f06f					      REPEND
+     18  f070		       ea		      nop
+     19  f071					      REPEND
+    188  f071		       85 11		      STA	RESP1
+      0  f073					      SLEEP	2	;
+      1  f073				   .CYCLES    SET	2
+      2  f073
+      3  f073				  -	      IF	.CYCLES < 2
+      4  f073				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f073				  -	      ERR
+      6  f073					      ENDIF
+      7  f073
+      8  f073				  -	      IF	.CYCLES & 1
+      9  f073				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f073				  -	      nop	0
+     11  f073				  -	      ELSE
+     12  f073				  -	      bit	VSYNC
+     13  f073				  -	      ENDIF
+     14  f073				  -.CYCLES    SET	.CYCLES - 3
+     15  f073					      ENDIF
+     16  f073
+     17  f073					      REPEAT	.CYCLES / 2
+     18  f073		       ea		      nop
+     19  f074					      REPEND
+    190  f074		       85 14		      STA	RESBL
+      0  f076					      SLEEP	2	;
+      1  f076				   .CYCLES    SET	2
+      2  f076
+      3  f076				  -	      IF	.CYCLES < 2
+      4  f076				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f076				  -	      ERR
+      6  f076					      ENDIF
+      7  f076
+      8  f076				  -	      IF	.CYCLES & 1
+      9  f076				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f076				  -	      nop	0
+     11  f076				  -	      ELSE
+     12  f076				  -	      bit	VSYNC
+     13  f076				  -	      ENDIF
+     14  f076				  -.CYCLES    SET	.CYCLES - 3
+     15  f076					      ENDIF
+     16  f076
+     17  f076					      REPEAT	.CYCLES / 2
+     18  f076		       ea		      nop
+     19  f077					      REPEND
+    192  f077		       85 12		      STA	RESM0
+      0  f079					      SLEEP	2
+      1  f079				   .CYCLES    SET	2
+      2  f079
+      3  f079				  -	      IF	.CYCLES < 2
+      4  f079				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f079				  -	      ERR
+      6  f079					      ENDIF
+      7  f079
+      8  f079				  -	      IF	.CYCLES & 1
+      9  f079				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f079				  -	      nop	0
+     11  f079				  -	      ELSE
+     12  f079				  -	      bit	VSYNC
+     13  f079				  -	      ENDIF
+     14  f079				  -.CYCLES    SET	.CYCLES - 3
+     15  f079					      ENDIF
+     16  f079
+     17  f079					      REPEAT	.CYCLES / 2
+     18  f079		       ea		      nop
+     19  f07a					      REPEND
+    194  f07a		       85 13		      STA	RESM1
+    195  f07c
+    196  f07c		       a9 f0		      LDA	#$F0
+    197  f07e		       85 24		      STA	HMBL
+    198  f080		       85 22		      STA	HMM0
+    199  f082		       85 23		      STA	HMM1
+    200  f084		       85 02		      STA	WSYNC
+    201  f086		       85 2a		      STA	HMOVE
+    202  f088		       85 02		      STA	WSYNC	; Time is irrelevant before sync to TV, ROM space is not!
+    203  f08a		       85 2b		      STA	HMCLR
+    204  f08c
+    205  f08c							;SLEEP 24
+    206  f08c							;STA HMCLR
+    207  f08c
+    208  f08c							;VSYNC time
+    209  f08c				   MainLoop
+    210  f08c		       a9 02		      LDA	#2
+    211  f08e		       85 00		      STA	VSYNC
+    212  f090		       85 02		      STA	WSYNC
+    213  f092		       85 02		      STA	WSYNC	;Apply Movement, must be done after a WSYNC
+    214  f094		       85 2a		      STA	HMOVE	;2
+    215  f096							;This must be done after a WSync, otherwise it is impossible to predict the X position
+    216  f096				   DoNotSetPlayerX
+    217  f096
+    218  f096		       85 02		      STA	WSYNC	;3
+    219  f098		       a9 2b		      LDA	#43	;2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
+    220  f09a		       8d 96 02 	      STA	TIM64T	;3	
+    221  f09d		       a9 00		      LDA	#0	;2
+    222  f09f		       85 00		      STA	VSYNC	;3	
+    223  f0a1
+    224  f0a1							;Read Fire Button before, will make it start the game for now.
+    225  f0a1				   StartGame
+    226  f0a1		       a5 0c		      LDA	INPT4	;3
+    227  f0a3		       30 17		      BMI	SkipGameStart	;2 ;not pressed the fire button in negative in bit 7
+    228  f0a5		       a5 c0		      LDA	GameStatus	;3
+    229  f0a7		       d0 13		      BNE	SkipGameStart
+    230  f0a9		       e6 c0		      INC	GameStatus
+    231  f0ab		       a9 00		      LDA	#0	;
+    232  f0ad		       85 8c		      STA	FrameCount0
+    233  f0af		       85 8d		      STA	FrameCount1
+    234  f0b1		       a9 d8		      LDA	#SCORE_FONT_COLOR_GOOD
+    235  f0b3		       85 d5		      STA	ScoreFontColor
+    236  f0b5		       a9 ff		      LDA	#SCORE_FONT_HOLD_CHANGE
+    237  f0b7		       85 d6		      STA	ScoreFontColorHoldChange
+    238  f0b9		       4c d9 f0 	      JMP	SkipIncFC1	; Make the worse case stable
+    239  f0bc				   SkipGameStart
+    240  f0bc
+    241  f0bc				   ReadSwitches
+    242  f0bc		       a6 be		      LDX	SwitchDebounceCounter
+    243  f0be		       d0 11		      BNE	DecrementSwitchDebounceCounter
+    244  f0c0		       a9 01		      LDA	#%00000001
+    245  f0c2		       2c 82 02 	      BIT	SWCHB
+    246  f0c5		       d0 07		      BNE	SkipReset
+    247  f0c7		       a9 3c		      LDA	#SWITCHES_DEBOUNCE_TIME
+    248  f0c9		       85 be		      STA	SwitchDebounceCounter
+    249  f0cb		       4c 04 f0 	      JMP	Start
+    250  f0ce				   SkipReset
+    251  f0ce		       4c d3 f0 	      JMP	EndReadSwitches
+    252  f0d1				   DecrementSwitchDebounceCounter
+    253  f0d1		       c6 be		      DEC	SwitchDebounceCounter
+    254  f0d3				   EndReadSwitches
+    255  f0d3
+    256  f0d3				   CountFrame
+    257  f0d3		       e6 8c		      INC	FrameCount0	; 5 Used to alternate lines
+    258  f0d5		       d0 02		      BNE	SkipIncFC1	; 2 When it is zero again should increase the MSB
+    259  f0d7		       e6 8d		      INC	FrameCount1	; 5 Still not used
+    260  f0d9				   SkipIncFC1
+    261  f0d9
+    262  f0d9							;Does not update the game if not running
+    263  f0d9		       a5 c0		      LDA	GameStatus	;3
+    264  f0db		       d0 03		      BNE	ContinueWithGameLogic	;3 Cannot branch more than 128 bytes, so we have to use JMP
+    265  f0dd		       4c 1c f2 	      JMP	SkipUpdateLogic
+    266  f0e0				   ContinueWithGameLogic
+    267  f0e0
+    268  f0e0				   EverySecond		; 64 frames to be more precise
+    269  f0e0		       a9 3f		      LDA	#%00111111
+    270  f0e2		       25 8c		      AND	FrameCount0
+    271  f0e4		       d0 06		      BNE	SkipEverySecondAction
+    272  f0e6		       c5 bc		      CMP	CountdownTimer
+    273  f0e8		       f0 02		      BEQ	SkipEverySecondAction	; Stop at Zero
+    274  f0ea		       c6 bc		      DEC	CountdownTimer
+    275  f0ec				   SkipEverySecondAction
+    276  f0ec
+    277  f0ec
+    278  f0ec
+    279  f0ec				   BreakOnTimeOver		; Uses LDX as the breaking speed
+    280  f0ec		       a2 00		      LDX	#0
+    281  f0ee		       a5 bc		      LDA	CountdownTimer
+    282  f0f0		       d0 08		      BNE	Break
+    283  f0f2		       a5 8c		      LDA	FrameCount0
+    284  f0f4		       29 07		      AND	#TIMEOVER_BREAK_INTERVAL
+    285  f0f6		       d0 02		      BNE	Break
+    286  f0f8		       a2 01		      LDX	#TIMEOVER_BREAK_SPEED
+    287  f0fa
+    288  f0fa				   Break
+    289  f0fa		       a9 20		      LDA	#%00100000	;Down in controller
+    290  f0fc		       2c 80 02 	      BIT	SWCHA
+    291  f0ff		       d0 0b		      BNE	BreakNonZero
+    292  f101		       a5 0c		      LDA	INPT4	;3
+    293  f103		       10 05		      BPL	BreakWhileAccelerating
+    294  f105		       a2 0a		      LDX	#BREAK_SPEED
+    295  f107		       4c 0c f1 	      JMP	BreakNonZero
+    296  f10a				   BreakWhileAccelerating		; Allow better control while breaking.
+    297  f10a		       a2 05		      LDX	#BREAK_SPEED / 2
+    298  f10c
+    299  f10c				   BreakNonZero
+    300  f10c		       e0 00		      CPX	#0
+    301  f10e		       f0 2b		      BEQ	SkipBreak
+    302  f110		       86 b0		      STX	Tmp0
+    303  f112
+    304  f112				   DecreaseSpeed
+    305  f112		       38		      SEC
+    306  f113		       a5 8e		      LDA	Player0SpeedL
+    307  f115		       e5 b0		      SBC	Tmp0
+    308  f117		       85 8e		      STA	Player0SpeedL
+    309  f119		       a5 8f		      LDA	Player0SpeedH
+    310  f11b		       e9 00		      SBC	#0
+    311  f11d		       85 8f		      STA	Player0SpeedH
+    312  f11f
+    313  f11f				   CheckMinSpeed
+    314  f11f		       30 0f		      BMI	ResetMinSpeed	; Overflow d7 is set
+    315  f121		       c9 00		      CMP	#CAR_MIN_SPEED_H
+    316  f123		       f0 02		      BEQ	CompareLBreakSpeed	; is the same as minimun, compare other byte.
+    317  f125		       b0 11		      BCS	SkipAccelerateIfBreaking	; Greater than min, we are ok! 
+    318  f127
+    319  f127				   CompareLBreakSpeed
+    320  f127		       a5 8e		      LDA	Player0SpeedL
+    321  f129		       c9 00		      CMP	#CAR_MIN_SPEED_L
+    322  f12b		       90 03		      BCC	ResetMinSpeed	; Less than memory
+    323  f12d		       4c 38 f1 	      JMP	SkipAccelerateIfBreaking	; We are greather than min speed in the low byte.
+    324  f130
+    325  f130				   ResetMinSpeed
+    326  f130		       a9 00		      LDA	#CAR_MIN_SPEED_H
+    327  f132		       85 8f		      STA	Player0SpeedH
+    328  f134		       a9 00		      LDA	#CAR_MIN_SPEED_L
+    329  f136		       85 8e		      STA	Player0SpeedL
+    330  f138
+    331  f138				   SkipAccelerateIfBreaking
+    332  f138		       4c 6b f1 	      JMP	SkipAccelerate
+    333  f13b				   SkipBreak
+    334  f13b
+    335  f13b				   Acelerates
+    336  f13b		       a5 bc		      LDA	CountdownTimer
+    337  f13d		       f0 2c		      BEQ	SkipAccelerate	; cannot accelerate if timer is zero
+    338  f13f		       a5 0c		      LDA	INPT4	;3
+    339  f141		       10 07		      BPL	IncreaseCarSpeed	; Test button and then up, both accelerate.
+    340  f143		       a9 10		      LDA	#%00010000	;UP in controller
+    341  f145		       2c 80 02 	      BIT	SWCHA
+    342  f148		       d0 21		      BNE	SkipAccelerate
+    343  f14a
+    344  f14a				   IncreaseCarSpeed
+    345  f14a							;Adds speed
+    346  f14a		       18		      CLC
+    347  f14b		       a5 8e		      LDA	Player0SpeedL
+    348  f14d		       69 01		      ADC	#ACCELERATE_SPEED
+    349  f14f		       85 8e		      STA	Player0SpeedL
+    350  f151		       a5 8f		      LDA	Player0SpeedH
+    351  f153		       69 00		      ADC	#0
+    352  f155		       85 8f		      STA	Player0SpeedH
+    353  f157
+    354  f157							;Checks if already max
+    355  f157		       c9 02		      CMP	#CAR_MAX_SPEED_H
+    356  f159		       90 10		      BCC	SkipAccelerate	; less than my max speed
+    357  f15b		       d0 06		      BNE	ResetToMaxSpeed	; Not equal, so if I am less, and not equal, I am more!
+    358  f15d							;High bit is max, compare the low
+    359  f15d		       a5 8e		      LDA	Player0SpeedL
+    360  f15f		       c9 80		      CMP	#CAR_MAX_SPEED_L
+    361  f161		       90 08		      BCC	SkipAccelerate	; High bit is max, but low bit is not
+    362  f163							;BEQ SkipAccelerate ; Optimize best case, but not worse case
+    363  f163
+    364  f163				   ResetToMaxSpeed		; Speed is more, or is already max
+    365  f163		       a9 02		      LDA	#CAR_MAX_SPEED_H
+    366  f165		       85 8f		      STA	Player0SpeedH
+    367  f167		       a9 80		      LDA	#CAR_MAX_SPEED_L
+    368  f169		       85 8e		      STA	Player0SpeedL
+    369  f16b				   SkipAccelerate
+    370  f16b
+    371  f16b							;Updates all offsets 24 bits
+    372  f16b		       a2 00		      LDX	#0	; Memory Offset 24 bit
+    373  f16d		       a0 00		      LDY	#0	; Line Speeds 16 bits
+    374  f16f				   UpdateOffsets		; Car sped - traffic speed = how much to change offet (signed)
+    375  f16f		       38		      SEC
+    376  f170		       a5 8e		      LDA	Player0SpeedL
+    377  f172		       f9 39 ff 	      SBC	TrafficSpeeds,Y
+    378  f175		       85 b0		      STA	Tmp0
+    379  f177		       c8		      INY
+    380  f178		       a5 8f		      LDA	Player0SpeedH
+    381  f17a		       f9 39 ff 	      SBC	TrafficSpeeds,Y
+    382  f17d		       85 b1		      STA	Tmp1
+    383  f17f		       a9 00		      LDA	#0	; Hard to figure out, makes the 2 complement result work correctly, since we use this 16 bit signed result in a 24 bit operation
+    384  f181		       e9 00		      SBC	#0
+    385  f183		       85 b2		      STA	Tmp2
+    386  f185
+    387  f185
+    388  f185				   AddsTheResult
+    389  f185		       18		      CLC
+    390  f186		       a5 b0		      LDA	Tmp0
+    391  f188		       75 90		      ADC	TrafficOffset0,X
+    392  f18a		       95 90		      STA	TrafficOffset0,X
+    393  f18c		       e8		      INX
+    394  f18d		       a5 b1		      LDA	Tmp1
+    395  f18f		       75 90		      ADC	TrafficOffset0,X
+    396  f191		       95 90		      STA	TrafficOffset0,X
+    397  f193		       e8		      INX
+    398  f194		       a5 b2		      LDA	Tmp2	; Carry
+    399  f196		       75 90		      ADC	TrafficOffset0,X
+    400  f198		       95 90		      STA	TrafficOffset0,X
+    401  f19a		       90 06		      BCC	CalculateOffsetCache
+    402  f19c		       e0 02		      CPX	#2	;MSB offset 0
+    403  f19e		       d0 02		      BNE	CalculateOffsetCache
+    404  f1a0		       e6 bd		      INC	Traffic0Msb
+    405  f1a2
+    406  f1a2				   CalculateOffsetCache
+    407  f1a2		       e8		      INX
+    408  f1a3		       38		      SEC
+    409  f1a4		       69 00		      ADC	#0	;Increment by one
+    410  f1a6		       95 90		      STA	TrafficOffset0,X	; cache of the other possible value for the MSB in the frame, make drawing faster.
+    411  f1a8
+    412  f1a8				   PrepareNextUpdateLoop
+    413  f1a8		       c8		      INY
+    414  f1a9		       e8		      INX
+    415  f1aa		       e0 14		      CPX	#TRAFFIC_LINE_COUNT * 4	;
+    416  f1ac		       d0 c1		      BNE	UpdateOffsets
+    417  f1ae
+    418  f1ae							;Until store the movemnt, LDX contains the value to be stored.
+    419  f1ae				   TestCollision		;
+    420  f1ae							; see if player0 colides with the rest
+    421  f1ae		       a5 00		      LDA	CXM0P
+    422  f1b0		       05 01		      ORA	CXM1P
+    423  f1b2		       05 01		      ORA	CXM1P
+    424  f1b4		       05 02		      ORA	CXP0FB
+    425  f1b6		       05 07		      ORA	CXPPMM
+    426  f1b8		       29 c0		      AND	#%11000000	; Accounting for random noise in the bus		
+    427  f1ba		       f0 1f		      BEQ	NoCollision	;skip if not hitting...
+    428  f1bc		       a5 ba		      LDA	CollisionCounter	; If colision is alredy happening, ignore!
+    429  f1be		       d0 1b		      BNE	NoCollision
+    430  f1c0		       a5 d5		      LDA	ScoreFontColor	; Ignore colisions during checkpoint (Green Score)
+    431  f1c2		       c9 d8		      CMP	#SCORE_FONT_COLOR_GOOD
+    432  f1c4		       f0 15		      BEQ	NoCollision
+    433  f1c6		       a9 ff		      LDA	#COLLISION_FRAMES	;must be a hit! Change rand color bg
+    434  f1c8		       85 ba		      STA	CollisionCounter	;and store as colision.
+    435  f1ca		       a9 10		      LDA	#COLLISION_SPEED_L	;
+    436  f1cc		       c5 8e		      CMP	Player0SpeedL
+    437  f1ce		       b0 02		      BCS	SkipSetColisionSpeed
+    438  f1d0		       85 8e		      STA	Player0SpeedL
+    439  f1d2				   SkipSetColisionSpeed
+    440  f1d2		       a9 00		      LDA	#0
+    441  f1d4		       85 8f		      STA	Player0SpeedH
+    442  f1d6		       a2 40		      LDX	#$40	;Move car left 4 color clocks, to center the stretch (+4)	
+    443  f1d8		       4c 18 f2 	      JMP	StoreHMove	; We keep position consistent
+    444  f1db				   NoCollision
+    445  f1db
+    446  f1db				   DecrementCollision
+    447  f1db		       a4 ba		      LDY	CollisionCounter
+    448  f1dd		       f0 07		      BEQ	FinishDecrementCollision
+    449  f1df		       a9 37		      LDA	#%00110111	; Make player bigger to show colision
+    450  f1e1		       85 04		      STA	NUSIZ0
+    451  f1e3		       88		      DEY
+    452  f1e4		       84 ba		      STY	CollisionCounter	; We save some cycles in reset size.
+    453  f1e6				   FinishDecrementCollision
+    454  f1e6
+    455  f1e6				   ResetPlayerSize
+    456  f1e6		       d0 04		      BNE	FinishResetPlayerSize
+    457  f1e8		       a9 30		      LDA	#%00110000
+    458  f1ea		       85 04		      STA	NUSIZ0	;
+    459  f1ec				   FinishResetPlayerSize
+    460  f1ec
+    461  f1ec				   ResetPlayerPosition		;For 1 frame, he will not colide, but will have the origina size
+    462  f1ec		       c0 01		      CPY	#1	; Last frame before reset
+    463  f1ee		       d0 05		      BNE	SkipResetPlayerPosition
+    464  f1f0		       a2 c0		      LDX	#$C0	;Move car left 4 color clocks, to center the stretch (-4)
+    465  f1f2		       4c 18 f2 	      JMP	StoreHMove
+    466  f1f5				   SkipResetPlayerPosition
+    467  f1f5
+    468  f1f5							; for left and right, we're gonna 
+    469  f1f5							; set the horizontal speed, and then do
+    470  f1f5							; a single HMOVE.  We'll use X to hold the
+    471  f1f5							; horizontal speed, then store it in the 
+    472  f1f5							; appropriate register
+    473  f1f5				   PrepareReadXAxis
+    474  f1f5		       a2 00		      LDX	#0
+    475  f1f7		       a4 bb		      LDY	Player0X
+    476  f1f9				   BeginReadLeft
+    477  f1f9		       f0 0e		      BEQ	SkipMoveLeft	; We do not move after maximum
+    478  f1fb		       a9 40		      LDA	#%01000000	;Left
+    479  f1fd		       2c 80 02 	      BIT	SWCHA
+    480  f200		       d0 07		      BNE	SkipMoveLeft
+    481  f202		       a2 10		      LDX	#$10	;a 1 in the left nibble means go left
+    482  f204		       c6 bb		      DEC	Player0X
+    483  f206		       4c 18 f2 	      JMP	StoreHMove	; Cannot move left and right...
+    484  f209				   SkipMoveLeft
+    485  f209				   BeginReadRight
+    486  f209		       c0 36		      CPY	#PLAYER_0_MAX_X
+    487  f20b		       f0 0b		      BEQ	SkipMoveRight	; At max already
+    488  f20d		       a9 80		      LDA	#%10000000	;Right
+    489  f20f		       2c 80 02 	      BIT	SWCHA
+    490  f212		       d0 04		      BNE	SkipMoveRight
+    491  f214		       a2 f0		      LDX	#$F0	;a -1 in the left nibble means go right...
+    492  f216		       e6 bb		      INC	Player0X
+    493  f218				   SkipMoveRight
+    494  f218				   StoreHMove
+    495  f218		       86 20		      STX	HMP0	;set the move for player 0, not the missile like last time...
+    496  f21a		       85 2c		      STA	CXCLR	;reset the collision detection for next frame.
+    497  f21c
+    498  f21c
+    499  f21c				   SkipUpdateLogic
+    500  f21c		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
+    501  f21e		       85 09		      STA	COLUBK
+    502  f220		       a5 d5		      LDA	ScoreFontColor
+    503  f222		       85 08		      STA	COLUPF
+    504  f224		       20 5d f4 	      JSR	ClearAll
+    505  f227		       a9 02		      LDA	#%00000010	; Score mode
+    506  f229		       85 0a		      STA	CTRLPF
+    507  f22b		       a0 04		      LDY	#SCORE_SIZE - 1
+    508  f22d		       a2 00		      LDX	#0
+    509  f22f
+    510  f22f		       a5 8c		      LDA	FrameCount0	;3
+    511  f231		       29 01		      AND	#%00000001	;2
+    512  f233		       f0 0f		      BEQ	RightScoreOn	; Half of the screen with the correct colors.
+    513  f235				   LeftScoreOn
+    514  f235		       a5 d5		      LDA	ScoreFontColor
+    515  f237		       85 07		      STA	COLUP1
+    516  f239		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
+    517  f23b		       85 06		      STA	COLUP0
+    518  f23d		       a9 01		      LDA	#1	;Jumps faster in the draw loop
+    519  f23f		       85 b1		      STA	Tmp1
+    520  f241		       4c 50 f2 	      JMP	WaitForVblankEnd
+    521  f244				   RightScoreOn
+    522  f244		       a5 d5		      LDA	ScoreFontColor
+    523  f246		       85 06		      STA	COLUP0
+    524  f248		       a9 87		      LDA	#SCORE_BACKGROUND_COLOR
+    525  f24a		       85 07		      STA	COLUP1
+    526  f24c		       a9 00		      LDA	#0	;Jumps faster in the draw loop
+    527  f24e		       85 b1		      STA	Tmp1
+    528  f250
+    529  f250
+    530  f250							; After here we are going to update the screen, No more heavy code
+    531  f250				   WaitForVblankEnd
+    532  f250		       ad 84 02 	      LDA	INTIM
+    533  f253		       d0 fb		      BNE	WaitForVblankEnd	;Is there a better way?	
+    534  f255							;STA WSYNC ; Seems wastefull, can I live killing vblank midline?
+    535  f255		       85 01		      STA	VBLANK
+    536  f257
+    537  f257				   ScoreLoop		; Runs in 2 lines, this is the best I can do!
+    538  f257		       85 02		      STA	WSYNC
+    539  f259
+    540  f259		       a5 81		      LDA	PF0Cache	;3 Move to a macro?
+    541  f25b		       85 0d		      STA	PF0	;3
+    542  f25d
+    543  f25d		       a5 82		      LDA	PF1Cache	;3
+    544  f25f		       85 0e		      STA	PF1	;3
+    545  f261
+    546  f261		       a5 83		      LDA	PF2Cache	;3
+    547  f263		       85 0f		      STA	PF2	;3
+    548  f265
+    549  f265							;39
+    550  f265				   DrawScore
+    551  f265		       a6 d0		      LDX	ScoreD0	; 4
+    552  f267		       bd 00 fd 	      LDA	Font,X	;4
+    553  f26a		       85 81		      STA	PF0Cache	;3
+    554  f26c		       c6 d0		      DEC	ScoreD0	;6 Can only DEC with X
+    555  f26e							;17
+    556  f26e
+    557  f26e		       a6 d1		      LDX	ScoreD1	; 4
+    558  f270		       bd 00 fd 	      LDA	Font,X	;4
+    559  f273		       0a		      ASL		;2
+    560  f274		       0a		      ASL		;2
+    561  f275		       0a		      ASL		;2
+    562  f276		       0a		      ASL		;2
+    563  f277		       85 82		      STA	PF1Cache	;3
+    564  f279		       c6 d1		      DEC	ScoreD1	;6
+    565  f27b							;9 (After Wsync)
+    566  f27b
+    567  f27b		       a6 d2		      LDX	ScoreD2	; 4
+    568  f27d		       bd 00 fd 	      LDA	Font,X	;4
+    569  f280		       29 0f		      AND	#%00001111
+    570  f282		       05 82		      ORA	PF1Cache	;3
+    571  f284		       85 82		      STA	PF1Cache	;3
+    572  f286		       c6 d2		      DEC	ScoreD2	;6
+    573  f288							;20
+    574  f288
+    575  f288		       a6 d3		      LDX	ScoreD3	; 3
+    576  f28a		       bd 00 fd 	      LDA	Font,X	;4
+    577  f28d		       4a		      LSR		;2
+    578  f28e		       4a		      LSR		;2
+    579  f28f		       4a		      LSR		;2
+    580  f290		       4a		      LSR		;2
+    581  f291		       85 83		      STA	PF2Cache	;3
+    582  f293		       c6 d3		      DEC	ScoreD3	;5
+    583  f295							;23
+    584  f295
+    585  f295		       a6 d4		      LDX	ScoreD4	; 3
+    586  f297		       bd 00 fd 	      LDA	Font,X	;4
+    587  f29a		       29 f0		      AND	#%11110000
+    588  f29c		       05 83		      ORA	PF2Cache	;3
+    589  f29e		       85 83		      STA	PF2Cache	;3
+    590  f2a0		       c6 d4		      DEC	ScoreD4	;5
+    591  f2a2							;18
+    592  f2a2
+    593  f2a2		       88		      DEY		;2
+    594  f2a3		       10 b2		      BPL	ScoreLoop	;4
+    595  f2a5
+    596  f2a5		       85 02		      STA	WSYNC
+    597  f2a7
+    598  f2a7		       20 82 f4 	      JSR	LoadAll
+    599  f2aa
+    600  f2aa		       85 02		      STA	WSYNC
+    601  f2ac		       85 02		      STA	WSYNC
+    602  f2ae
+    603  f2ae				   PrepareForTraffic
+    604  f2ae		       20 73 f4 	      JSR	ClearPF	; 32
+    605  f2b1
+    606  f2b1		       a9 31		      LDA	#%00110001	; Score mode
+    607  f2b3		       85 0a		      STA	CTRLPF
+    608  f2b5
+    609  f2b5		       a5 c3		      LDA	TrafficColor	;2
+    610  f2b7		       85 08		      STA	COLUPF
+    611  f2b9
+    612  f2b9		       a9 a5		      LDA	#PLAYER1_COLOR	;2
+    613  f2bb		       85 07		      STA	COLUP1	;3
+    614  f2bd
+    615  f2bd		       a5 d5		      LDA	ScoreFontColor	;3
+    616  f2bf		       85 06		      STA	COLUP0	;3
+    617  f2c1
+    618  f2c1		       a4 3a		      LDY	GAMEPLAY_AREA	;2; (Score)
+    619  f2c3
+    620  f2c3		       a9 03		      LDA	#BACKGROUND_COLOR	;2 
+      0  f2c5					      SLEEP	11	; Make it in the very end, so we have one more nice blue line
+      1  f2c5				   .CYCLES    SET	11
+      2  f2c5
+      3  f2c5				  -	      IF	.CYCLES < 2
+      4  f2c5				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f2c5				  -	      ERR
+      6  f2c5					      ENDIF
+      7  f2c5
+      8  f2c5					      IF	.CYCLES & 1
+      9  f2c5				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f2c5				  -	      nop	0
+     11  f2c5					      ELSE
+     12  f2c5		       24 00		      bit	VSYNC
+     13  f2c7					      ENDIF
+     14  f2c7				   .CYCLES    SET	.CYCLES - 3
+     15  f2c7					      ENDIF
+     16  f2c7
+     17  f2c7					      REPEAT	.CYCLES / 2
+     18  f2c7		       ea		      nop
+     17  f2c7					      REPEND
+     18  f2c8		       ea		      nop
+     17  f2c8					      REPEND
+     18  f2c9		       ea		      nop
+     17  f2c9					      REPEND
+     18  f2ca		       ea		      nop
+     19  f2cb					      REPEND
+    622  f2cb		       85 09		      STA	COLUBK	;3
+    623  f2cd
+    624  f2cd
+    625  f2cd							;main scanline loop...
+    626  f2cd				   ScanLoop
+    627  f2cd		       85 02		      STA	WSYNC	;?? from the end of the scan loop, sync the final line
+    628  f2cf
+    629  f2cf							;Start of next line!			
+    630  f2cf				   DrawCache		;36 Is the last line going to the top of the next frame?
+    631  f2cf
+    632  f2cf		       b9 00 ff 	      LDA	CarSprite,Y	;4 ;Very fast, in the expense of rom space
+    633  f2d2		       85 1b		      STA	GRP0	;3   ;put it as graphics now
+    634  f2d4
+    635  f2d4		       a5 82		      LDA	PF1Cache	;3
+    636  f2d6		       85 0e		      STA	PF1	;3
+    637  f2d8
+    638  f2d8		       a5 84		      LDA	GRP1Cache	;3
+    639  f2da		       85 1c		      STA	GRP1	;3
+    640  f2dc
+    641  f2dc		       a5 85		      LDA	ENABLCache
+    642  f2de		       85 1f		      STA	ENABL
+    643  f2e0
+    644  f2e0		       a5 86		      LDA	ENAM0Cache
+    645  f2e2		       85 1d		      STA	ENAM0
+    646  f2e4
+    647  f2e4		       a5 87		      LDA	ENAM1Cache
+    648  f2e6		       85 1e		      STA	ENAM1
+    649  f2e8
+    650  f2e8		       a9 00		      LDA	#0	;2
+    651  f2ea		       85 82		      STA	PF1Cache	;3
+    652  f2ec		       85 84		      STA	GRP1Cache	;3
+    653  f2ee		       85 85		      STA	ENABLCache	;3
+    654  f2f0		       85 86		      STA	ENAM0Cache	;3
+    655  f2f2		       85 87		      STA	ENAM1Cache	; 3
+    656  f2f4
+    657  f2f4							;BEQ DrawTraffic3
+    658  f2f4				   DrawTraffic1 		; 33
+    659  f2f4		       98		      TYA		; 2
+    660  f2f5		       18		      CLC		; 2 
+    661  f2f6		       65 95		      ADC	TrafficOffset1 + 1	;3
+    662  f2f8		       29 f8		      AND	#TRAFFIC_1_MASK	;2 ;#%11111000
+    663  f2fa		       b0 05		      BCS	EorOffsetWithCarry	; 2(worse not to jump), 4 if branch
+    664  f2fc		       45 96		      EOR	TrafficOffset1 + 2	; 3
+    665  f2fe		       4c 03 f3 	      JMP	AfterEorOffsetWithCarry	; 3
+    666  f301				   EorOffsetWithCarry
+    667  f301		       45 97		      EOR	TrafficOffset1 + 3	; 3
+    668  f303				   AfterEorOffsetWithCarry		;17
+    669  f303		       aa		      TAX		;2
+    670  f304		       bd 00 fe 	      LDA	AesTable,X	; 4
+    671  f307		       c5 c1		      CMP	TrafficChance	;3
+    672  f309		       b0 04		      BCS	FinishDrawTraffic1	; 2
+    673  f30b		       a9 ff		      LDA	#$FF	;2
+    674  f30d		       85 84		      STA	GRP1Cache	;3
+    675  f30f				   FinishDrawTraffic1
+    676  f30f
+    677  f30f				   DrawTraffic2 		; 35
+    678  f30f		       98		      TYA		; 2
+    679  f310		       18		      CLC		; 2 
+    680  f311		       65 99		      ADC	TrafficOffset2 + 1	;3
+    681  f313		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    682  f315		       b0 05		      BCS	EorOffsetWithCarry2	; 4 max if branch max, 2 otherwise
+    683  f317		       45 9a		      EOR	TrafficOffset2 + 2	; 3
+    684  f319		       4c 1e f3 	      JMP	AfterEorOffsetWithCarry2	; 3
+    685  f31c				   EorOffsetWithCarry2
+    686  f31c		       45 9b		      EOR	TrafficOffset2 + 3	; 3
+    687  f31e				   AfterEorOffsetWithCarry2		;17
+    688  f31e		       aa		      TAX		;2
+    689  f31f		       bd 00 fe 	      LDA	AesTable,X	; 4
+    690  f322		       c5 c1		      CMP	TrafficChance	;2
+    691  f324		       b0 04		      BCS	FinishDrawTraffic2	; 2
+    692  f326		       a9 02		      LDA	#%00000010	;2
+    693  f328		       85 85		      STA	ENABLCache	;3
+    694  f32a				   FinishDrawTraffic2
+    695  f32a
+    696  f32a							;STA WSYNC ;65 / 137
+    697  f32a
+    698  f32a							; LDA Tmp0 ; Flicker this line if drawing car
+    699  f32a							; BEQ FinishDrawTraffic4
+    700  f32a				   DrawTraffic3 		; 38
+    701  f32a		       98		      TYA		; 2
+    702  f32b		       18		      CLC		; 2 
+    703  f32c		       65 9d		      ADC	TrafficOffset3 + 1	;3
+    704  f32e		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    705  f330		       b0 05		      BCS	EorOffsetWithCarry3	; 4 max if branch max, 2 otherwise
+    706  f332		       45 9e		      EOR	TrafficOffset3 + 2	; 3
+    707  f334		       4c 39 f3 	      JMP	AfterEorOffsetWithCarry3	; 3
+    708  f337				   EorOffsetWithCarry3
+    709  f337		       45 9f		      EOR	TrafficOffset3 + 3	; 3
+    710  f339				   AfterEorOffsetWithCarry3		;17
+    711  f339		       aa		      TAX		;2
+    712  f33a		       bd 00 fe 	      LDA	AesTable,X	; 4
+    713  f33d		       c5 c1		      CMP	TrafficChance	;2
+    714  f33f		       b0 04		      BCS	FinishDrawTraffic3	; 2 
+    715  f341		       a9 02		      LDA	#%00000010	;2
+    716  f343		       85 86		      STA	ENAM0Cache
+    717  f345				   FinishDrawTraffic3
+    718  f345
+    719  f345				   DrawTraffic4 		; 35
+    720  f345		       98		      TYA		; 2
+    721  f346		       18		      CLC		; 2 
+    722  f347		       65 a1		      ADC	TrafficOffset4 + 1	;3
+    723  f349		       29 f8		      AND	#TRAFFIC_1_MASK	;2
+    724  f34b		       b0 05		      BCS	EorOffsetWithCarry4	; 4 max if branch max, 2 otherwise
+    725  f34d		       45 a2		      EOR	TrafficOffset4 + 2	; 3
+    726  f34f		       4c 54 f3 	      JMP	AfterEorOffsetWithCarry4	; 3
+    727  f352				   EorOffsetWithCarry4
+    728  f352		       45 a3		      EOR	TrafficOffset4 + 3	; 3
+    729  f354				   AfterEorOffsetWithCarry4		;17
+    730  f354		       aa		      TAX		;2
+    731  f355		       bd 00 fe 	      LDA	AesTable,X	; 4
+    732  f358		       c5 c1		      CMP	TrafficChance	;2
+    733  f35a		       b0 04		      BCS	FinishDrawTraffic4	; 2
+    734  f35c		       a9 02		      LDA	#%00000010	;2
+    735  f35e		       85 87		      STA	ENAM1Cache
+    736  f360				   FinishDrawTraffic4
+    737  f360
+    738  f360				   DrawTraffic0 		; 24
+    739  f360		       98		      TYA		;2
+    740  f361		       18		      CLC		;2
+    741  f362		       65 91		      ADC	TrafficOffset0 + 1	; 3
+    742  f364		       29 04		      AND	#%00000100	;2 Every 4 game lines, draw the border
+    743  f366		       f0 04		      BEQ	SkipDrawTraffic0	; 2
+    744  f368		       a9 ff		      LDA	#$FF	; 2
+    745  f36a		       85 82		      STA	PF1Cache
+    746  f36c
+    747  f36c				   SkipDrawTraffic0
+    748  f36c
+    749  f36c				   WhileScanLoop
+    750  f36c		       88		      DEY		;2
+    751  f36d		       30 03		      BMI	FinishScanLoop	;2 two big Breach, needs JMP
+    752  f36f		       4c cd f2 	      JMP	ScanLoop	;3
+    753  f372				   FinishScanLoop		; 7 209 of 222
+    754  f372
+    755  f372		       85 02		      STA	WSYNC	;3 Draw the last line, without wrapping
+    756  f374		       20 82 f4 	      JSR	LoadAll
+    757  f377		       85 02		      STA	WSYNC	; do stuff!
+    758  f379		       85 02		      STA	WSYNC
+    759  f37b		       85 02		      STA	WSYNC
+    760  f37d							;42 cycles to use here
+    761  f37d
+    762  f37d				   PrepareOverscan
+    763  f37d		       a9 02		      LDA	#2
+    764  f37f		       85 02		      STA	WSYNC
+    765  f381		       85 01		      STA	VBLANK
+    766  f383
+    767  f383		       a9 24		      LDA	#36	; one more line before overscan...
+    768  f385		       8d 96 02 	      STA	TIM64T
     769  f388
-    770  f388		       85 02		      STA	WSYNC	;3 Draw the last line, without wrapping
-    771  f38a		       20 95 f4 	      JSR	LoadAll
-    772  f38d		       85 02		      STA	WSYNC	; do stuff!
-    773  f38f		       85 02		      STA	WSYNC
-    774  f391		       85 02		      STA	WSYNC
-    775  f393							;42 cycles to use here
-    776  f393
-    777  f393				   PrepareOverscan
-    778  f393		       a9 02		      LDA	#2
-    779  f395		       85 02		      STA	WSYNC
-    780  f397		       85 01		      STA	VBLANK
-    781  f399
-    782  f399		       a9 24		      LDA	#36	; one more line before overscan...
-    783  f39b		       8d 96 02 	      STA	TIM64T
-    784  f39e
-    785  f39e				   ProcessScoreFontColor
-    786  f39e		       a6 d6		      LDX	ScoreFontColorHoldChange
-    787  f3a0		       f0 06		      BEQ	ResetScoreFontColor
-    788  f3a2		       ca		      DEX
-    789  f3a3		       86 d6		      STX	ScoreFontColorHoldChange
-    790  f3a5		       4c ac f3 	      JMP	SkipScoreFontColor
-    791  f3a8				   ResetScoreFontColor
-    792  f3a8		       a9 0c		      LDA	#SCORE_FONT_COLOR
-    793  f3aa		       85 d5		      STA	ScoreFontColor
-    794  f3ac				   SkipScoreFontColor
-    795  f3ac
-    796  f3ac				   IsGameOver
-    797  f3ac		       a5 bc		      LDA	CountdownTimer
-    798  f3ae		       05 8e		      ORA	Player0SpeedL
-    799  f3b0		       05 8f		      ORA	Player0SpeedH
-    800  f3b2		       d0 0b		      BNE	IsCheckpoint
-    801  f3b4		       a9 01		      LDA	#1
-    802  f3b6		       85 d6		      STA	ScoreFontColorHoldChange
-    803  f3b8		       a9 2f		      LDA	#SCORE_FONT_COLOR_OVER
-    804  f3ba		       85 d5		      STA	ScoreFontColor
-    805  f3bc		       4c ee f3 	      JMP	SkipIsTimeOver
-    806  f3bf
-    807  f3bf				   IsCheckpoint
-    808  f3bf		       a5 d7		      LDA	NextCheckpoint
-    809  f3c1		       c5 92		      CMP	TrafficOffset0 + 2
-    810  f3c3		       d0 1d		      BNE	SkipIsCheckpoint
-    811  f3c5		       18		      CLC
-    812  f3c6		       69 10		      ADC	#CHECKPOINT_INTERVAL
-    813  f3c8		       85 d7		      STA	NextCheckpoint
-    814  f3ca		       a9 d8		      LDA	#SCORE_FONT_COLOR_GOOD
-    815  f3cc		       85 d5		      STA	ScoreFontColor
-    816  f3ce		       a9 ff		      LDA	#SCORE_FONT_HOLD_CHANGE
-    817  f3d0		       85 d6		      STA	ScoreFontColorHoldChange
-    818  f3d2		       a5 bc		      LDA	CountdownTimer
-    819  f3d4		       18		      CLC
-    820  f3d5		       65 c2		      ADC	CheckpointTime
-    821  f3d7		       85 bc		      STA	CountdownTimer
-    822  f3d9		       90 04		      BCC	JumpSkipTimeOver
-    823  f3db		       a9 ff		      LDA	#$FF
-    824  f3dd		       85 bc		      STA	CountdownTimer	; Does not overflow!
-    825  f3df				   JumpSkipTimeOver
-    826  f3df		       4c ee f3 	      JMP	SkipIsTimeOver	; Checkpoints will add time, so no time over routine, should also override time over.
-    827  f3e2				   SkipIsCheckpoint
-    828  f3e2
-    829  f3e2				   IsTimeOver
-    830  f3e2		       a5 bc		      LDA	CountdownTimer
-    831  f3e4		       d0 08		      BNE	SkipIsTimeOver
-    832  f3e6		       a9 01		      LDA	#1	; Red while 0, so just sets for the next frame, might still pass a checkpoint by inertia
-    833  f3e8		       85 d6		      STA	ScoreFontColorHoldChange
-    834  f3ea		       a9 34		      LDA	#SCORE_FONT_COLOR_BAD
-    835  f3ec		       85 d5		      STA	ScoreFontColor
-    836  f3ee				   SkipIsTimeOver
-    837  f3ee
-    838  f3ee							;Could be done during on vblank to save this comparisson time (before draw score), 
-    839  f3ee							;but I am saving vblank cycles for now, in case of 2 players.
-    840  f3ee				   ChooseSide		; 
-    841  f3ee		       a5 8c		      LDA	FrameCount0	;3
-    842  f3f0		       29 01		      AND	#%00000001	;2
-    843  f3f2		       f0 37		      BEQ	RightScoreWrite	; Half of the screen with the correct colors.
-    844  f3f4
-    845  f3f4				   LeftScoreWrite
-    846  f3f4				   WriteDistance		;Not optimized yet, ugly code.
-    847  f3f4
-    848  f3f4				   Digit0Distance
-    849  f3f4		       a5 91		      LDA	TrafficOffset0 + 1	;3
-    850  f3f6		       29 f0		      AND	#%11110000	;2
-    851  f3f8		       4a		      LSR		; 2
-    852  f3f9		       4a		      LSR		; 2
-    853  f3fa		       4a		      LSR		; 2
-    854  f3fb		       4a		      LSR		; 2
-    855  f3fc		       aa		      TAX		; 2
-    856  f3fd		       bd 64 fd 	      LDA	FontLookup,X	;4
-    857  f400		       85 d3		      STA	ScoreD3	;3
-    858  f402
-    859  f402				   Digit1Distance
-    860  f402		       a5 92		      LDA	TrafficOffset0 + 2	;3
-    861  f404		       29 0f		      AND	#%00001111	;2
-    862  f406		       aa		      TAX		; 2
-    863  f407		       bd 64 fd 	      LDA	FontLookup,X	;4 
-    864  f40a		       85 d2		      STA	ScoreD2	;3
-    865  f40c
-    866  f40c				   Digit2Distance
-    867  f40c		       a5 92		      LDA	TrafficOffset0 + 2	;3
-    868  f40e		       29 f0		      AND	#%11110000	;2
-    869  f410		       4a		      LSR		; 2
-    870  f411		       4a		      LSR		; 2
-    871  f412		       4a		      LSR		; 2
-    872  f413		       4a		      LSR		; 2
-    873  f414		       aa		      TAX		; 2
-    874  f415		       bd 64 fd 	      LDA	FontLookup,X	;4
-    875  f418		       85 d1		      STA	ScoreD1	;3
-    876  f41a
-    877  f41a				   Digit3Distance
-    878  f41a		       a5 bd		      LDA	Traffic0Msb	;3
-    879  f41c		       29 0f		      AND	#%00001111	;2
-    880  f41e		       aa		      TAX		; 2
-    881  f41f		       bd 64 fd 	      LDA	FontLookup,X	;4 
-    882  f422		       85 d0		      STA	ScoreD0	;3
-    883  f424
-    884  f424		       a9 63		      LDA	#<Pipe + #SCORE_SIZE -1	;3
-    885  f426		       85 d4		      STA	ScoreD4	;3
-    886  f428				   EndDrawDistance
-    887  f428		       4c 68 f4 	      JMP	RightScoreWriteEnd	;3
-    888  f42b
-    889  f42b				   RightScoreWrite
-    890  f42b				   Digit0Timer
-    891  f42b		       a5 bc		      LDA	CountdownTimer	;3
-    892  f42d		       29 0f		      AND	#%00001111	;2
-    893  f42f		       aa		      TAX		; 2
-    894  f430		       bd 64 fd 	      LDA	FontLookup,X	;4 
-    895  f433		       85 d1		      STA	ScoreD1	;3
-    896  f435
-    897  f435				   Digit1Timer
-    898  f435		       a5 bc		      LDA	CountdownTimer	;3
-    899  f437		       29 f0		      AND	#%11110000	;2
-    900  f439		       4a		      LSR		; 2
-    901  f43a		       4a		      LSR		; 2
-    902  f43b		       4a		      LSR		; 2
-    903  f43c		       4a		      LSR		; 2
-    904  f43d		       aa		      TAX		; 2
-    905  f43e		       bd 64 fd 	      LDA	FontLookup,X	;4
-    906  f441		       85 d0		      STA	ScoreD0	;3
-    907  f443
-    908  f443		       a9 63		      LDA	#<Pipe + #SCORE_SIZE -1	;3
-    909  f445		       85 d2		      STA	ScoreD2	;3
-    910  f447
-    911  f447				   Digit0Speed
-    912  f447		       a5 8e		      LDA	Player0SpeedL
-    913  f449		       29 3c		      AND	#%00111100	;2 Discard the last bits
-    914  f44b		       4a		      LSR		; 2
-    915  f44c		       4a		      LSR		; 2
-    916  f44d		       aa		      TAX		; 2
-    917  f44e		       bd 64 fd 	      LDA	FontLookup,X	;4
-    918  f451		       85 d4		      STA	ScoreD4	;3
-    919  f453
-    920  f453				   Digit1Speed
-    921  f453		       a5 8e		      LDA	Player0SpeedL
-    922  f455		       29 c0		      AND	#%11000000	;2 Discard the last bits
-    923  f457		       2a		      ROL		;First goes into carry
-    924  f458		       2a		      ROL
-    925  f459		       2a		      ROL
-    926  f45a		       85 b0		      STA	Tmp0
-    927  f45c		       a5 8f		      LDA	Player0SpeedH
-    928  f45e		       0a		      ASL
-    929  f45f		       0a		      ASL
-    930  f460		       05 b0		      ORA	Tmp0
-    931  f462		       aa		      TAX		; 2
-    932  f463		       bd 64 fd 	      LDA	FontLookup,X	;4
-    933  f466		       85 d3		      STA	ScoreD3	;3
-    934  f468
-    935  f468				   RightScoreWriteEnd
-    936  f468
-    937  f468				   OverScanWait
-    938  f468		       ad 84 02 	      LDA	INTIM
-    939  f46b		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
-    940  f46d		       4c ad f0 	      JMP	MainLoop
-    941  f470
-    942  f470				   Subroutines
-    943  f470
-    944  f470				   ClearAll		; 56
-    945  f470		       a9 00		      LDA	#0	;2
-    946  f472		       85 1c		      STA	GRP1	;3
-    947  f474		       85 1f		      STA	ENABL	;3
-    948  f476		       85 1d		      STA	ENAM0	;3
-    949  f478		       85 1e		      STA	ENAM1
-    950  f47a		       85 84		      STA	GRP1Cache	;3
-    951  f47c		       85 85		      STA	ENABLCache	;3
-    952  f47e		       85 86		      STA	ENAM0Cache	;3
-    953  f480		       85 87		      STA	ENAM1Cache	;3
-    954  f482		       20 88 f4 	      JSR	ClearPFSkipLDA0	; 30
-    955  f485		       60		      RTS		;6
-    956  f486
-    957  f486				   ClearPF		; 26
-    958  f486		       a9 00		      LDA	#0	;2
-    959  f488				   ClearPFSkipLDA0
-    960  f488		       85 0d		      STA	PF0	;3
-    961  f48a		       85 0e		      STA	PF1	;3
-    962  f48c		       85 0f		      STA	PF2	;3	
-    963  f48e		       85 81		      STA	PF0Cache	;3
-    964  f490		       85 82		      STA	PF1Cache	;3
-    965  f492		       85 83		      STA	PF2Cache	;3 
-    966  f494		       60		      RTS		;6
-    967  f495
-    968  f495				   LoadAll		; 36
-    969  f495		       a5 81		      LDA	PF0Cache	;3
-    970  f497		       85 0d		      STA	PF0	;3
-    971  f499
-    972  f499		       a5 82		      LDA	PF1Cache	;3
-    973  f49b		       85 0e		      STA	PF1	;3
-    974  f49d
-    975  f49d		       a5 83		      LDA	PF2Cache	;3
-    976  f49f		       85 0f		      STA	PF2	;3
-    977  f4a1
-    978  f4a1		       a5 84		      LDA	GRP1Cache	;3
-    979  f4a3		       85 1c		      STA	GRP1	;3
-    980  f4a5
-    981  f4a5		       a5 85		      LDA	ENABLCache	;3
-    982  f4a7		       85 1f		      STA	ENABL	;3
-    983  f4a9
-    984  f4a9		       a5 86		      LDA	ENAM0Cache
-    985  f4ab		       85 1d		      STA	ENAM0
-    986  f4ad
-    987  f4ad		       60		      RTS		;6
-    988  f4ae
-    989  f4ae							;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
-    990  fd00					      org	$FD00
-    991  fd00				   Font
-    992  fd00				   C0
-    993  fd00		       e7		      .byte.b	#%11100111	;
-    994  fd01		       a5		      .byte.b	#%10100101	; 
-    995  fd02		       a5		      .byte.b	#%10100101	; 
-    996  fd03		       a5		      .byte.b	#%10100101	; 
-    997  fd04		       e7		      .byte.b	#%11100111	;	
-    998  fd05				   C1
-    999  fd05		       e7		      .byte.b	#%11100111	;
-   1000  fd06		       42		      .byte.b	#%01000010	; 
-   1001  fd07		       42		      .byte.b	#%01000010	; 
-   1002  fd08		       42		      .byte.b	#%01000010	; 
-   1003  fd09		       66		      .byte.b	#%01100110	;
-   1004  fd0a				   C2
-   1005  fd0a		       e7		      .byte.b	#%11100111	;
-   1006  fd0b		       24		      .byte.b	#%00100100	; 
-   1007  fd0c		       e7		      .byte.b	#%11100111	; 
-   1008  fd0d		       81		      .byte.b	#%10000001	; 
-   1009  fd0e		       e7		      .byte.b	#%11100111	;
-   1010  fd0f				   C3
-   1011  fd0f		       e7		      .byte.b	#%11100111	;
-   1012  fd10		       81		      .byte.b	#%10000001	; 
-   1013  fd11		       e7		      .byte.b	#%11100111	; 
-   1014  fd12		       81		      .byte.b	#%10000001	; 
-   1015  fd13		       e7		      .byte.b	#%11100111	;
-   1016  fd14				   C4
-   1017  fd14		       81		      .byte.b	#%10000001	;
-   1018  fd15		       81		      .byte.b	#%10000001	; 
-   1019  fd16		       e7		      .byte.b	#%11100111	; 
-   1020  fd17		       a5		      .byte.b	#%10100101	; 
-   1021  fd18		       a5		      .byte.b	#%10100101	;
-   1022  fd19				   C5
-   1023  fd19		       e7		      .byte.b	#%11100111	;
-   1024  fd1a		       81		      .byte.b	#%10000001	; 
-   1025  fd1b		       e7		      .byte.b	#%11100111	; 
-   1026  fd1c		       24		      .byte.b	#%00100100	; 
-   1027  fd1d		       e7		      .byte.b	#%11100111	;
-   1028  fd1e				   C6
-   1029  fd1e		       e7		      .byte.b	#%11100111	;
-   1030  fd1f		       a5		      .byte.b	#%10100101	; 
-   1031  fd20		       e7		      .byte.b	#%11100111	; 
-   1032  fd21		       24		      .byte.b	#%00100100	; 
-   1033  fd22		       e7		      .byte.b	#%11100111	;
-   1034  fd23				   C7
-   1035  fd23		       81		      .byte.b	#%10000001	;
-   1036  fd24		       81		      .byte.b	#%10000001	; 
-   1037  fd25		       81		      .byte.b	#%10000001	; 
-   1038  fd26		       81		      .byte.b	#%10000001	; 
-   1039  fd27		       e7		      .byte.b	#%11100111	;
-   1040  fd28				   C8
-   1041  fd28		       e7		      .byte.b	#%11100111	;
-   1042  fd29		       a5		      .byte.b	#%10100101	; 
-   1043  fd2a		       e7		      .byte.b	#%11100111	; 
-   1044  fd2b		       a5		      .byte.b	#%10100101	; 
-   1045  fd2c		       e7		      .byte.b	#%11100111	;
-   1046  fd2d				   C9
-   1047  fd2d		       e7		      .byte.b	#%11100111	;
-   1048  fd2e		       81		      .byte.b	#%10000001	; 
-   1049  fd2f		       e7		      .byte.b	#%11100111	; 
-   1050  fd30		       a5		      .byte.b	#%10100101	; 
-   1051  fd31		       e7		      .byte.b	#%11100111	;
-   1052  fd32				   CA
-   1053  fd32		       a5		      .byte.b	#%10100101	;
-   1054  fd33		       a5		      .byte.b	#%10100101	; 
-   1055  fd34		       e7		      .byte.b	#%11100111	; 
-   1056  fd35		       a5		      .byte.b	#%10100101	; 
-   1057  fd36		       e7		      .byte.b	#%11100111	;
-   1058  fd37				   CB
-   1059  fd37		       66		      .byte.b	#%01100110	;
-   1060  fd38		       a5		      .byte.b	#%10100101	; 
-   1061  fd39		       66		      .byte.b	#%01100110	; 
-   1062  fd3a		       a5		      .byte.b	#%10100101	;
-   1063  fd3b		       66		      .byte.b	#%01100110	;
-   1064  fd3c				   CC
-   1065  fd3c		       e7		      .byte.b	#%11100111	;
-   1066  fd3d		       24		      .byte.b	#%00100100	; 
-   1067  fd3e		       24		      .byte.b	#%00100100	; 
-   1068  fd3f		       24		      .byte.b	#%00100100	;
-   1069  fd40		       e7		      .byte.b	#%11100111	;
-   1070  fd41
-   1071  fd41				   CD
-   1072  fd41		       66		      .byte.b	#%01100110	;
-   1073  fd42		       a5		      .byte.b	#%10100101	; 
-   1074  fd43		       a5		      .byte.b	#%10100101	; 
-   1075  fd44		       a5		      .byte.b	#%10100101	;
-   1076  fd45		       66		      .byte.b	#%01100110	;
-   1077  fd46
-   1078  fd46				   CE
-   1079  fd46		       e7		      .byte.b	#%11100111	;
-   1080  fd47		       24		      .byte.b	#%00100100	; 
-   1081  fd48		       e7		      .byte.b	#%11100111	; 
-   1082  fd49		       24		      .byte.b	#%00100100	; 
-   1083  fd4a		       e7		      .byte.b	#%11100111	;
-   1084  fd4b
-   1085  fd4b				   CF
-   1086  fd4b		       24		      .byte.b	#%00100100	;
-   1087  fd4c		       24		      .byte.b	#%00100100	; 
-   1088  fd4d		       e7		      .byte.b	#%11100111	; 
-   1089  fd4e		       24		      .byte.b	#%00100100	; 
-   1090  fd4f		       e7		      .byte.b	#%11100111	;
-   1091  fd50
-   1092  fd50				   Space		; Moved from the beggining so 0 to F is fast to draw.
-   1093  fd50		       00		      .byte.b	%0	;
-   1094  fd51		       00		      .byte.b	#0	;
-   1095  fd52		       00		      .byte.b	#0	;
-   1096  fd53		       00		      .byte.b	#0	;
-   1097  fd54		       00		      .byte.b	#0	;
-   1098  fd55
-   1099  fd55				   CS
-   1100  fd55		       66		      .byte.b	#%01100110	;
-   1101  fd56		       81		      .byte.b	#%10000001	; 
-   1102  fd57		       42		      .byte.b	#%01000010	; 
-   1103  fd58		       24		      .byte.b	#%00100100	; 
-   1104  fd59		       c3		      .byte.b	#%11000011	;
-   1105  fd5a
-   1106  fd5a				   CT
-   1107  fd5a		       42		      .byte.b	#%01000010	;
-   1108  fd5b		       42		      .byte.b	#%01000010	; 
-   1109  fd5c		       42		      .byte.b	#%01000010	; 
-   1110  fd5d		       42		      .byte.b	#%01000010	; 
-   1111  fd5e		       e7		      .byte.b	#%11100111	;
-   1112  fd5f
-   1113  fd5f				   Pipe
-   1114  fd5f		       42		      .byte.b	#%01000010	;
-   1115  fd60		       00		      .byte.b	#%00000000	; 
-   1116  fd61		       42		      .byte.b	#%01000010	; 
-   1117  fd62		       00		      .byte.b	#%00000000	; 
-   1118  fd63		       42		      .byte.b	#%01000010	;
-   1119  fd64
-   1120  fd64				   FontLookup		; Very fast font lookup for dynamic values!
-   1121  fd64		       04		      .byte.b	#<C0 + #SCORE_SIZE -1
-   1122  fd65		       09		      .byte.b	#<C1 + #SCORE_SIZE -1
-   1123  fd66		       0e		      .byte.b	#<C2 + #SCORE_SIZE -1
-   1124  fd67		       13		      .byte.b	#<C3 + #SCORE_SIZE -1
-   1125  fd68		       18		      .byte.b	#<C4 + #SCORE_SIZE -1
-   1126  fd69		       1d		      .byte.b	#<C5 + #SCORE_SIZE -1
-   1127  fd6a		       22		      .byte.b	#<C6 + #SCORE_SIZE -1
-   1128  fd6b		       27		      .byte.b	#<C7 + #SCORE_SIZE -1
-   1129  fd6c		       2c		      .byte.b	#<C8 + #SCORE_SIZE -1
-   1130  fd6d		       31		      .byte.b	#<C9 + #SCORE_SIZE -1
-   1131  fd6e		       36		      .byte.b	#<CA + #SCORE_SIZE -1
-   1132  fd6f		       3b		      .byte.b	#<CB + #SCORE_SIZE -1
-   1133  fd70		       40		      .byte.b	#<CC + #SCORE_SIZE -1
-   1134  fd71		       45		      .byte.b	#<CD + #SCORE_SIZE -1
-   1135  fd72		       4a		      .byte.b	#<CE + #SCORE_SIZE -1
-   1136  fd73		       4f		      .byte.b	#<CF + #SCORE_SIZE -1
-   1137  fd74
-   1138  fd74
-   1139  fe00					      org	$FE00
-   1140  fe00				   AesTable
-   1141  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
-   1142  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
-   1143  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
-   1144  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
-   1145  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
-   1146  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
-   1147  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
-   1148  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
-   1149  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
-   1150  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
-   1151  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
-   1152  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
-   1153  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
-   1154  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
-   1155  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
-   1156  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
-   1157  ff00
-   1158  ff00							; From FF00 to FFFB (122 bytes) to use here
-   1159  ff00
-   1160  ff00				   CarSprite		; Upside down
-   1161  ff00		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-   1162  ff01		       7e		      .byte.b	#%01111110
-   1163  ff02		       24		      .byte.b	#%00100100
-   1164  ff03		       bd		      .byte.b	#%10111101
-   1165  ff04		       3c		      .byte.b	#%00111100
-   1166  ff05		       bd		      .byte.b	#%10111101
-   1167  ff06		       3c		      .byte.b	#%00111100
-   1168  ff07		       00 00 00 00*	      ds	GAMEPLAY_AREA - 8
-   1169  ff39
-   1170  ff39
-   1171  ff39				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
-   1172  ff39		       00		      .byte.b	#$00	;  Trafic0 L
-   1173  ff3a		       00		      .byte.b	#$00	;  Trafic0 H
-   1174  ff3b		       0a		      .byte.b	#$0A	;  Trafic1 L
-   1175  ff3c		       01		      .byte.b	#$01	;  Trafic1 H
-   1176  ff3d		       e6		      .byte.b	#$E6	;  Trafic2 L
-   1177  ff3e		       00		      .byte.b	#$00	;  Trafic2 H
-   1178  ff3f		       c2		      .byte.b	#$C2	;  Trafic3 L
-   1179  ff40		       00		      .byte.b	#$00	;  Trafic3 H
-   1180  ff41		       9e		      .byte.b	#$9E	;  Trafic4 L
-   1181  ff42		       00		      .byte.b	#$00	;  Trafic4 H
-   1182  ff43
-   1183  ff43
-   1184  fffc					      org	$FFFC
-   1185  fffc		       04 f0		      .word.w	Start
-   1186  fffe		       04 f0		      .word.w	Start
+    770  f388				   ProcessScoreFontColor
+    771  f388		       a6 d6		      LDX	ScoreFontColorHoldChange
+    772  f38a		       f0 06		      BEQ	ResetScoreFontColor
+    773  f38c		       ca		      DEX
+    774  f38d		       86 d6		      STX	ScoreFontColorHoldChange
+    775  f38f		       4c 96 f3 	      JMP	SkipScoreFontColor
+    776  f392				   ResetScoreFontColor
+    777  f392		       a9 f9		      LDA	#SCORE_FONT_COLOR
+    778  f394		       85 d5		      STA	ScoreFontColor
+    779  f396				   SkipScoreFontColor
+    780  f396
+    781  f396				   IsGameOver
+    782  f396		       a5 bc		      LDA	CountdownTimer
+    783  f398		       05 8e		      ORA	Player0SpeedL
+    784  f39a		       05 8f		      ORA	Player0SpeedH
+    785  f39c		       d0 0b		      BNE	IsCheckpoint
+    786  f39e		       a9 01		      LDA	#1
+    787  f3a0		       85 d6		      STA	ScoreFontColorHoldChange
+    788  f3a2		       a9 0c		      LDA	#SCORE_FONT_COLOR_OVER
+    789  f3a4		       85 d5		      STA	ScoreFontColor
+    790  f3a6		       4c db f3 	      JMP	SkipIsTimeOver
+    791  f3a9
+    792  f3a9				   IsCheckpoint
+    793  f3a9		       a5 d7		      LDA	NextCheckpoint
+    794  f3ab		       c5 92		      CMP	TrafficOffset0 + 2
+    795  f3ad		       d0 20		      BNE	SkipIsCheckpoint
+    796  f3af		       18		      CLC
+    797  f3b0		       69 10		      ADC	#CHECKPOINT_INTERVAL
+    798  f3b2		       85 d7		      STA	NextCheckpoint
+    799  f3b4		       a9 d8		      LDA	#SCORE_FONT_COLOR_GOOD
+    800  f3b6		       85 d5		      STA	ScoreFontColor
+    801  f3b8		       a9 ff		      LDA	#SCORE_FONT_HOLD_CHANGE
+    802  f3ba		       85 d6		      STA	ScoreFontColorHoldChange
+    803  f3bc		       a5 bc		      LDA	CountdownTimer
+    804  f3be		       18		      CLC
+    805  f3bf		       65 c2		      ADC	CheckpointTime
+    806  f3c1		       85 bc		      STA	CountdownTimer
+    807  f3c3		       90 04		      BCC	JumpSkipTimeOver
+    808  f3c5		       a9 ff		      LDA	#$FF
+    809  f3c7		       85 bc		      STA	CountdownTimer	; Does not overflow!
+    810  f3c9				   JumpSkipTimeOver
+    811  f3c9		       20 9b f4 	      JSR	NextDifficulty	; Increments to the next dificulty (Will depend on game mode in the future)
+    812  f3cc		       4c db f3 	      JMP	SkipIsTimeOver	; Checkpoints will add time, so no time over routine, should also override time over.
+    813  f3cf				   SkipIsCheckpoint
+    814  f3cf
+    815  f3cf				   IsTimeOver
+    816  f3cf		       a5 bc		      LDA	CountdownTimer
+    817  f3d1		       d0 08		      BNE	SkipIsTimeOver
+    818  f3d3		       a9 01		      LDA	#1	; Red while 0, so just sets for the next frame, might still pass a checkpoint by inertia
+    819  f3d5		       85 d6		      STA	ScoreFontColorHoldChange
+    820  f3d7		       a9 34		      LDA	#SCORE_FONT_COLOR_BAD
+    821  f3d9		       85 d5		      STA	ScoreFontColor
+    822  f3db				   SkipIsTimeOver
+    823  f3db
+    824  f3db							;Could be done during on vblank to save this comparisson time (before draw score), 
+    825  f3db							;but I am saving vblank cycles for now, in case of 2 players.
+    826  f3db				   ChooseSide		; 
+    827  f3db		       a5 8c		      LDA	FrameCount0	;3
+    828  f3dd		       29 01		      AND	#%00000001	;2
+    829  f3df		       f0 37		      BEQ	RightScoreWrite	; Half of the screen with the correct colors.
+    830  f3e1
+    831  f3e1				   LeftScoreWrite
+    832  f3e1				   WriteDistance		;Not optimized yet, ugly code.
+    833  f3e1
+    834  f3e1				   Digit0Distance
+    835  f3e1		       a5 91		      LDA	TrafficOffset0 + 1	;3
+    836  f3e3		       29 f0		      AND	#%11110000	;2
+    837  f3e5		       4a		      LSR		; 2
+    838  f3e6		       4a		      LSR		; 2
+    839  f3e7		       4a		      LSR		; 2
+    840  f3e8		       4a		      LSR		; 2
+    841  f3e9		       aa		      TAX		; 2
+    842  f3ea		       bd 64 fd 	      LDA	FontLookup,X	;4
+    843  f3ed		       85 d3		      STA	ScoreD3	;3
+    844  f3ef
+    845  f3ef				   Digit1Distance
+    846  f3ef		       a5 92		      LDA	TrafficOffset0 + 2	;3
+    847  f3f1		       29 0f		      AND	#%00001111	;2
+    848  f3f3		       aa		      TAX		; 2
+    849  f3f4		       bd 64 fd 	      LDA	FontLookup,X	;4 
+    850  f3f7		       85 d2		      STA	ScoreD2	;3
+    851  f3f9
+    852  f3f9				   Digit2Distance
+    853  f3f9		       a5 92		      LDA	TrafficOffset0 + 2	;3
+    854  f3fb		       29 f0		      AND	#%11110000	;2
+    855  f3fd		       4a		      LSR		; 2
+    856  f3fe		       4a		      LSR		; 2
+    857  f3ff		       4a		      LSR		; 2
+    858  f400		       4a		      LSR		; 2
+    859  f401		       aa		      TAX		; 2
+    860  f402		       bd 64 fd 	      LDA	FontLookup,X	;4
+    861  f405		       85 d1		      STA	ScoreD1	;3
+    862  f407
+    863  f407				   Digit3Distance
+    864  f407		       a5 bd		      LDA	Traffic0Msb	;3
+    865  f409		       29 0f		      AND	#%00001111	;2
+    866  f40b		       aa		      TAX		; 2
+    867  f40c		       bd 64 fd 	      LDA	FontLookup,X	;4 
+    868  f40f		       85 d0		      STA	ScoreD0	;3
+    869  f411
+    870  f411		       a9 63		      LDA	#<Pipe + #SCORE_SIZE -1	;3
+    871  f413		       85 d4		      STA	ScoreD4	;3
+    872  f415				   EndDrawDistance
+    873  f415		       4c 55 f4 	      JMP	RightScoreWriteEnd	;3
+    874  f418
+    875  f418				   RightScoreWrite
+    876  f418				   Digit0Timer
+    877  f418		       a5 bc		      LDA	CountdownTimer	;3
+    878  f41a		       29 0f		      AND	#%00001111	;2
+    879  f41c		       aa		      TAX		; 2
+    880  f41d		       bd 64 fd 	      LDA	FontLookup,X	;4 
+    881  f420		       85 d1		      STA	ScoreD1	;3
+    882  f422
+    883  f422				   Digit1Timer
+    884  f422		       a5 bc		      LDA	CountdownTimer	;3
+    885  f424		       29 f0		      AND	#%11110000	;2
+    886  f426		       4a		      LSR		; 2
+    887  f427		       4a		      LSR		; 2
+    888  f428		       4a		      LSR		; 2
+    889  f429		       4a		      LSR		; 2
+    890  f42a		       aa		      TAX		; 2
+    891  f42b		       bd 64 fd 	      LDA	FontLookup,X	;4
+    892  f42e		       85 d0		      STA	ScoreD0	;3
+    893  f430
+    894  f430		       a9 63		      LDA	#<Pipe + #SCORE_SIZE -1	;3
+    895  f432		       85 d2		      STA	ScoreD2	;3
+    896  f434
+    897  f434				   Digit0Speed
+    898  f434		       a5 8e		      LDA	Player0SpeedL
+    899  f436		       29 3c		      AND	#%00111100	;2 Discard the last bits
+    900  f438		       4a		      LSR		; 2
+    901  f439		       4a		      LSR		; 2
+    902  f43a		       aa		      TAX		; 2
+    903  f43b		       bd 64 fd 	      LDA	FontLookup,X	;4
+    904  f43e		       85 d4		      STA	ScoreD4	;3
+    905  f440
+    906  f440				   Digit1Speed
+    907  f440		       a5 8e		      LDA	Player0SpeedL
+    908  f442		       29 c0		      AND	#%11000000	;2 Discard the last bits
+    909  f444		       2a		      ROL		;First goes into carry
+    910  f445		       2a		      ROL
+    911  f446		       2a		      ROL
+    912  f447		       85 b0		      STA	Tmp0
+    913  f449		       a5 8f		      LDA	Player0SpeedH
+    914  f44b		       0a		      ASL
+    915  f44c		       0a		      ASL
+    916  f44d		       05 b0		      ORA	Tmp0
+    917  f44f		       aa		      TAX		; 2
+    918  f450		       bd 64 fd 	      LDA	FontLookup,X	;4
+    919  f453		       85 d3		      STA	ScoreD3	;3
+    920  f455
+    921  f455				   RightScoreWriteEnd
+    922  f455
+    923  f455				   OverScanWait
+    924  f455		       ad 84 02 	      LDA	INTIM
+    925  f458		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
+    926  f45a		       4c 8c f0 	      JMP	MainLoop
+    927  f45d
+    928  f45d				   Subroutines
+    929  f45d
+    930  f45d				   ClearAll		; 56
+    931  f45d		       a9 00		      LDA	#0	;2
+    932  f45f		       85 1c		      STA	GRP1	;3
+    933  f461		       85 1f		      STA	ENABL	;3
+    934  f463		       85 1d		      STA	ENAM0	;3
+    935  f465		       85 1e		      STA	ENAM1
+    936  f467		       85 84		      STA	GRP1Cache	;3
+    937  f469		       85 85		      STA	ENABLCache	;3
+    938  f46b		       85 86		      STA	ENAM0Cache	;3
+    939  f46d		       85 87		      STA	ENAM1Cache	;3
+    940  f46f		       20 75 f4 	      JSR	ClearPFSkipLDA0	; 30
+    941  f472		       60		      RTS		;6
+    942  f473
+    943  f473				   ClearPF		; 26
+    944  f473		       a9 00		      LDA	#0	;2
+    945  f475				   ClearPFSkipLDA0
+    946  f475		       85 0d		      STA	PF0	;3
+    947  f477		       85 0e		      STA	PF1	;3
+    948  f479		       85 0f		      STA	PF2	;3	
+    949  f47b		       85 81		      STA	PF0Cache	;3
+    950  f47d		       85 82		      STA	PF1Cache	;3
+    951  f47f		       85 83		      STA	PF2Cache	;3 
+    952  f481		       60		      RTS		;6
+    953  f482
+    954  f482				   LoadAll		; 36
+    955  f482		       a5 81		      LDA	PF0Cache	;3
+    956  f484		       85 0d		      STA	PF0	;3
+    957  f486
+    958  f486		       a5 82		      LDA	PF1Cache	;3
+    959  f488		       85 0e		      STA	PF1	;3
+    960  f48a
+    961  f48a		       a5 83		      LDA	PF2Cache	;3
+    962  f48c		       85 0f		      STA	PF2	;3
+    963  f48e
+    964  f48e		       a5 84		      LDA	GRP1Cache	;3
+    965  f490		       85 1c		      STA	GRP1	;3
+    966  f492
+    967  f492		       a5 85		      LDA	ENABLCache	;3
+    968  f494		       85 1f		      STA	ENABL	;3
+    969  f496
+    970  f496		       a5 86		      LDA	ENAM0Cache
+    971  f498		       85 1d		      STA	ENAM0
+    972  f49a
+    973  f49a		       60		      RTS		;6
+    974  f49b
+    975  f49b				   NextDifficulty		;Could be inlined
+    976  f49b		       a5 c4		      LDA	CurrentDifficulty
+    977  f49d		       18		      CLC
+    978  f49e		       69 01		      ADC	#1
+    979  f4a0		       29 03		      AND	#%00000011	; 0 to 3
+    980  f4a2		       85 c4		      STA	CurrentDifficulty
+    981  f4a4
+    982  f4a4				   ConfigureDifficulty
+    983  f4a4		       a5 c4		      LDA	CurrentDifficulty
+    984  f4a6		       f0 0b		      BEQ	ConfigureLightTraffic
+    985  f4a8		       c9 01		      CMP	#1
+    986  f4aa		       f0 10		      BEQ	ConfigureRegularTraffic
+    987  f4ac		       c9 02		      CMP	#2
+    988  f4ae		       f0 15		      BEQ	ConfigureIntenseTraffic
+    989  f4b0		       4c ce f4 	      JMP	ConfigureRushHourTraffic
+    990  f4b3
+    991  f4b3				   ConfigureLightTraffic
+    992  f4b3		       a2 0e		      LDX	#TRAFFIC_CHANCE_LIGHT
+    993  f4b5		       a0 1e		      LDY	#CHECKPOINT_TIME_LIGHT
+    994  f4b7		       a9 d4		      LDA	#TRAFFIC_COLOR_LIGHT
+    995  f4b9		       4c d4 f4 	      JMP	StoreTrafficChance
+    996  f4bc				   ConfigureRegularTraffic
+    997  f4bc		       a2 18		      LDX	#TRAFFIC_CHANCE_REGULAR
+    998  f4be		       a0 23		      LDY	#CHECKPOINT_TIME_REGULAR
+    999  f4c0		       a9 34		      LDA	#TRAFFIC_COLOR_REGULAR
+   1000  f4c2		       4c d4 f4 	      JMP	StoreTrafficChance
+   1001  f4c5				   ConfigureIntenseTraffic
+   1002  f4c5		       a2 22		      LDX	#TRAFFIC_CHANCE_INTENSE
+   1003  f4c7		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
+   1004  f4c9		       a9 99		      LDA	#TRAFFIC_COLOR_INTENSE
+   1005  f4cb		       4c d4 f4 	      JMP	StoreTrafficChance
+   1006  f4ce				   ConfigureRushHourTraffic
+   1007  f4ce		       a2 2c		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
+   1008  f4d0		       a0 2d		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
+   1009  f4d2		       a9 09		      LDA	#TRAFFIC_COLOR_RUSH_HOUR
+   1010  f4d4
+   1011  f4d4				   StoreTrafficChance
+   1012  f4d4		       86 c1		      STX	TrafficChance
+   1013  f4d6		       84 c2		      STY	CheckpointTime
+   1014  f4d8		       85 c3		      STA	TrafficColor
+   1015  f4da
+   1016  f4da		       60		      RTS
+   1017  f4db
+   1018  f4db							;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
+   1019  fd00					      org	$FD00
+   1020  fd00				   Font
+   1021  fd00				   C0
+   1022  fd00		       e7		      .byte.b	#%11100111	;
+   1023  fd01		       a5		      .byte.b	#%10100101	; 
+   1024  fd02		       a5		      .byte.b	#%10100101	; 
+   1025  fd03		       a5		      .byte.b	#%10100101	; 
+   1026  fd04		       e7		      .byte.b	#%11100111	;	
+   1027  fd05				   C1
+   1028  fd05		       e7		      .byte.b	#%11100111	;
+   1029  fd06		       42		      .byte.b	#%01000010	; 
+   1030  fd07		       42		      .byte.b	#%01000010	; 
+   1031  fd08		       42		      .byte.b	#%01000010	; 
+   1032  fd09		       66		      .byte.b	#%01100110	;
+   1033  fd0a				   C2
+   1034  fd0a		       e7		      .byte.b	#%11100111	;
+   1035  fd0b		       24		      .byte.b	#%00100100	; 
+   1036  fd0c		       e7		      .byte.b	#%11100111	; 
+   1037  fd0d		       81		      .byte.b	#%10000001	; 
+   1038  fd0e		       e7		      .byte.b	#%11100111	;
+   1039  fd0f				   C3
+   1040  fd0f		       e7		      .byte.b	#%11100111	;
+   1041  fd10		       81		      .byte.b	#%10000001	; 
+   1042  fd11		       e7		      .byte.b	#%11100111	; 
+   1043  fd12		       81		      .byte.b	#%10000001	; 
+   1044  fd13		       e7		      .byte.b	#%11100111	;
+   1045  fd14				   C4
+   1046  fd14		       81		      .byte.b	#%10000001	;
+   1047  fd15		       81		      .byte.b	#%10000001	; 
+   1048  fd16		       e7		      .byte.b	#%11100111	; 
+   1049  fd17		       a5		      .byte.b	#%10100101	; 
+   1050  fd18		       a5		      .byte.b	#%10100101	;
+   1051  fd19				   C5
+   1052  fd19		       e7		      .byte.b	#%11100111	;
+   1053  fd1a		       81		      .byte.b	#%10000001	; 
+   1054  fd1b		       e7		      .byte.b	#%11100111	; 
+   1055  fd1c		       24		      .byte.b	#%00100100	; 
+   1056  fd1d		       e7		      .byte.b	#%11100111	;
+   1057  fd1e				   C6
+   1058  fd1e		       e7		      .byte.b	#%11100111	;
+   1059  fd1f		       a5		      .byte.b	#%10100101	; 
+   1060  fd20		       e7		      .byte.b	#%11100111	; 
+   1061  fd21		       24		      .byte.b	#%00100100	; 
+   1062  fd22		       e7		      .byte.b	#%11100111	;
+   1063  fd23				   C7
+   1064  fd23		       81		      .byte.b	#%10000001	;
+   1065  fd24		       81		      .byte.b	#%10000001	; 
+   1066  fd25		       81		      .byte.b	#%10000001	; 
+   1067  fd26		       81		      .byte.b	#%10000001	; 
+   1068  fd27		       e7		      .byte.b	#%11100111	;
+   1069  fd28				   C8
+   1070  fd28		       e7		      .byte.b	#%11100111	;
+   1071  fd29		       a5		      .byte.b	#%10100101	; 
+   1072  fd2a		       e7		      .byte.b	#%11100111	; 
+   1073  fd2b		       a5		      .byte.b	#%10100101	; 
+   1074  fd2c		       e7		      .byte.b	#%11100111	;
+   1075  fd2d				   C9
+   1076  fd2d		       e7		      .byte.b	#%11100111	;
+   1077  fd2e		       81		      .byte.b	#%10000001	; 
+   1078  fd2f		       e7		      .byte.b	#%11100111	; 
+   1079  fd30		       a5		      .byte.b	#%10100101	; 
+   1080  fd31		       e7		      .byte.b	#%11100111	;
+   1081  fd32				   CA
+   1082  fd32		       a5		      .byte.b	#%10100101	;
+   1083  fd33		       a5		      .byte.b	#%10100101	; 
+   1084  fd34		       e7		      .byte.b	#%11100111	; 
+   1085  fd35		       a5		      .byte.b	#%10100101	; 
+   1086  fd36		       e7		      .byte.b	#%11100111	;
+   1087  fd37				   CB
+   1088  fd37		       66		      .byte.b	#%01100110	;
+   1089  fd38		       a5		      .byte.b	#%10100101	; 
+   1090  fd39		       66		      .byte.b	#%01100110	; 
+   1091  fd3a		       a5		      .byte.b	#%10100101	;
+   1092  fd3b		       66		      .byte.b	#%01100110	;
+   1093  fd3c				   CC
+   1094  fd3c		       e7		      .byte.b	#%11100111	;
+   1095  fd3d		       24		      .byte.b	#%00100100	; 
+   1096  fd3e		       24		      .byte.b	#%00100100	; 
+   1097  fd3f		       24		      .byte.b	#%00100100	;
+   1098  fd40		       e7		      .byte.b	#%11100111	;
+   1099  fd41
+   1100  fd41				   CD
+   1101  fd41		       66		      .byte.b	#%01100110	;
+   1102  fd42		       a5		      .byte.b	#%10100101	; 
+   1103  fd43		       a5		      .byte.b	#%10100101	; 
+   1104  fd44		       a5		      .byte.b	#%10100101	;
+   1105  fd45		       66		      .byte.b	#%01100110	;
+   1106  fd46
+   1107  fd46				   CE
+   1108  fd46		       e7		      .byte.b	#%11100111	;
+   1109  fd47		       24		      .byte.b	#%00100100	; 
+   1110  fd48		       e7		      .byte.b	#%11100111	; 
+   1111  fd49		       24		      .byte.b	#%00100100	; 
+   1112  fd4a		       e7		      .byte.b	#%11100111	;
+   1113  fd4b
+   1114  fd4b				   CF
+   1115  fd4b		       24		      .byte.b	#%00100100	;
+   1116  fd4c		       24		      .byte.b	#%00100100	; 
+   1117  fd4d		       e7		      .byte.b	#%11100111	; 
+   1118  fd4e		       24		      .byte.b	#%00100100	; 
+   1119  fd4f		       e7		      .byte.b	#%11100111	;
+   1120  fd50
+   1121  fd50				   Space		; Moved from the beggining so 0 to F is fast to draw.
+   1122  fd50		       00		      .byte.b	%0	;
+   1123  fd51		       00		      .byte.b	#0	;
+   1124  fd52		       00		      .byte.b	#0	;
+   1125  fd53		       00		      .byte.b	#0	;
+   1126  fd54		       00		      .byte.b	#0	;
+   1127  fd55
+   1128  fd55				   CS
+   1129  fd55		       66		      .byte.b	#%01100110	;
+   1130  fd56		       81		      .byte.b	#%10000001	; 
+   1131  fd57		       42		      .byte.b	#%01000010	; 
+   1132  fd58		       24		      .byte.b	#%00100100	; 
+   1133  fd59		       c3		      .byte.b	#%11000011	;
+   1134  fd5a
+   1135  fd5a				   CT
+   1136  fd5a		       42		      .byte.b	#%01000010	;
+   1137  fd5b		       42		      .byte.b	#%01000010	; 
+   1138  fd5c		       42		      .byte.b	#%01000010	; 
+   1139  fd5d		       42		      .byte.b	#%01000010	; 
+   1140  fd5e		       e7		      .byte.b	#%11100111	;
+   1141  fd5f
+   1142  fd5f				   Pipe
+   1143  fd5f		       42		      .byte.b	#%01000010	;
+   1144  fd60		       00		      .byte.b	#%00000000	; 
+   1145  fd61		       42		      .byte.b	#%01000010	; 
+   1146  fd62		       00		      .byte.b	#%00000000	; 
+   1147  fd63		       42		      .byte.b	#%01000010	;
+   1148  fd64
+   1149  fd64				   FontLookup		; Very fast font lookup for dynamic values!
+   1150  fd64		       04		      .byte.b	#<C0 + #SCORE_SIZE -1
+   1151  fd65		       09		      .byte.b	#<C1 + #SCORE_SIZE -1
+   1152  fd66		       0e		      .byte.b	#<C2 + #SCORE_SIZE -1
+   1153  fd67		       13		      .byte.b	#<C3 + #SCORE_SIZE -1
+   1154  fd68		       18		      .byte.b	#<C4 + #SCORE_SIZE -1
+   1155  fd69		       1d		      .byte.b	#<C5 + #SCORE_SIZE -1
+   1156  fd6a		       22		      .byte.b	#<C6 + #SCORE_SIZE -1
+   1157  fd6b		       27		      .byte.b	#<C7 + #SCORE_SIZE -1
+   1158  fd6c		       2c		      .byte.b	#<C8 + #SCORE_SIZE -1
+   1159  fd6d		       31		      .byte.b	#<C9 + #SCORE_SIZE -1
+   1160  fd6e		       36		      .byte.b	#<CA + #SCORE_SIZE -1
+   1161  fd6f		       3b		      .byte.b	#<CB + #SCORE_SIZE -1
+   1162  fd70		       40		      .byte.b	#<CC + #SCORE_SIZE -1
+   1163  fd71		       45		      .byte.b	#<CD + #SCORE_SIZE -1
+   1164  fd72		       4a		      .byte.b	#<CE + #SCORE_SIZE -1
+   1165  fd73		       4f		      .byte.b	#<CF + #SCORE_SIZE -1
+   1166  fd74
+   1167  fd74
+   1168  fe00					      org	$FE00
+   1169  fe00				   AesTable
+   1170  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
+   1171  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
+   1172  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
+   1173  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
+   1174  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
+   1175  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
+   1176  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
+   1177  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
+   1178  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
+   1179  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
+   1180  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
+   1181  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
+   1182  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
+   1183  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
+   1184  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
+   1185  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
+   1186  ff00
+   1187  ff00							; From FF00 to FFFB (122 bytes) to use here
+   1188  ff00
+   1189  ff00				   CarSprite		; Upside down
+   1190  ff00		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+   1191  ff01		       7e		      .byte.b	#%01111110
+   1192  ff02		       24		      .byte.b	#%00100100
+   1193  ff03		       bd		      .byte.b	#%10111101
+   1194  ff04		       3c		      .byte.b	#%00111100
+   1195  ff05		       bd		      .byte.b	#%10111101
+   1196  ff06		       3c		      .byte.b	#%00111100
+   1197  ff07		       00 00 00 00*	      ds	GAMEPLAY_AREA - 8
+   1198  ff39
+   1199  ff39
+   1200  ff39				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
+   1201  ff39		       00		      .byte.b	#$00	;  Trafic0 L
+   1202  ff3a		       00		      .byte.b	#$00	;  Trafic0 H
+   1203  ff3b		       0a		      .byte.b	#$0A	;  Trafic1 L
+   1204  ff3c		       01		      .byte.b	#$01	;  Trafic1 H
+   1205  ff3d		       e6		      .byte.b	#$E6	;  Trafic2 L
+   1206  ff3e		       00		      .byte.b	#$00	;  Trafic2 H
+   1207  ff3f		       c2		      .byte.b	#$C2	;  Trafic3 L
+   1208  ff40		       00		      .byte.b	#$00	;  Trafic3 H
+   1209  ff41		       9e		      .byte.b	#$9E	;  Trafic4 L
+   1210  ff42		       00		      .byte.b	#$00	;  Trafic4 H
+   1211  ff43
+   1212  ff43
+   1213  fffc					      org	$FFFC
+   1214  fffc		       04 f0		      .word.w	Start
+   1215  fffe		       04 f0		      .word.w	Start

@@ -25,33 +25,31 @@ BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
 
-TRAFFIC_CHANCE_LIGHT = 18
+TRAFFIC_CHANCE_LIGHT = 14
 CHECKPOINT_TIME_LIGHT = 30
 TRAFFIC_COLOR_LIGHT = $D4
 
-TRAFFIC_CHANCE_REGULAR = 28
+TRAFFIC_CHANCE_REGULAR = 24
 CHECKPOINT_TIME_REGULAR = 35
 TRAFFIC_COLOR_REGULAR = $34
 
-TRAFFIC_CHANCE_INTENSE = 38
+TRAFFIC_CHANCE_INTENSE = 34
 CHECKPOINT_TIME_INTENSE = 40
-TRAFFIC_COLOR_INTENSE = $A9
+TRAFFIC_COLOR_INTENSE = $99
 
-TRAFFIC_CHANCE_RUSH_HOUR = 48
+TRAFFIC_CHANCE_RUSH_HOUR = 44
 CHECKPOINT_TIME_RUSH_HOUR = 45
 TRAFFIC_COLOR_RUSH_HOUR = $09
 
 BACKGROUND_COLOR = $03 ;Grey
 SCORE_BACKGROUND_COLOR = $87
 
-PLAYER0_COLOR = $F9
+PLAYER1_COLOR = $A5
 
-PLAYER1_COLOR = $A4
-
-SCORE_FONT_COLOR = $0C
+SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
 SCORE_FONT_COLOR_BAD = $34
-SCORE_FONT_COLOR_OVER = $2F
+SCORE_FONT_COLOR_OVER = $0C
 
 PLAYER_0_X_START = $35;
 PLAYER_0_MAX_X = $36 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
@@ -97,10 +95,11 @@ Traffic0Msb=$BD
 SwitchDebounceCounter=$BE
 
 
-GameStatus = $C0 ; Flags, D7 = running, D6 = player 0 outside area
+GameStatus = $C0 ; Not zero is running! No need to make it byte a flag for now.
 TrafficChance=$C1
 CheckpointTime=$C2
 TrafficColor=$C3
+CurrentDifficulty=$C4
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -152,40 +151,21 @@ SkipClean
 	SLEEP 18
 	STA RESP0
 		
-	LDA SWCHB ; Reading the switches as binary number A = 1, B = 0
+	LDX 0
+	LDA SWCHB ; Reading the switches and mapping to difficulty id
 	AND #%11000000
-	BEQ ConfigureLightTraffic
+	BEQ CallConfigureDifficulty
+	INX
 	CMP #%10000000
-	BEQ ConfigureRegularTraffic
+	BEQ CallConfigureDifficulty
+	INX
 	CMP #%01000000
-	BEQ ConfigureIntenseTraffic
-	CMP #%11000000
-	BEQ ConfigureRushHourTraffic
+	BEQ CallConfigureDifficulty
+	INX
 
-ConfigureLightTraffic 
-	LDX #TRAFFIC_CHANCE_LIGHT
-	LDY #CHECKPOINT_TIME_LIGHT
-	LDA #TRAFFIC_COLOR_LIGHT
-	JMP StoreTrafficChance
-ConfigureRegularTraffic
-	LDX #TRAFFIC_CHANCE_REGULAR
-	LDY #CHECKPOINT_TIME_REGULAR
-	LDA #TRAFFIC_COLOR_REGULAR
-	JMP StoreTrafficChance
-ConfigureIntenseTraffic
-	LDX #TRAFFIC_CHANCE_INTENSE
-	LDY #CHECKPOINT_TIME_INTENSE
-	LDA #TRAFFIC_COLOR_INTENSE
-	JMP StoreTrafficChance
-ConfigureRushHourTraffic
-	LDX #TRAFFIC_CHANCE_RUSH_HOUR
-	LDY #CHECKPOINT_TIME_RUSH_HOUR
-	LDA #TRAFFIC_COLOR_RUSH_HOUR
-
-StoreTrafficChance
-	STX TrafficChance
-	STY CheckpointTime
-	STA TrafficColor
+CallConfigureDifficulty
+	STX CurrentDifficulty
+	JSR ConfigureDifficulty
 
 HPositioning
 	STA WSYNC
@@ -200,8 +180,8 @@ HPositioning
 	LDA #INITIAL_COUNTDOWN_TIME ;2
 	STA CountdownTimer ;3
 
-	LDA #CHECKPOINT_INTERVAL ;2
-	STA NextCheckpoint ;3
+	LDA #CHECKPOINT_INTERVAL
+	STA NextCheckpoint
 
 	LDA #0 ; Avoid missile reseting position 
 	SLEEP 11;
@@ -246,13 +226,16 @@ StartGame
 	LDA INPT4 ;3
 	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
 	LDA GameStatus ;3
-	AND #%10000000
 	BNE SkipGameStart
-	ORA #%10000000 ;2
-	STA GameStatus ;3
+	INC GameStatus
 	LDA #0;
 	STA FrameCount0
 	STA FrameCount1
+	LDA #SCORE_FONT_COLOR_GOOD
+	STA ScoreFontColor
+	LDA #SCORE_FONT_HOLD_CHANGE
+	STA ScoreFontColorHoldChange
+	JMP SkipIncFC1 ; Make the worse case stable
 SkipGameStart
 
 ReadSwitches
@@ -278,7 +261,6 @@ SkipIncFC1
 
 ;Does not update the game if not running
 	LDA GameStatus ;3
-	AND #%10000000 ;2 game is running...
 	BNE ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
 	JMP SkipUpdateLogic
 ContinueWithGameLogic
@@ -445,6 +427,9 @@ TestCollision;
 	BEQ NoCollision	;skip if not hitting...
 	LDA CollisionCounter ; If colision is alredy happening, ignore!
 	BNE NoCollision	
+	LDA ScoreFontColor ; Ignore colisions during checkpoint (Green Score)
+	CMP #SCORE_FONT_COLOR_GOOD
+	BEQ NoCollision
 	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
 	STA CollisionCounter	;and store as colision.
 	LDA #COLLISION_SPEED_L ;
@@ -627,13 +612,13 @@ PrepareForTraffic
 	LDA #PLAYER1_COLOR ;2
 	STA COLUP1 ;3
 
-	LDA #PLAYER0_COLOR ;2
+	LDA ScoreFontColor ;3
 	STA COLUP0 ;3
 
 	LDY GAMEPLAY_AREA ;2; (Score)
 
 	LDA #BACKGROUND_COLOR ;2 
-	SLEEP 12 ; Make it in the very end, so we have one more nice blue line
+	SLEEP 11 ; Make it in the very end, so we have one more nice blue line
 	STA COLUBK ;3
 
 
@@ -823,6 +808,7 @@ IsCheckpoint
 	LDA #$FF
 	STA CountdownTimer ; Does not overflow!
 JumpSkipTimeOver
+	JSR NextDifficulty ; Increments to the next dificulty (Will depend on game mode in the future)
 	JMP SkipIsTimeOver ; Checkpoints will add time, so no time over routine, should also override time over.
 SkipIsCheckpoint
 
@@ -985,6 +971,49 @@ LoadAll ; 36
 	STA ENAM0
 
 	RTS ;6
+
+NextDifficulty ;Could be inlined
+	LDA CurrentDifficulty
+	CLC
+	ADC #1
+	AND #%00000011 ; 0 to 3
+	STA CurrentDifficulty
+
+ConfigureDifficulty
+	LDA CurrentDifficulty 
+	BEQ ConfigureLightTraffic
+	CMP #1
+	BEQ ConfigureRegularTraffic
+	CMP #2
+	BEQ ConfigureIntenseTraffic
+	JMP ConfigureRushHourTraffic
+
+ConfigureLightTraffic 
+	LDX #TRAFFIC_CHANCE_LIGHT
+	LDY #CHECKPOINT_TIME_LIGHT
+	LDA #TRAFFIC_COLOR_LIGHT
+	JMP StoreTrafficChance
+ConfigureRegularTraffic
+	LDX #TRAFFIC_CHANCE_REGULAR
+	LDY #CHECKPOINT_TIME_REGULAR
+	LDA #TRAFFIC_COLOR_REGULAR
+	JMP StoreTrafficChance
+ConfigureIntenseTraffic
+	LDX #TRAFFIC_CHANCE_INTENSE
+	LDY #CHECKPOINT_TIME_INTENSE
+	LDA #TRAFFIC_COLOR_INTENSE
+	JMP StoreTrafficChance
+ConfigureRushHourTraffic
+	LDX #TRAFFIC_CHANCE_RUSH_HOUR
+	LDY #CHECKPOINT_TIME_RUSH_HOUR
+	LDA #TRAFFIC_COLOR_RUSH_HOUR
+
+StoreTrafficChance
+	STX TrafficChance
+	STY CheckpointTime
+	STA TrafficColor
+
+	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
 	org $FD00
