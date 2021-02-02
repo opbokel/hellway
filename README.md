@@ -17,7 +17,7 @@ Every track has its own speed, and the car generation is deterministic. Accelera
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
 
-Every checkpoint you receive more time, and the score and the car turn green.
+Every checkpoint you receive more time, and the score and the car turn green. This will make will invincible for a few seconds.
 
 If the time is over the score and the car turn red, but you still can reach a checkpoint, since the car slowly decelerates.
 
