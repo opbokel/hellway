@@ -938,7 +938,7 @@
     446  f1db				   DecrementCollision
     447  f1db		       a4 ba		      LDY	CollisionCounter
     448  f1dd		       f0 07		      BEQ	FinishDecrementCollision
-    449  f1df		       a9 37		      LDA	#%00110111	; Make player bigger to show colision
+    449  f1df		       a9 35		      LDA	#%00110101	; Make player bigger to show colision
     450  f1e1		       85 04		      STA	NUSIZ0
     451  f1e3		       88		      DEY
     452  f1e4		       84 ba		      STY	CollisionCounter	; We save some cycles in reset size.
