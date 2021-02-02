@@ -60,6 +60,8 @@ TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = %00000111 ; Every 8 frames
 
 SWITCHES_DEBOUNCE_TIME = 60 ; Frames
+
+BLACK = $00;
 	
 
 GRP0Cache = $80
@@ -87,6 +89,7 @@ TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 Tmp0=$B0
 Tmp1=$B1
 Tmp2=$B2
+Tmp3=$B3
 
 CollisionCounter=$BA
 Player0X = $BB
@@ -496,8 +499,20 @@ StoreHMove
 	STA CXCLR	;reset the collision detection for next frame.
 
 
-SkipUpdateLogic	
+SkipUpdateLogic
+ScoreBackgroundColor
+	LDX #0
+	LDA SWCHB
+	AND #%00001000 ; If Black and white, this will make A = 0
+	BEQ BlackAndWhiteScoreBg
 	LDA #SCORE_BACKGROUND_COLOR
+	LDX #BACKGROUND_COLOR
+BlackAndWhiteScoreBg
+	STA Tmp2 ; Score Background
+	STX Tmp3 ; Traffic Background
+
+ConfigurePFForScore
+	;LDA #SCORE_BACKGROUND_COLOR; Done above
 	STA COLUBK
 	LDA ScoreFontColor
 	STA COLUPF  
@@ -506,14 +521,13 @@ SkipUpdateLogic
 	STA CTRLPF
 	LDY #SCORE_SIZE - 1
 	LDX #0
-
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
 	BEQ RightScoreOn ; Half of the screen with the correct colors.
 LeftScoreOn
 	LDA ScoreFontColor
 	STA COLUP1
-	LDA #SCORE_BACKGROUND_COLOR
+	LDA Tmp2
 	STA COLUP0
 	LDA #1 ;Jumps faster in the draw loop
 	STA Tmp1
@@ -521,7 +535,7 @@ LeftScoreOn
 RightScoreOn
 	LDA ScoreFontColor
 	STA COLUP0
-	LDA #SCORE_BACKGROUND_COLOR
+	LDA Tmp2
 	STA COLUP1
 	LDA #0 ;Jumps faster in the draw loop
 	STA Tmp1
@@ -617,10 +631,9 @@ PrepareForTraffic
 
 	LDY GAMEPLAY_AREA ;2; (Score)
 
-	LDA #BACKGROUND_COLOR ;2 
-	SLEEP 11 ; Make it in the very end, so we have one more nice blue line
+	LDA Tmp3 ;3
+	SLEEP 10 ; Make it in the very end, so we have one more nice blue line
 	STA COLUBK ;3
-
 
 ;main scanline loop...
 ScanLoop 
