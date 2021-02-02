@@ -17,11 +17,11 @@ Every track has its own speed, and the car generation is deterministic. Accelera
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
 
-Every checkpoint you receive more time, and the score turns green.
+Every checkpoint you receive more time, and the score and the car turn green.
 
-If the time is over the score turns red, but you still can reach a checkpoint, since the car slowly decelerates.
+If the time is over the score and the car turn red, but you still can reach a checkpoint, since the car slowly decelerates.
 
-The game is over when the time is over and the car is stopped. The score turns yellow.
+The game is over when the time is over and the car is stopped. The score turns white.
 
 ## Switches
 * The two difficulty switches change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants of color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme.
