@@ -34,7 +34,7 @@ The game is over when the time is over and the car is stopped. The score turns w
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay.
 
-* Game Select: Changes the game mode, this must be done before starting the game   
+* Game Select: Changes the game mode, this must be done before starting the game.   
     * Mode 0 = Default mode, traffic level changes every checkpoint.
     * More to come...
 
