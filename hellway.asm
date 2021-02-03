@@ -9,6 +9,7 @@
 SCREEN_SIZE = 64;(VSy)
 SCORE_SIZE = 5
 GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
+FONT_OFFSET = #SCORE_SIZE -1
 COLLISION_FRAMES = $FF; 4,5 seconds
 SCORE_FONT_HOLD_CHANGE = $FF; 4,5 seconds
 COLLISION_SPEED_L = $10;
@@ -35,16 +36,16 @@ TRAFFIC_COLOR_REGULAR = $34
 
 TRAFFIC_CHANCE_INTENSE = 34
 CHECKPOINT_TIME_INTENSE = 40
-TRAFFIC_COLOR_INTENSE = $99
+TRAFFIC_COLOR_INTENSE = $AA
 
 TRAFFIC_CHANCE_RUSH_HOUR = 44
 CHECKPOINT_TIME_RUSH_HOUR = 45
 TRAFFIC_COLOR_RUSH_HOUR = $09
 
 BACKGROUND_COLOR = $03 ;Grey
-SCORE_BACKGROUND_COLOR = $87
+SCORE_BACKGROUND_COLOR = $A0
 
-PLAYER1_COLOR = $A5
+PLAYER1_COLOR = $96
 
 SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
@@ -59,11 +60,12 @@ CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = %00000111 ; Every 8 frames
 
-SWITCHES_DEBOUNCE_TIME = 60 ; Frames
+SWITCHES_DEBOUNCE_TIME = 40 ; Frames
 
 BLACK = $00;
-	
 
+MAX_GAME_MODE = 1
+	
 GRP0Cache = $80
 PF0Cache = $81
 PF1Cache = $82
@@ -103,6 +105,7 @@ TrafficChance=$C1
 CheckpointTime=$C2
 TrafficColor=$C3
 CurrentDifficulty=$C4
+GameMode=$C5
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -118,6 +121,7 @@ NextCheckpoint=$D7
 BeforeStart ;All variables that are kept on game reset or select
 	LDY #0
 	STY SwitchDebounceCounter
+	STY GameMode
 
 Start
 	SEI	
@@ -127,6 +131,8 @@ Start
 	LDA #0		
 ClearMem 
 	CPX #SwitchDebounceCounter
+	BEQ SkipClean
+	CPX #GameMode
 	BEQ SkipClean
 	STA 0,X		
 SkipClean	
@@ -251,6 +257,23 @@ ReadSwitches
 	STA SwitchDebounceCounter
 	JMP Start
 SkipReset
+	LDA GameStatus ;We don't read game select while running and save precious cycles
+	BNE SkipGameSelect
+	LDA #%00000010
+	BIT SWCHB
+	BNE SkipGameSelect
+	LDX GameMode
+	CPX #MAX_GAME_MODE
+	BEQ ResetGameMode
+	INX
+	JMP StoreGameMode
+ResetGameMode
+	LDX #0
+StoreGameMode
+	STX GameMode
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+SkipGameSelect
 	JMP EndReadSwitches
 DecrementSwitchDebounceCounter
 	DEC SwitchDebounceCounter
@@ -519,7 +542,7 @@ ConfigurePFForScore
 	JSR ClearAll
 	LDA #%00000010 ; Score mode
 	STA CTRLPF
-	LDY #SCORE_SIZE - 1
+	LDY #FONT_OFFSET
 	LDX #0
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
@@ -842,8 +865,12 @@ ChooseSide ;
 	BEQ RightScoreWrite ; Half of the screen with the correct colors.
 
 LeftScoreWrite
+	LDA ScoreFontColor
+	CMP #SCORE_FONT_COLOR_GOOD
+	BEQ PrintCheckpoint
+	LDA GameStatus
+	BEQ PrintHellwayLeft
 WriteDistance ;Not optimized yet, ugly code.
-
 Digit0Distance
 	LDA TrafficOffset0 + 1 ;3
 	AND #%11110000 ;2
@@ -880,12 +907,29 @@ Digit3Distance
 	LDA FontLookup,X ;4 
 	STA ScoreD0 ;3
 
-	LDA #<Pipe + #SCORE_SIZE -1 ;3
+	LDA #<Pipe + #FONT_OFFSET;3
 	STA ScoreD4 ;3
 EndDrawDistance
 	JMP RightScoreWriteEnd;3
 
+PrintCheckpoint
+	LDX #<CheckpointText
+	JSR PrintStaticText
+	JMP RightScoreWriteEnd;3
+
+PrintHellwayLeft
+	LDX #<HellwayLeftText
+	JSR PrintStaticText
+	LDA GameMode
+	AND #%00001111
+	TAX ; 2
+	LDA FontLookup,X ;4 
+	STA ScoreD0 ;3
+	JMP RightScoreWriteEnd;3
+
 RightScoreWrite
+	LDA GameStatus
+	BEQ PrintHellwayRight
 Digit0Timer
 	LDA CountdownTimer ;3
 	AND #%00001111 ;2
@@ -904,7 +948,7 @@ Digit1Timer
 	LDA FontLookup,X ;4
 	STA ScoreD0 ;3
 
-	LDA #<Pipe + #SCORE_SIZE -1 ;3
+	LDA #<Pipe + #FONT_OFFSET ;3
 	STA ScoreD2 ;3
 
 Digit0Speed
@@ -930,6 +974,11 @@ Digit1Speed
 	TAX ; 2
 	LDA FontLookup,X ;4
 	STA ScoreD3 ;3
+	JMP RightScoreWriteEnd
+
+PrintHellwayRight
+	LDX #<HellwayRightText
+	JSR PrintStaticText
 
 RightScoreWriteEnd
 
@@ -940,18 +989,16 @@ OverScanWait
 
 Subroutines
 
-ClearAll ; 56
+ClearAll ; 52
 	LDA #0  	  ;2
 	STA GRP1      ;3
 	STA ENABL     ;3
 	STA ENAM0     ;3
-	STA ENAM1
+	STA ENAM1     ;3
 	STA GRP1Cache ;3
 	STA ENABLCache ;3
 	STA ENAM0Cache ;3
 	STA ENAM1Cache ;3
-	JSR ClearPFSkipLDA0 ; 30
-	RTS ;6
 
 ClearPF ; 26
 	LDA #0  	  ;2
@@ -963,6 +1010,7 @@ ClearPFSkipLDA0
 	STA PF1Cache   ;3
 	STA PF2Cache   ;3 
 	RTS ;6
+EndClearAll
 
 LoadAll ; 36
 	LDA PF0Cache  ;3
@@ -984,8 +1032,12 @@ LoadAll ; 36
 	STA ENAM0
 
 	RTS ;6
+EndLoadAll
 
-NextDifficulty ;Could be inlined
+NextDifficulty 
+	LDA GameMode ; For now, only game zero changes the difficulty
+	BNE ReturnNextDifficulty
+
 	LDA CurrentDifficulty
 	CLC
 	ADC #1
@@ -1025,7 +1077,25 @@ StoreTrafficChance
 	STX TrafficChance
 	STY CheckpointTime
 	STA TrafficColor
+ReturnNextDifficulty
+	RTS
+EndNextDifficulty
 
+PrintStaticText ; Preload X with the offset referent to StaticText
+	LDA StaticText,X
+	STA ScoreD0
+	INX
+	LDA StaticText,X
+	STA ScoreD1
+	INX
+	LDA StaticText,X
+	STA ScoreD2
+	INX
+	LDA StaticText,X
+	STA ScoreD3
+	INX
+	LDA StaticText,X
+	STA ScoreD4
 	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
@@ -1131,12 +1201,33 @@ CF
 	.byte #%00100100; 
 	.byte #%11100111;
 
+CL
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%00100100; 
+	.byte #%00100100; 
+	.byte #%00100100;
+
 Space ; Moved from the beggining so 0 to F is fast to draw.
 	.byte %0;
 	.byte #0;
 	.byte #0;
 	.byte #0;
 	.byte #0;
+
+CH
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%10100101;
+
+CP
+	.byte #%00100100;
+	.byte #%00100100; 
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%11100111;
 
 CS
 	.byte #%01100110;
@@ -1152,6 +1243,20 @@ CT
 	.byte #%01000010; 
 	.byte #%11100111;
 
+CY
+	.byte #%01000010;
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%10100101; 
+	.byte #%10100101;
+
+CW 
+	.byte #%10100101;
+	.byte #%11100111; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101;
+
 Pipe
 	.byte #%01000010;
 	.byte #%00000000; 
@@ -1159,24 +1264,30 @@ Pipe
 	.byte #%00000000; 
 	.byte #%01000010;
 
-FontLookup ; Very fast font lookup for dynamic values!
-	.byte #<C0 + #SCORE_SIZE -1
-	.byte #<C1 + #SCORE_SIZE -1 
-	.byte #<C2 + #SCORE_SIZE -1 
-	.byte #<C3 + #SCORE_SIZE -1 
-	.byte #<C4 + #SCORE_SIZE -1 
-	.byte #<C5 + #SCORE_SIZE -1 
-	.byte #<C6 + #SCORE_SIZE -1 
-	.byte #<C7 + #SCORE_SIZE -1 
-	.byte #<C8 + #SCORE_SIZE -1 
-	.byte #<C9 + #SCORE_SIZE -1 
-	.byte #<CA + #SCORE_SIZE -1 
-	.byte #<CB + #SCORE_SIZE -1 
-	.byte #<CC + #SCORE_SIZE -1 
-	.byte #<CD + #SCORE_SIZE -1 
-	.byte #<CE + #SCORE_SIZE -1 
-	.byte #<CF + #SCORE_SIZE -1 
+Exclamation
+	.byte #%01000010;
+	.byte #%00000000; 
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%01000010;
 
+FontLookup ; Very fast font lookup for dynamic values!
+	.byte #<C0 + #FONT_OFFSET
+	.byte #<C1 + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C3 + #FONT_OFFSET
+	.byte #<C4 + #FONT_OFFSET
+	.byte #<C5 + #FONT_OFFSET 
+	.byte #<C6 + #FONT_OFFSET
+	.byte #<C7 + #FONT_OFFSET
+	.byte #<C8 + #FONT_OFFSET 
+	.byte #<C9 + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET 
+	.byte #<CB + #FONT_OFFSET 
+	.byte #<CC + #FONT_OFFSET
+	.byte #<CD + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET
+	.byte #<CF + #FONT_OFFSET
 
 	org $FE00
 AesTable
@@ -1198,6 +1309,30 @@ AesTable
 	DC.B $8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
 
 ; From FF00 to FFFB (122 bytes) to use here
+
+StaticText ; All static text must be on the same MSB block. 
+CheckpointText; Only the LSB, which is the offset.
+	.byte #<CC + #FONT_OFFSET
+	.byte #<CH + #FONT_OFFSET
+	.byte #<CP + #FONT_OFFSET 
+	.byte #<CT + #FONT_OFFSET
+	.byte #<Exclamation + #FONT_OFFSET
+
+HellwayLeftText
+	.byte #<Space + #FONT_OFFSET
+	.byte #<Pipe + #FONT_OFFSET
+	.byte #<CH + #FONT_OFFSET 
+	.byte #<CE + #FONT_OFFSET
+	.byte #<CL + #FONT_OFFSET
+
+HellwayRightText
+	.byte #<CL + #FONT_OFFSET
+	.byte #<CW + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET
+	.byte #<CY + #FONT_OFFSET 
+	.byte #<Exclamation + #FONT_OFFSET
+
+EndStaticText
 
 CarSprite ; Upside down
 	.byte #%00000000 ; Easist way to stop drawing
@@ -1222,7 +1357,6 @@ TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$9E;  Trafic4 L
 	.byte #$00;  Trafic4 H
 
-
 	org $FFFC
-		.word Start
-		.word Start
+		.word BeforeStart
+		.word BeforeStart ; Can be used for subrotine (BRK)
