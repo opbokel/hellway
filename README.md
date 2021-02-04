@@ -27,7 +27,7 @@ The game is over when the time is over and the car is stopped. The score turns w
 * Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants of color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme.
     * 0 - BB = Light traffic, Green
     * 1 - BA = Regular traffic, Red (ish) That is the traffic level I personally enjoy the most.
-    * 3 - AB = Intense Traffic, Blue (ish)
+    * 3 - AB = Intense Traffic, Brown
     * 4 - AA = Rush Hour, White (ish)
     
 * Game Reset: Restarts the the current game mode and apply the difficulty switches.
