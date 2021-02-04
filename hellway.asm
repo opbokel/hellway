@@ -49,7 +49,7 @@ PLAYER1_COLOR = $96
 
 SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
-SCORE_FONT_COLOR_BAD = $34
+SCORE_FONT_COLOR_BAD = $30
 SCORE_FONT_COLOR_OVER = $0C
 
 PLAYER_0_X_START = $35;
@@ -918,7 +918,15 @@ PrintCheckpoint
 	JMP RightScoreWriteEnd;3
 
 PrintHellwayLeft
+	LDA FrameCount1
+	AND #1
+	BNE PrintCreditsLeft
 	LDX #<HellwayLeftText
+	JMP PrintGameMode
+PrintCreditsLeft
+	LDX #<OpbText
+
+PrintGameMode
 	JSR PrintStaticText
 	LDA GameMode
 	AND #%00001111
@@ -930,6 +938,9 @@ PrintHellwayLeft
 RightScoreWrite
 	LDA GameStatus
 	BEQ PrintHellwayRight
+	LDA ScoreFontColor
+	CMP #SCORE_FONT_COLOR_OVER
+	BEQ PrintGameOver
 Digit0Timer
 	LDA CountdownTimer ;3
 	AND #%00001111 ;2
@@ -977,7 +988,24 @@ Digit1Speed
 	JMP RightScoreWriteEnd
 
 PrintHellwayRight
+	LDA FrameCount1
+	AND #1
+	BNE PrintCreditsRight
 	LDX #<HellwayRightText
+	JMP PrintRightIntro
+PrintCreditsRight
+	LDX #<YearText
+PrintRightIntro
+	JSR PrintStaticText
+	JMP RightScoreWriteEnd
+PrintGameOver
+	LDA FrameCount0
+	BMI PrintOverText
+	LDX #<GameText
+	JMP StoreGameOverText
+PrintOverText
+	LDX #<OverText
+StoreGameOverText
 	JSR PrintStaticText
 
 RightScoreWriteEnd
@@ -1201,6 +1229,13 @@ CF
 	.byte #%00100100; 
 	.byte #%11100111;
 
+CG
+	.byte #%11000011;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%00100100; 
+	.byte #%11000011;	
+
 CL
 	.byte #%11100111;
 	.byte #%00100100; 
@@ -1208,12 +1243,6 @@ CL
 	.byte #%00100100; 
 	.byte #%00100100;
 
-Space ; Moved from the beggining so 0 to F is fast to draw.
-	.byte %0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
-	.byte #0;
 
 CH
 	.byte #%10100101;
@@ -1222,12 +1251,34 @@ CH
 	.byte #%10100101; 
 	.byte #%10100101;
 
+CM
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%11100111; 
+	.byte #%10100101;
+
+
+CO
+	.byte #%01000010;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%01000010;	
+
 CP
 	.byte #%00100100;
 	.byte #%00100100; 
 	.byte #%11100111; 
 	.byte #%10100101; 
 	.byte #%11100111;
+
+CR
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%01100110; 
+	.byte #%10100101; 
+	.byte #%01100110;
 
 CS
 	.byte #%01100110;
@@ -1242,6 +1293,13 @@ CT
 	.byte #%01000010; 
 	.byte #%01000010; 
 	.byte #%11100111;
+
+CV 
+	.byte #%01000010;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101;	
 
 CY
 	.byte #%01000010;
@@ -1270,6 +1328,20 @@ Exclamation
 	.byte #%01000010; 
 	.byte #%01000010; 
 	.byte #%01000010;
+
+Dot
+	.byte #%01000010;
+	.byte #%01000010; 
+	.byte #%00000000; 
+	.byte #%00000000; 
+	.byte #%00000000;
+
+Space ; Moved from the beggining so 0 to F is fast to draw.
+	.byte #0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
+	.byte #0;
 
 FontLookup ; Very fast font lookup for dynamic values!
 	.byte #<C0 + #FONT_OFFSET
@@ -1331,6 +1403,34 @@ HellwayRightText
 	.byte #<CA + #FONT_OFFSET
 	.byte #<CY + #FONT_OFFSET 
 	.byte #<Exclamation + #FONT_OFFSET
+
+OpbText
+	.byte #<Space + #FONT_OFFSET
+	.byte #<Pipe + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CP + #FONT_OFFSET 
+	.byte #<CB + #FONT_OFFSET 
+
+YearText
+	.byte #<Space + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET 
+	.byte #<C1 + #FONT_OFFSET
+ 
+GameText
+	.byte #<CG + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET
+	.byte #<CM + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET 
+	.byte #<Space + #FONT_OFFSET
+
+OverText
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CV + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET
+	.byte #<CR + #FONT_OFFSET 
+	.byte #<Space + #FONT_OFFSET
 
 EndStaticText
 
