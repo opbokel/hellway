@@ -36,7 +36,7 @@ TRAFFIC_COLOR_REGULAR = $34
 
 TRAFFIC_CHANCE_INTENSE = 34
 CHECKPOINT_TIME_INTENSE = 40
-TRAFFIC_COLOR_INTENSE = $F2
+TRAFFIC_COLOR_INTENSE = $F4
 
 TRAFFIC_CHANCE_RUSH_HOUR = 44
 CHECKPOINT_TIME_RUSH_HOUR = 45
@@ -240,10 +240,12 @@ StartGame
 	LDA #0;
 	STA FrameCount0
 	STA FrameCount1
-	LDA #SCORE_FONT_COLOR_GOOD
-	STA ScoreFontColor
-	LDA #SCORE_FONT_HOLD_CHANGE
-	STA ScoreFontColorHoldChange
+	LDA #10
+	STA AUDV0
+	;LDA #SCORE_FONT_COLOR_GOOD
+	;STA ScoreFontColor
+	;LDA #SCORE_FONT_HOLD_CHANGE
+	;STA ScoreFontColorHoldChange
 	JMP SkipIncFC1 ; Make the worse case stable
 SkipGameStart
 
@@ -663,7 +665,7 @@ ScanLoop
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;36 Is the last line going to the top of the next frame?
+DrawCache ;54 Is the last line going to the top of the next frame?
 
 	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
 	STA GRP0      ;3   ;put it as graphics now
@@ -674,14 +676,14 @@ DrawCache ;36 Is the last line going to the top of the next frame?
 	LDA GRP1Cache ;3
 	STA GRP1      ;3
 
-	LDA ENABLCache
-	STA ENABL
+	LDA ENABLCache ;3
+	STA ENABL      ;3
 
-	LDA ENAM0Cache
-	STA ENAM0
+	LDA ENAM0Cache ;3
+	STA ENAM0    ;3
 
-	LDA ENAM1Cache
-	STA ENAM1
+	LDA ENAM1Cache  ;3
+	STA ENAM1 ;3
 
 	LDA #0		 ;2
 	STA PF1Cache ;3
@@ -710,7 +712,7 @@ AfterEorOffsetWithCarry ;17
 	STA GRP1Cache ;3
 FinishDrawTraffic1
 
-DrawTraffic2; 35
+DrawTraffic2; 33
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset2 + 1;3
@@ -723,7 +725,7 @@ EorOffsetWithCarry2
 AfterEorOffsetWithCarry2 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP TrafficChance;2
+	CMP TrafficChance;3
 	BCS FinishDrawTraffic2 ; 2
 	LDA #%00000010 ;2
 	STA ENABLCache;3
@@ -733,7 +735,7 @@ FinishDrawTraffic2
 
 	; LDA Tmp0 ; Flicker this line if drawing car
 	; BEQ FinishDrawTraffic4
-DrawTraffic3; 38
+DrawTraffic3; 33
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset3 + 1;3
@@ -746,13 +748,13 @@ EorOffsetWithCarry3
 AfterEorOffsetWithCarry3 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP TrafficChance;2
+	CMP TrafficChance;3
 	BCS FinishDrawTraffic3 ; 2 
 	LDA #%00000010 ;2
 	STA ENAM0Cache
 FinishDrawTraffic3	
 	
-DrawTraffic4; 35
+DrawTraffic4; 33
 	TYA; 2
 	CLC; 2 
 	ADC TrafficOffset4 + 1;3
@@ -765,20 +767,20 @@ EorOffsetWithCarry4
 AfterEorOffsetWithCarry4 ;17
 	TAX ;2
 	LDA AesTable,X ; 4
-	CMP TrafficChance;2
+	CMP TrafficChance;3
 	BCS FinishDrawTraffic4 ; 2
 	LDA #%00000010 ;2
-	STA ENAM1Cache	
+	STA ENAM1Cache	;3
 FinishDrawTraffic4
 
-DrawTraffic0; 24
+DrawTraffic0; 15
 	TYA ;2
 	CLC ;2
 	ADC TrafficOffset0 + 1 ; 3
 	AND #%00000100 ;2 Every 4 game lines, draw the border
 	BEQ SkipDrawTraffic0; 2
 	LDA #$FF; 2
-	STA PF1Cache
+	STA PF1Cache ;3
 
 SkipDrawTraffic0
 
@@ -974,6 +976,7 @@ Digit0Speed
 Digit1Speed
 	LDA Player0SpeedL
 	AND #%11000000 ;2 Discard the last bits
+	CLC
 	ROL ;First goes into carry
 	ROL
 	ROL
@@ -1007,8 +1010,82 @@ PrintOverText
 	LDX #<OverText
 StoreGameOverText
 	JSR PrintStaticText
-
 RightScoreWriteEnd
+
+LeftSound
+	LDA Player0SpeedL
+	AND #%10000000
+	ORA Player0SpeedH
+	CLC
+	ROL
+	ADC #0 ; Places the possible carry produced by ROL
+	TAX
+	LDA Player0SpeedL
+	LSR
+	LSR
+	LSR
+	AND #%00001111
+	STA Tmp0
+	LDA EngineBaseFrequence,X ; Max of 5 bits
+	SEC
+	SBC Tmp0
+	STA AUDF0
+	LDA EngineSoundType,X
+	STA AUDC0
+
+
+RightSound ; More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
+	LDA ScoreFontColor
+	CMP #SCORE_FONT_COLOR_OVER
+	BEQ MuteRightSound ; A little bit of silence, since you will be run over all the time
+	CMP #SCORE_FONT_COLOR_GOOD
+	BEQ PlayCheckpoint
+	LDA CollisionCounter
+	CMP #$E0
+	BCS PlayColision
+	LDA NextCheckpoint
+	SEC
+	SBC TrafficOffset0 + 2
+	CMP #$02
+	BCC PlayBeforeCheckpoint
+	JMP MuteRightSound
+PlayColision
+	LDA #31
+	STA AUDF1
+	LDA #8
+	STA AUDC1
+	LDA #8
+	STA AUDV1
+	JMP EndRightSound
+
+PlayCheckpoint
+	LDA ScoreFontColorHoldChange
+	LSR
+	LSR
+	LSR
+	STA AUDF1
+	LDA #12
+	STA AUDC1
+	LDA #6
+	STA AUDV1
+	JMP EndRightSound
+
+PlayBeforeCheckpoint
+	LDA FrameCount0
+	AND #%00011100
+	ORA #%00000011
+	STA AUDF1
+	LDA #12
+	STA AUDC1
+	LDA #5
+	STA AUDV1
+	JMP EndRightSound
+	
+MuteRightSound
+	LDA #0
+	STA AUDV1
+
+EndRightSound
 
 OverScanWait
 	LDA INTIM	
@@ -1360,6 +1437,22 @@ FontLookup ; Very fast font lookup for dynamic values!
 	.byte #<CD + #FONT_OFFSET
 	.byte #<CE + #FONT_OFFSET
 	.byte #<CF + #FONT_OFFSET
+
+EngineSoundType
+	.byte #2
+	.byte #2
+	.byte #14
+	.byte #6
+	.byte #6
+	.byte #14
+
+EngineBaseFrequence
+	.byte #31
+	.byte #18
+	.byte #20
+	.byte #31
+	.byte #22
+	.byte #3
 
 	org $FE00
 AesTable
