@@ -1604,7 +1604,7 @@
    1085  f54f		       85 18		      STA	AUDF1
    1086  f551		       a9 0c		      LDA	#12
    1087  f553		       85 16		      STA	AUDC1
-   1088  f555		       a9 02		      LDA	#2
+   1088  f555		       a9 03		      LDA	#3
    1089  f557		       85 1a		      STA	AUDV1
    1090  f559		       4c 60 f5 	      JMP	EndRightSound
    1091  f55c

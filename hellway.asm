@@ -1085,7 +1085,7 @@ PlayBeforeCheckpoint
 	STA AUDF1
 	LDA #12
 	STA AUDC1
-	LDA #2
+	LDA #3
 	STA AUDV1
 	JMP EndRightSound
 	
