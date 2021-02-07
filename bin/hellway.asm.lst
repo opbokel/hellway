@@ -424,7 +424,7 @@
      49  f000
      50  f000		       00 f9	   SCORE_FONT_COLOR =	$F9
      51  f000		       00 d8	   SCORE_FONT_COLOR_GOOD =	$D8
-     52  f000		       00 30	   SCORE_FONT_COLOR_BAD =	$30
+     52  f000		       00 33	   SCORE_FONT_COLOR_BAD =	$33
      53  f000		       00 0c	   SCORE_FONT_COLOR_OVER =	$0C
      54  f000
      55  f000		       00 35	   PLAYER_0_X_START =	$35	;
@@ -584,7 +584,7 @@
     174  f056
     175  f056				   CallConfigureDifficulty
     176  f056		       86 c4		      STX	CurrentDifficulty
-    177  f058		       20 a4 f5 	      JSR	ConfigureDifficulty
+    177  f058		       20 af f5 	      JSR	ConfigureDifficulty
     178  f05b
     179  f05b				   HPositioning
     180  f05b		       85 02		      STA	WSYNC
@@ -1033,7 +1033,7 @@
     541  f24c		       85 09		      STA	COLUBK
     542  f24e		       a5 d5		      LDA	ScoreFontColor
     543  f250		       85 08		      STA	COLUPF
-    544  f252		       20 5d f5 	      JSR	ClearAll
+    544  f252		       20 68 f5 	      JSR	ClearAll
     545  f255		       a9 02		      LDA	#%00000010	; Score mode
     546  f257		       85 0a		      STA	CTRLPF
     547  f259		       a0 04		      LDY	#FONT_OFFSET
@@ -1126,13 +1126,13 @@
     634  f2d3
     635  f2d3		       85 02		      STA	WSYNC
     636  f2d5
-    637  f2d5		       20 7e f5 	      JSR	LoadAll
+    637  f2d5		       20 89 f5 	      JSR	LoadAll
     638  f2d8
     639  f2d8		       85 02		      STA	WSYNC
     640  f2da		       85 02		      STA	WSYNC
     641  f2dc
     642  f2dc				   PrepareForTraffic
-    643  f2dc		       20 6f f5 	      JSR	ClearPF	; 32
+    643  f2dc		       20 7a f5 	      JSR	ClearPF	; 32
     644  f2df
     645  f2df		       a9 31		      LDA	#%00110001	; Score mode
     646  f2e1		       85 0a		      STA	CTRLPF
@@ -1310,7 +1310,7 @@
     791  f39f				   FinishScanLoop		; 7 209 of 222
     792  f39f
     793  f39f		       85 02		      STA	WSYNC	;3 Draw the last line, without wrapping
-    794  f3a1		       20 7e f5 	      JSR	LoadAll
+    794  f3a1		       20 89 f5 	      JSR	LoadAll
     795  f3a4		       85 02		      STA	WSYNC	; do stuff!
     796  f3a6		       85 02		      STA	WSYNC
     797  f3a8		       85 02		      STA	WSYNC
@@ -1365,7 +1365,7 @@
     846  f3f2		       a9 ff		      LDA	#$FF
     847  f3f4		       85 bc		      STA	CountdownTimer	; Does not overflow!
     848  f3f6				   JumpSkipTimeOver
-    849  f3f6		       20 97 f5 	      JSR	NextDifficulty	; Increments to the next dificulty (Will depend on game mode in the future)
+    849  f3f6		       20 a2 f5 	      JSR	NextDifficulty	; Increments to the next dificulty (Will depend on game mode in the future)
     850  f3f9		       4c 08 f4 	      JMP	SkipIsTimeOver	; Checkpoints will add time, so no time over routine, should also override time over.
     851  f3fc				   SkipIsCheckpoint
     852  f3fc
@@ -1374,7 +1374,7 @@
     855  f3fe		       d0 08		      BNE	SkipIsTimeOver
     856  f400		       a9 01		      LDA	#1	; Red while 0, so just sets for the next frame, might still pass a checkpoint by inertia
     857  f402		       85 d6		      STA	ScoreFontColorHoldChange
-    858  f404		       a9 30		      LDA	#SCORE_FONT_COLOR_BAD
+    858  f404		       a9 33		      LDA	#SCORE_FONT_COLOR_BAD
     859  f406		       85 d5		      STA	ScoreFontColor
     860  f408				   SkipIsTimeOver
     861  f408
@@ -1435,7 +1435,7 @@
     916  f44f
     917  f44f				   PrintCheckpoint
     918  f44f		       a2 00		      LDX	#<CheckpointText
-    919  f451		       20 db f5 	      JSR	PrintStaticText
+    919  f451		       20 e6 f5 	      JSR	PrintStaticText
     920  f454		       4c e0 f4 	      JMP	RightScoreWriteEnd	;3
     921  f457
     922  f457				   PrintHellwayLeft
@@ -1448,7 +1448,7 @@
     929  f462		       a2 0f		      LDX	#<OpbText
     930  f464
     931  f464				   PrintGameMode
-    932  f464		       20 db f5 	      JSR	PrintStaticText
+    932  f464		       20 e6 f5 	      JSR	PrintStaticText
     933  f467		       a5 c5		      LDA	GameMode
     934  f469		       29 0f		      AND	#%00001111
     935  f46b		       aa		      TAX		; 2
@@ -1518,7 +1518,7 @@
     999  f4ca				   PrintCreditsRight
    1000  f4ca		       a2 14		      LDX	#<YearText
    1001  f4cc				   PrintRightIntro
-   1002  f4cc		       20 db f5 	      JSR	PrintStaticText
+   1002  f4cc		       20 e6 f5 	      JSR	PrintStaticText
    1003  f4cf		       4c e0 f4 	      JMP	RightScoreWriteEnd
    1004  f4d2				   PrintGameOver
    1005  f4d2		       a5 8c		      LDA	FrameCount0
@@ -1528,547 +1528,555 @@
    1009  f4db				   PrintOverText
    1010  f4db		       a2 1e		      LDX	#<OverText
    1011  f4dd				   StoreGameOverText
-   1012  f4dd		       20 db f5 	      JSR	PrintStaticText
+   1012  f4dd		       20 e6 f5 	      JSR	PrintStaticText
    1013  f4e0				   RightScoreWriteEnd
    1014  f4e0
    1015  f4e0				   LeftSound
-   1016  f4e0		       a5 8e		      LDA	Player0SpeedL
-   1017  f4e2		       29 80		      AND	#%10000000
-   1018  f4e4		       05 8f		      ORA	Player0SpeedH
-   1019  f4e6		       18		      CLC
-   1020  f4e7		       2a		      ROL
-   1021  f4e8		       69 00		      ADC	#0	; Places the possible carry produced by ROL
-   1022  f4ea		       aa		      TAX
-   1023  f4eb		       a5 8e		      LDA	Player0SpeedL
-   1024  f4ed		       4a		      LSR
-   1025  f4ee		       4a		      LSR
-   1026  f4ef		       4a		      LSR
-   1027  f4f0		       29 0f		      AND	#%00001111
-   1028  f4f2		       85 b0		      STA	Tmp0
-   1029  f4f4		       bd b6 fd 	      LDA	EngineBaseFrequence,X	; Max of 5 bits
-   1030  f4f7		       38		      SEC
-   1031  f4f8		       e5 b0		      SBC	Tmp0
-   1032  f4fa		       85 17		      STA	AUDF0
-   1033  f4fc		       bd b0 fd 	      LDA	EngineSoundType,X
-   1034  f4ff		       85 15		      STA	AUDC0
-   1035  f501
-   1036  f501
-   1037  f501				   RightSound		; More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
-   1038  f501		       a5 d5		      LDA	ScoreFontColor
-   1039  f503		       c9 0c		      CMP	#SCORE_FONT_COLOR_OVER
-   1040  f505		       f0 4a		      BEQ	MuteRightSound	; A little bit of silence, since you will be run over all the time
-   1041  f507		       c9 d8		      CMP	#SCORE_FONT_COLOR_GOOD
-   1042  f509		       f0 21		      BEQ	PlayCheckpoint
-   1043  f50b		       a5 ba		      LDA	CollisionCounter
-   1044  f50d		       c9 e0		      CMP	#$E0
-   1045  f50f		       b0 0c		      BCS	PlayColision
-   1046  f511		       a5 d7		      LDA	NextCheckpoint
-   1047  f513		       38		      SEC
-   1048  f514		       e5 92		      SBC	TrafficOffset0 + 2
-   1049  f516		       c9 02		      CMP	#$02
-   1050  f518		       90 24		      BCC	PlayBeforeCheckpoint
-   1051  f51a		       4c 51 f5 	      JMP	MuteRightSound
-   1052  f51d				   PlayColision
-   1053  f51d		       a9 1f		      LDA	#31
-   1054  f51f		       85 18		      STA	AUDF1
-   1055  f521		       a9 08		      LDA	#8
-   1056  f523		       85 16		      STA	AUDC1
-   1057  f525		       a9 08		      LDA	#8
-   1058  f527		       85 1a		      STA	AUDV1
-   1059  f529		       4c 55 f5 	      JMP	EndRightSound
-   1060  f52c
-   1061  f52c				   PlayCheckpoint
-   1062  f52c		       a5 d6		      LDA	ScoreFontColorHoldChange
-   1063  f52e		       4a		      LSR
-   1064  f52f		       4a		      LSR
-   1065  f530		       4a		      LSR
-   1066  f531		       85 18		      STA	AUDF1
-   1067  f533		       a9 0c		      LDA	#12
-   1068  f535		       85 16		      STA	AUDC1
-   1069  f537		       a9 06		      LDA	#6
-   1070  f539		       85 1a		      STA	AUDV1
-   1071  f53b		       4c 55 f5 	      JMP	EndRightSound
-   1072  f53e
-   1073  f53e				   PlayBeforeCheckpoint
-   1074  f53e		       a5 8c		      LDA	FrameCount0
-   1075  f540		       29 1c		      AND	#%00011100
-   1076  f542		       09 03		      ORA	#%00000011
-   1077  f544		       85 18		      STA	AUDF1
-   1078  f546		       a9 0c		      LDA	#12
-   1079  f548		       85 16		      STA	AUDC1
-   1080  f54a		       a9 05		      LDA	#5
-   1081  f54c		       85 1a		      STA	AUDV1
-   1082  f54e		       4c 55 f5 	      JMP	EndRightSound
-   1083  f551
-   1084  f551				   MuteRightSound
-   1085  f551		       a9 00		      LDA	#0
-   1086  f553		       85 1a		      STA	AUDV1
-   1087  f555
-   1088  f555				   EndRightSound
-   1089  f555
-   1090  f555				   OverScanWait
-   1091  f555		       ad 84 02 	      LDA	INTIM
-   1092  f558		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
-   1093  f55a		       4c 92 f0 	      JMP	MainLoop
-   1094  f55d
-   1095  f55d				   Subroutines
-   1096  f55d
-   1097  f55d				   ClearAll		; 52
-   1098  f55d		       a9 00		      LDA	#0	;2
-   1099  f55f		       85 1c		      STA	GRP1	;3
-   1100  f561		       85 1f		      STA	ENABL	;3
-   1101  f563		       85 1d		      STA	ENAM0	;3
-   1102  f565		       85 1e		      STA	ENAM1	;3
-   1103  f567		       85 84		      STA	GRP1Cache	;3
-   1104  f569		       85 85		      STA	ENABLCache	;3
-   1105  f56b		       85 86		      STA	ENAM0Cache	;3
-   1106  f56d		       85 87		      STA	ENAM1Cache	;3
-   1107  f56f
-   1108  f56f				   ClearPF		; 26
-   1109  f56f		       a9 00		      LDA	#0	;2
-   1110  f571				   ClearPFSkipLDA0
-   1111  f571		       85 0d		      STA	PF0	;3
-   1112  f573		       85 0e		      STA	PF1	;3
-   1113  f575		       85 0f		      STA	PF2	;3	
-   1114  f577		       85 81		      STA	PF0Cache	;3
-   1115  f579		       85 82		      STA	PF1Cache	;3
-   1116  f57b		       85 83		      STA	PF2Cache	;3 
-   1117  f57d		       60		      RTS		;6
-   1118  f57e				   EndClearAll
-   1119  f57e
-   1120  f57e				   LoadAll		; 36
-   1121  f57e		       a5 81		      LDA	PF0Cache	;3
-   1122  f580		       85 0d		      STA	PF0	;3
-   1123  f582
-   1124  f582		       a5 82		      LDA	PF1Cache	;3
-   1125  f584		       85 0e		      STA	PF1	;3
-   1126  f586
-   1127  f586		       a5 83		      LDA	PF2Cache	;3
-   1128  f588		       85 0f		      STA	PF2	;3
-   1129  f58a
-   1130  f58a		       a5 84		      LDA	GRP1Cache	;3
-   1131  f58c		       85 1c		      STA	GRP1	;3
-   1132  f58e
-   1133  f58e		       a5 85		      LDA	ENABLCache	;3
-   1134  f590		       85 1f		      STA	ENABL	;3
-   1135  f592
-   1136  f592		       a5 86		      LDA	ENAM0Cache
-   1137  f594		       85 1d		      STA	ENAM0
-   1138  f596
-   1139  f596		       60		      RTS		;6
-   1140  f597				   EndLoadAll
-   1141  f597
-   1142  f597				   NextDifficulty
-   1143  f597		       a5 c5		      LDA	GameMode	; For now, only game zero changes the difficulty
-   1144  f599		       d0 3f		      BNE	ReturnNextDifficulty
-   1145  f59b
-   1146  f59b		       a5 c4		      LDA	CurrentDifficulty
-   1147  f59d		       18		      CLC
-   1148  f59e		       69 01		      ADC	#1
-   1149  f5a0		       29 03		      AND	#%00000011	; 0 to 3
-   1150  f5a2		       85 c4		      STA	CurrentDifficulty
-   1151  f5a4
-   1152  f5a4				   ConfigureDifficulty
-   1153  f5a4		       a5 c4		      LDA	CurrentDifficulty
-   1154  f5a6		       f0 0b		      BEQ	ConfigureLightTraffic
-   1155  f5a8		       c9 01		      CMP	#1
-   1156  f5aa		       f0 10		      BEQ	ConfigureRegularTraffic
-   1157  f5ac		       c9 02		      CMP	#2
-   1158  f5ae		       f0 15		      BEQ	ConfigureIntenseTraffic
-   1159  f5b0		       4c ce f5 	      JMP	ConfigureRushHourTraffic
-   1160  f5b3
-   1161  f5b3				   ConfigureLightTraffic
-   1162  f5b3		       a2 0e		      LDX	#TRAFFIC_CHANCE_LIGHT
-   1163  f5b5		       a0 1e		      LDY	#CHECKPOINT_TIME_LIGHT
-   1164  f5b7		       a9 d4		      LDA	#TRAFFIC_COLOR_LIGHT
-   1165  f5b9		       4c d4 f5 	      JMP	StoreTrafficChance
-   1166  f5bc				   ConfigureRegularTraffic
-   1167  f5bc		       a2 18		      LDX	#TRAFFIC_CHANCE_REGULAR
-   1168  f5be		       a0 23		      LDY	#CHECKPOINT_TIME_REGULAR
-   1169  f5c0		       a9 34		      LDA	#TRAFFIC_COLOR_REGULAR
-   1170  f5c2		       4c d4 f5 	      JMP	StoreTrafficChance
-   1171  f5c5				   ConfigureIntenseTraffic
-   1172  f5c5		       a2 22		      LDX	#TRAFFIC_CHANCE_INTENSE
-   1173  f5c7		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
-   1174  f5c9		       a9 f4		      LDA	#TRAFFIC_COLOR_INTENSE
-   1175  f5cb		       4c d4 f5 	      JMP	StoreTrafficChance
-   1176  f5ce				   ConfigureRushHourTraffic
-   1177  f5ce		       a2 2c		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
-   1178  f5d0		       a0 2d		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
-   1179  f5d2		       a9 09		      LDA	#TRAFFIC_COLOR_RUSH_HOUR
-   1180  f5d4
-   1181  f5d4				   StoreTrafficChance
-   1182  f5d4		       86 c1		      STX	TrafficChance
-   1183  f5d6		       84 c2		      STY	CheckpointTime
-   1184  f5d8		       85 c3		      STA	TrafficColor
-   1185  f5da				   ReturnNextDifficulty
-   1186  f5da		       60		      RTS
-   1187  f5db				   EndNextDifficulty
-   1188  f5db
-   1189  f5db				   PrintStaticText		; Preload X with the offset referent to StaticText
-   1190  f5db		       bd 00 ff 	      LDA	StaticText,X
-   1191  f5de		       85 d0		      STA	ScoreD0
-   1192  f5e0		       e8		      INX
-   1193  f5e1		       bd 00 ff 	      LDA	StaticText,X
-   1194  f5e4		       85 d1		      STA	ScoreD1
-   1195  f5e6		       e8		      INX
-   1196  f5e7		       bd 00 ff 	      LDA	StaticText,X
-   1197  f5ea		       85 d2		      STA	ScoreD2
-   1198  f5ec		       e8		      INX
-   1199  f5ed		       bd 00 ff 	      LDA	StaticText,X
-   1200  f5f0		       85 d3		      STA	ScoreD3
-   1201  f5f2		       e8		      INX
-   1202  f5f3		       bd 00 ff 	      LDA	StaticText,X
-   1203  f5f6		       85 d4		      STA	ScoreD4
-   1204  f5f8		       60		      RTS
-   1205  f5f9
-   1206  f5f9							;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
-   1207  fd00					      org	$FD00
-   1208  fd00				   Font
-   1209  fd00				   C0
-   1210  fd00		       e7		      .byte.b	#%11100111	;
-   1211  fd01		       a5		      .byte.b	#%10100101	; 
-   1212  fd02		       a5		      .byte.b	#%10100101	; 
-   1213  fd03		       a5		      .byte.b	#%10100101	; 
-   1214  fd04		       e7		      .byte.b	#%11100111	;	
-   1215  fd05				   C1
-   1216  fd05		       e7		      .byte.b	#%11100111	;
-   1217  fd06		       42		      .byte.b	#%01000010	; 
-   1218  fd07		       42		      .byte.b	#%01000010	; 
-   1219  fd08		       42		      .byte.b	#%01000010	; 
-   1220  fd09		       66		      .byte.b	#%01100110	;
-   1221  fd0a				   C2
-   1222  fd0a		       e7		      .byte.b	#%11100111	;
-   1223  fd0b		       24		      .byte.b	#%00100100	; 
-   1224  fd0c		       e7		      .byte.b	#%11100111	; 
-   1225  fd0d		       81		      .byte.b	#%10000001	; 
-   1226  fd0e		       e7		      .byte.b	#%11100111	;
-   1227  fd0f				   C3
-   1228  fd0f		       e7		      .byte.b	#%11100111	;
-   1229  fd10		       81		      .byte.b	#%10000001	; 
-   1230  fd11		       e7		      .byte.b	#%11100111	; 
-   1231  fd12		       81		      .byte.b	#%10000001	; 
-   1232  fd13		       e7		      .byte.b	#%11100111	;
-   1233  fd14				   C4
-   1234  fd14		       81		      .byte.b	#%10000001	;
-   1235  fd15		       81		      .byte.b	#%10000001	; 
-   1236  fd16		       e7		      .byte.b	#%11100111	; 
-   1237  fd17		       a5		      .byte.b	#%10100101	; 
-   1238  fd18		       a5		      .byte.b	#%10100101	;
-   1239  fd19				   C5
-   1240  fd19		       e7		      .byte.b	#%11100111	;
-   1241  fd1a		       81		      .byte.b	#%10000001	; 
-   1242  fd1b		       e7		      .byte.b	#%11100111	; 
-   1243  fd1c		       24		      .byte.b	#%00100100	; 
-   1244  fd1d		       e7		      .byte.b	#%11100111	;
-   1245  fd1e				   C6
-   1246  fd1e		       e7		      .byte.b	#%11100111	;
-   1247  fd1f		       a5		      .byte.b	#%10100101	; 
-   1248  fd20		       e7		      .byte.b	#%11100111	; 
-   1249  fd21		       24		      .byte.b	#%00100100	; 
-   1250  fd22		       e7		      .byte.b	#%11100111	;
-   1251  fd23				   C7
-   1252  fd23		       81		      .byte.b	#%10000001	;
-   1253  fd24		       81		      .byte.b	#%10000001	; 
-   1254  fd25		       81		      .byte.b	#%10000001	; 
-   1255  fd26		       81		      .byte.b	#%10000001	; 
-   1256  fd27		       e7		      .byte.b	#%11100111	;
-   1257  fd28				   C8
-   1258  fd28		       e7		      .byte.b	#%11100111	;
-   1259  fd29		       a5		      .byte.b	#%10100101	; 
-   1260  fd2a		       e7		      .byte.b	#%11100111	; 
-   1261  fd2b		       a5		      .byte.b	#%10100101	; 
-   1262  fd2c		       e7		      .byte.b	#%11100111	;
-   1263  fd2d				   C9
-   1264  fd2d		       e7		      .byte.b	#%11100111	;
-   1265  fd2e		       81		      .byte.b	#%10000001	; 
-   1266  fd2f		       e7		      .byte.b	#%11100111	; 
-   1267  fd30		       a5		      .byte.b	#%10100101	; 
-   1268  fd31		       e7		      .byte.b	#%11100111	;
-   1269  fd32				   CA
-   1270  fd32		       a5		      .byte.b	#%10100101	;
-   1271  fd33		       a5		      .byte.b	#%10100101	; 
-   1272  fd34		       e7		      .byte.b	#%11100111	; 
-   1273  fd35		       a5		      .byte.b	#%10100101	; 
-   1274  fd36		       e7		      .byte.b	#%11100111	;
-   1275  fd37				   CB
-   1276  fd37		       66		      .byte.b	#%01100110	;
-   1277  fd38		       a5		      .byte.b	#%10100101	; 
-   1278  fd39		       66		      .byte.b	#%01100110	; 
-   1279  fd3a		       a5		      .byte.b	#%10100101	;
-   1280  fd3b		       66		      .byte.b	#%01100110	;
-   1281  fd3c				   CC
-   1282  fd3c		       e7		      .byte.b	#%11100111	;
-   1283  fd3d		       24		      .byte.b	#%00100100	; 
-   1284  fd3e		       24		      .byte.b	#%00100100	; 
-   1285  fd3f		       24		      .byte.b	#%00100100	;
-   1286  fd40		       e7		      .byte.b	#%11100111	;
-   1287  fd41
-   1288  fd41				   CD
-   1289  fd41		       66		      .byte.b	#%01100110	;
-   1290  fd42		       a5		      .byte.b	#%10100101	; 
-   1291  fd43		       a5		      .byte.b	#%10100101	; 
-   1292  fd44		       a5		      .byte.b	#%10100101	;
-   1293  fd45		       66		      .byte.b	#%01100110	;
-   1294  fd46
-   1295  fd46				   CE
-   1296  fd46		       e7		      .byte.b	#%11100111	;
-   1297  fd47		       24		      .byte.b	#%00100100	; 
-   1298  fd48		       e7		      .byte.b	#%11100111	; 
-   1299  fd49		       24		      .byte.b	#%00100100	; 
-   1300  fd4a		       e7		      .byte.b	#%11100111	;
-   1301  fd4b
-   1302  fd4b				   CF
-   1303  fd4b		       24		      .byte.b	#%00100100	;
-   1304  fd4c		       24		      .byte.b	#%00100100	; 
-   1305  fd4d		       e7		      .byte.b	#%11100111	; 
-   1306  fd4e		       24		      .byte.b	#%00100100	; 
-   1307  fd4f		       e7		      .byte.b	#%11100111	;
-   1308  fd50
-   1309  fd50				   CG
-   1310  fd50		       c3		      .byte.b	#%11000011	;
-   1311  fd51		       a5		      .byte.b	#%10100101	; 
-   1312  fd52		       a5		      .byte.b	#%10100101	; 
-   1313  fd53		       24		      .byte.b	#%00100100	; 
-   1314  fd54		       c3		      .byte.b	#%11000011	;	
-   1315  fd55
-   1316  fd55				   CL
-   1317  fd55		       e7		      .byte.b	#%11100111	;
-   1318  fd56		       24		      .byte.b	#%00100100	; 
-   1319  fd57		       24		      .byte.b	#%00100100	; 
-   1320  fd58		       24		      .byte.b	#%00100100	; 
-   1321  fd59		       24		      .byte.b	#%00100100	;
-   1322  fd5a
-   1323  fd5a
-   1324  fd5a				   CH
-   1325  fd5a		       a5		      .byte.b	#%10100101	;
-   1326  fd5b		       a5		      .byte.b	#%10100101	; 
-   1327  fd5c		       e7		      .byte.b	#%11100111	; 
-   1328  fd5d		       a5		      .byte.b	#%10100101	; 
-   1329  fd5e		       a5		      .byte.b	#%10100101	;
-   1330  fd5f
-   1331  fd5f				   CM
-   1332  fd5f		       a5		      .byte.b	#%10100101	;
-   1333  fd60		       a5		      .byte.b	#%10100101	; 
-   1334  fd61		       a5		      .byte.b	#%10100101	; 
-   1335  fd62		       e7		      .byte.b	#%11100111	; 
-   1336  fd63		       a5		      .byte.b	#%10100101	;
-   1337  fd64
-   1338  fd64
-   1339  fd64				   CO
-   1340  fd64		       42		      .byte.b	#%01000010	;
-   1341  fd65		       a5		      .byte.b	#%10100101	; 
-   1342  fd66		       a5		      .byte.b	#%10100101	; 
-   1343  fd67		       a5		      .byte.b	#%10100101	; 
-   1344  fd68		       42		      .byte.b	#%01000010	;	
-   1345  fd69
-   1346  fd69				   CP
-   1347  fd69		       24		      .byte.b	#%00100100	;
-   1348  fd6a		       24		      .byte.b	#%00100100	; 
-   1349  fd6b		       e7		      .byte.b	#%11100111	; 
-   1350  fd6c		       a5		      .byte.b	#%10100101	; 
-   1351  fd6d		       e7		      .byte.b	#%11100111	;
-   1352  fd6e
-   1353  fd6e				   CR
-   1354  fd6e		       a5		      .byte.b	#%10100101	;
-   1355  fd6f		       a5		      .byte.b	#%10100101	; 
-   1356  fd70		       66		      .byte.b	#%01100110	; 
-   1357  fd71		       a5		      .byte.b	#%10100101	; 
-   1358  fd72		       66		      .byte.b	#%01100110	;
-   1359  fd73
-   1360  fd73				   CS
-   1361  fd73		       66		      .byte.b	#%01100110	;
-   1362  fd74		       81		      .byte.b	#%10000001	; 
-   1363  fd75		       42		      .byte.b	#%01000010	; 
-   1364  fd76		       24		      .byte.b	#%00100100	; 
-   1365  fd77		       c3		      .byte.b	#%11000011	;
-   1366  fd78
-   1367  fd78				   CT
-   1368  fd78		       42		      .byte.b	#%01000010	;
-   1369  fd79		       42		      .byte.b	#%01000010	; 
-   1370  fd7a		       42		      .byte.b	#%01000010	; 
-   1371  fd7b		       42		      .byte.b	#%01000010	; 
-   1372  fd7c		       e7		      .byte.b	#%11100111	;
-   1373  fd7d
-   1374  fd7d				   CV
-   1375  fd7d		       42		      .byte.b	#%01000010	;
-   1376  fd7e		       a5		      .byte.b	#%10100101	; 
-   1377  fd7f		       a5		      .byte.b	#%10100101	; 
-   1378  fd80		       a5		      .byte.b	#%10100101	; 
-   1379  fd81		       a5		      .byte.b	#%10100101	;	
-   1380  fd82
-   1381  fd82				   CY
-   1382  fd82		       42		      .byte.b	#%01000010	;
-   1383  fd83		       42		      .byte.b	#%01000010	; 
-   1384  fd84		       42		      .byte.b	#%01000010	; 
-   1385  fd85		       a5		      .byte.b	#%10100101	; 
-   1386  fd86		       a5		      .byte.b	#%10100101	;
-   1387  fd87
-   1388  fd87				   CW
-   1389  fd87		       a5		      .byte.b	#%10100101	;
-   1390  fd88		       e7		      .byte.b	#%11100111	; 
-   1391  fd89		       a5		      .byte.b	#%10100101	; 
-   1392  fd8a		       a5		      .byte.b	#%10100101	; 
-   1393  fd8b		       a5		      .byte.b	#%10100101	;
-   1394  fd8c
-   1395  fd8c				   Pipe
-   1396  fd8c		       42		      .byte.b	#%01000010	;
-   1397  fd8d		       00		      .byte.b	#%00000000	; 
-   1398  fd8e		       42		      .byte.b	#%01000010	; 
-   1399  fd8f		       00		      .byte.b	#%00000000	; 
-   1400  fd90		       42		      .byte.b	#%01000010	;
-   1401  fd91
-   1402  fd91				   Exclamation
-   1403  fd91		       42		      .byte.b	#%01000010	;
-   1404  fd92		       00		      .byte.b	#%00000000	; 
-   1405  fd93		       42		      .byte.b	#%01000010	; 
-   1406  fd94		       42		      .byte.b	#%01000010	; 
-   1407  fd95		       42		      .byte.b	#%01000010	;
-   1408  fd96
-   1409  fd96				   Dot
-   1410  fd96		       42		      .byte.b	#%01000010	;
-   1411  fd97		       42		      .byte.b	#%01000010	; 
-   1412  fd98		       00		      .byte.b	#%00000000	; 
-   1413  fd99		       00		      .byte.b	#%00000000	; 
-   1414  fd9a		       00		      .byte.b	#%00000000	;
-   1415  fd9b
-   1416  fd9b				   Space		; Moved from the beggining so 0 to F is fast to draw.
-   1417  fd9b		       00		      .byte.b	#0	;
-   1418  fd9c		       00		      .byte.b	#0	;
-   1419  fd9d		       00		      .byte.b	#0	;
-   1420  fd9e		       00		      .byte.b	#0	;
-   1421  fd9f		       00		      .byte.b	#0	;
-   1422  fda0
-   1423  fda0				   FontLookup		; Very fast font lookup for dynamic values!
-   1424  fda0		       04		      .byte.b	#<C0 + #FONT_OFFSET
-   1425  fda1		       09		      .byte.b	#<C1 + #FONT_OFFSET
-   1426  fda2		       0e		      .byte.b	#<C2 + #FONT_OFFSET
-   1427  fda3		       13		      .byte.b	#<C3 + #FONT_OFFSET
-   1428  fda4		       18		      .byte.b	#<C4 + #FONT_OFFSET
-   1429  fda5		       1d		      .byte.b	#<C5 + #FONT_OFFSET
-   1430  fda6		       22		      .byte.b	#<C6 + #FONT_OFFSET
-   1431  fda7		       27		      .byte.b	#<C7 + #FONT_OFFSET
-   1432  fda8		       2c		      .byte.b	#<C8 + #FONT_OFFSET
-   1433  fda9		       31		      .byte.b	#<C9 + #FONT_OFFSET
-   1434  fdaa		       36		      .byte.b	#<CA + #FONT_OFFSET
-   1435  fdab		       3b		      .byte.b	#<CB + #FONT_OFFSET
-   1436  fdac		       40		      .byte.b	#<CC + #FONT_OFFSET
-   1437  fdad		       45		      .byte.b	#<CD + #FONT_OFFSET
-   1438  fdae		       4a		      .byte.b	#<CE + #FONT_OFFSET
-   1439  fdaf		       4f		      .byte.b	#<CF + #FONT_OFFSET
-   1440  fdb0
-   1441  fdb0				   EngineSoundType
-   1442  fdb0		       02		      .byte.b	#2
-   1443  fdb1		       02		      .byte.b	#2
-   1444  fdb2		       0e		      .byte.b	#14
-   1445  fdb3		       06		      .byte.b	#6
-   1446  fdb4		       06		      .byte.b	#6
-   1447  fdb5		       0e		      .byte.b	#14
-   1448  fdb6
-   1449  fdb6				   EngineBaseFrequence
-   1450  fdb6		       1f		      .byte.b	#31
-   1451  fdb7		       12		      .byte.b	#18
-   1452  fdb8		       14		      .byte.b	#20
-   1453  fdb9		       1f		      .byte.b	#31
-   1454  fdba		       16		      .byte.b	#22
-   1455  fdbb		       03		      .byte.b	#3
-   1456  fdbc
-   1457  fe00					      org	$FE00
-   1458  fe00				   AesTable
-   1459  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
-   1460  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
-   1461  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
-   1462  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
-   1463  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
-   1464  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
-   1465  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
-   1466  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
-   1467  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
-   1468  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
-   1469  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
-   1470  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
-   1471  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
-   1472  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
-   1473  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
-   1474  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
-   1475  ff00
-   1476  ff00							; From FF00 to FFFB (122 bytes) to use here
-   1477  ff00
-   1478  ff00				   StaticText		; All static text must be on the same MSB block. 
-   1479  ff00				   CheckpointText		; Only the LSB, which is the offset.
-   1480  ff00		       40		      .byte.b	#<CC + #FONT_OFFSET
-   1481  ff01		       5e		      .byte.b	#<CH + #FONT_OFFSET
-   1482  ff02		       6d		      .byte.b	#<CP + #FONT_OFFSET
-   1483  ff03		       7c		      .byte.b	#<CT + #FONT_OFFSET
-   1484  ff04		       95		      .byte.b	#<Exclamation + #FONT_OFFSET
-   1485  ff05
-   1486  ff05				   HellwayLeftText
-   1487  ff05		       9f		      .byte.b	#<Space + #FONT_OFFSET
-   1488  ff06		       90		      .byte.b	#<Pipe + #FONT_OFFSET
-   1489  ff07		       5e		      .byte.b	#<CH + #FONT_OFFSET
-   1490  ff08		       4a		      .byte.b	#<CE + #FONT_OFFSET
-   1491  ff09		       59		      .byte.b	#<CL + #FONT_OFFSET
-   1492  ff0a
-   1493  ff0a				   HellwayRightText
-   1494  ff0a		       59		      .byte.b	#<CL + #FONT_OFFSET
-   1495  ff0b		       8b		      .byte.b	#<CW + #FONT_OFFSET
-   1496  ff0c		       36		      .byte.b	#<CA + #FONT_OFFSET
-   1497  ff0d		       86		      .byte.b	#<CY + #FONT_OFFSET
-   1498  ff0e		       95		      .byte.b	#<Exclamation + #FONT_OFFSET
-   1499  ff0f
-   1500  ff0f				   OpbText
-   1501  ff0f		       9f		      .byte.b	#<Space + #FONT_OFFSET
-   1502  ff10		       90		      .byte.b	#<Pipe + #FONT_OFFSET
-   1503  ff11		       68		      .byte.b	#<CO + #FONT_OFFSET
-   1504  ff12		       6d		      .byte.b	#<CP + #FONT_OFFSET
-   1505  ff13		       3b		      .byte.b	#<CB + #FONT_OFFSET
-   1506  ff14
-   1507  ff14				   YearText
-   1508  ff14		       9f		      .byte.b	#<Space + #FONT_OFFSET
-   1509  ff15		       0e		      .byte.b	#<C2 + #FONT_OFFSET
-   1510  ff16		       04		      .byte.b	#<C0 + #FONT_OFFSET
-   1511  ff17		       0e		      .byte.b	#<C2 + #FONT_OFFSET
-   1512  ff18		       09		      .byte.b	#<C1 + #FONT_OFFSET
-   1513  ff19
-   1514  ff19				   GameText
-   1515  ff19		       54		      .byte.b	#<CG + #FONT_OFFSET
-   1516  ff1a		       36		      .byte.b	#<CA + #FONT_OFFSET
-   1517  ff1b		       63		      .byte.b	#<CM + #FONT_OFFSET
-   1518  ff1c		       4a		      .byte.b	#<CE + #FONT_OFFSET
-   1519  ff1d		       9f		      .byte.b	#<Space + #FONT_OFFSET
-   1520  ff1e
-   1521  ff1e				   OverText
-   1522  ff1e		       68		      .byte.b	#<CO + #FONT_OFFSET
-   1523  ff1f		       81		      .byte.b	#<CV + #FONT_OFFSET
-   1524  ff20		       4a		      .byte.b	#<CE + #FONT_OFFSET
-   1525  ff21		       72		      .byte.b	#<CR + #FONT_OFFSET
-   1526  ff22		       9f		      .byte.b	#<Space + #FONT_OFFSET
-   1527  ff23
-   1528  ff23				   EndStaticText
-   1529  ff23
-   1530  ff23				   CarSprite		; Upside down
-   1531  ff23		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-   1532  ff24		       7e		      .byte.b	#%01111110
-   1533  ff25		       24		      .byte.b	#%00100100
-   1534  ff26		       bd		      .byte.b	#%10111101
-   1535  ff27		       3c		      .byte.b	#%00111100
-   1536  ff28		       bd		      .byte.b	#%10111101
-   1537  ff29		       3c		      .byte.b	#%00111100
-   1538  ff2a		       00 00 00 00*	      ds	GAMEPLAY_AREA - 8
-   1539  ff5c
-   1540  ff5c
-   1541  ff5c				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
-   1542  ff5c		       00		      .byte.b	#$00	;  Trafic0 L
-   1543  ff5d		       00		      .byte.b	#$00	;  Trafic0 H
-   1544  ff5e		       0a		      .byte.b	#$0A	;  Trafic1 L
-   1545  ff5f		       01		      .byte.b	#$01	;  Trafic1 H
-   1546  ff60		       e6		      .byte.b	#$E6	;  Trafic2 L
-   1547  ff61		       00		      .byte.b	#$00	;  Trafic2 H
-   1548  ff62		       c2		      .byte.b	#$C2	;  Trafic3 L
-   1549  ff63		       00		      .byte.b	#$00	;  Trafic3 H
-   1550  ff64		       9e		      .byte.b	#$9E	;  Trafic4 L
-   1551  ff65		       00		      .byte.b	#$00	;  Trafic4 H
-   1552  ff66
-   1553  fffc					      org	$FFFC
-   1554  fffc		       00 f0		      .word.w	BeforeStart
-   1555  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)
+   1016  f4e0		       a5 bc		      LDA	CountdownTimer
+   1017  f4e2		       f0 24		      BEQ	EngineOff
+   1018  f4e4		       a5 8e		      LDA	Player0SpeedL
+   1019  f4e6		       29 80		      AND	#%10000000
+   1020  f4e8		       05 8f		      ORA	Player0SpeedH
+   1021  f4ea		       18		      CLC
+   1022  f4eb		       2a		      ROL
+   1023  f4ec		       69 00		      ADC	#0	; Places the possible carry produced by ROL
+   1024  f4ee		       aa		      TAX
+   1025  f4ef		       a5 8e		      LDA	Player0SpeedL
+   1026  f4f1		       4a		      LSR
+   1027  f4f2		       4a		      LSR
+   1028  f4f3		       4a		      LSR
+   1029  f4f4		       29 0f		      AND	#%00001111
+   1030  f4f6		       85 b0		      STA	Tmp0
+   1031  f4f8		       bd b6 fd 	      LDA	EngineBaseFrequence,X	; Max of 5 bits
+   1032  f4fb		       38		      SEC
+   1033  f4fc		       e5 b0		      SBC	Tmp0
+   1034  f4fe		       85 17		      STA	AUDF0
+   1035  f500		       bd b0 fd 	      LDA	EngineSoundType,X
+   1036  f503		       85 15		      STA	AUDC0
+   1037  f505		       4c 0c f5 	      JMP	EndLeftSound
+   1038  f508				   EngineOff
+   1039  f508		       a9 00		      LDA	#0
+   1040  f50a		       85 15		      STA	AUDC0
+   1041  f50c
+   1042  f50c				   EndLeftSound
+   1043  f50c
+   1044  f50c
+   1045  f50c				   RightSound		; More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
+   1046  f50c		       a5 d5		      LDA	ScoreFontColor
+   1047  f50e		       c9 0c		      CMP	#SCORE_FONT_COLOR_OVER
+   1048  f510		       f0 4a		      BEQ	MuteRightSound	; A little bit of silence, since you will be run over all the time
+   1049  f512		       c9 d8		      CMP	#SCORE_FONT_COLOR_GOOD
+   1050  f514		       f0 21		      BEQ	PlayCheckpoint
+   1051  f516		       a5 ba		      LDA	CollisionCounter
+   1052  f518		       c9 e0		      CMP	#$E0
+   1053  f51a		       b0 0c		      BCS	PlayColision
+   1054  f51c		       a5 d7		      LDA	NextCheckpoint
+   1055  f51e		       38		      SEC
+   1056  f51f		       e5 92		      SBC	TrafficOffset0 + 2
+   1057  f521		       c9 02		      CMP	#$02
+   1058  f523		       90 24		      BCC	PlayBeforeCheckpoint
+   1059  f525		       4c 5c f5 	      JMP	MuteRightSound
+   1060  f528				   PlayColision
+   1061  f528		       a9 1f		      LDA	#31
+   1062  f52a		       85 18		      STA	AUDF1
+   1063  f52c		       a9 08		      LDA	#8
+   1064  f52e		       85 16		      STA	AUDC1
+   1065  f530		       a9 08		      LDA	#8
+   1066  f532		       85 1a		      STA	AUDV1
+   1067  f534		       4c 60 f5 	      JMP	EndRightSound
+   1068  f537
+   1069  f537				   PlayCheckpoint
+   1070  f537		       a5 d6		      LDA	ScoreFontColorHoldChange
+   1071  f539		       4a		      LSR
+   1072  f53a		       4a		      LSR
+   1073  f53b		       4a		      LSR
+   1074  f53c		       85 18		      STA	AUDF1
+   1075  f53e		       a9 0c		      LDA	#12
+   1076  f540		       85 16		      STA	AUDC1
+   1077  f542		       a9 06		      LDA	#6
+   1078  f544		       85 1a		      STA	AUDV1
+   1079  f546		       4c 60 f5 	      JMP	EndRightSound
+   1080  f549
+   1081  f549				   PlayBeforeCheckpoint
+   1082  f549		       a5 8c		      LDA	FrameCount0
+   1083  f54b		       29 1c		      AND	#%00011100
+   1084  f54d		       09 03		      ORA	#%00000011
+   1085  f54f		       85 18		      STA	AUDF1
+   1086  f551		       a9 0c		      LDA	#12
+   1087  f553		       85 16		      STA	AUDC1
+   1088  f555		       a9 02		      LDA	#2
+   1089  f557		       85 1a		      STA	AUDV1
+   1090  f559		       4c 60 f5 	      JMP	EndRightSound
+   1091  f55c
+   1092  f55c				   MuteRightSound
+   1093  f55c		       a9 00		      LDA	#0
+   1094  f55e		       85 1a		      STA	AUDV1
+   1095  f560
+   1096  f560				   EndRightSound
+   1097  f560
+   1098  f560				   OverScanWait
+   1099  f560		       ad 84 02 	      LDA	INTIM
+   1100  f563		       d0 fb		      BNE	OverScanWait	;Is there a better way?	
+   1101  f565		       4c 92 f0 	      JMP	MainLoop
+   1102  f568
+   1103  f568				   Subroutines
+   1104  f568
+   1105  f568				   ClearAll		; 52
+   1106  f568		       a9 00		      LDA	#0	;2
+   1107  f56a		       85 1c		      STA	GRP1	;3
+   1108  f56c		       85 1f		      STA	ENABL	;3
+   1109  f56e		       85 1d		      STA	ENAM0	;3
+   1110  f570		       85 1e		      STA	ENAM1	;3
+   1111  f572		       85 84		      STA	GRP1Cache	;3
+   1112  f574		       85 85		      STA	ENABLCache	;3
+   1113  f576		       85 86		      STA	ENAM0Cache	;3
+   1114  f578		       85 87		      STA	ENAM1Cache	;3
+   1115  f57a
+   1116  f57a				   ClearPF		; 26
+   1117  f57a		       a9 00		      LDA	#0	;2
+   1118  f57c				   ClearPFSkipLDA0
+   1119  f57c		       85 0d		      STA	PF0	;3
+   1120  f57e		       85 0e		      STA	PF1	;3
+   1121  f580		       85 0f		      STA	PF2	;3	
+   1122  f582		       85 81		      STA	PF0Cache	;3
+   1123  f584		       85 82		      STA	PF1Cache	;3
+   1124  f586		       85 83		      STA	PF2Cache	;3 
+   1125  f588		       60		      RTS		;6
+   1126  f589				   EndClearAll
+   1127  f589
+   1128  f589				   LoadAll		; 36
+   1129  f589		       a5 81		      LDA	PF0Cache	;3
+   1130  f58b		       85 0d		      STA	PF0	;3
+   1131  f58d
+   1132  f58d		       a5 82		      LDA	PF1Cache	;3
+   1133  f58f		       85 0e		      STA	PF1	;3
+   1134  f591
+   1135  f591		       a5 83		      LDA	PF2Cache	;3
+   1136  f593		       85 0f		      STA	PF2	;3
+   1137  f595
+   1138  f595		       a5 84		      LDA	GRP1Cache	;3
+   1139  f597		       85 1c		      STA	GRP1	;3
+   1140  f599
+   1141  f599		       a5 85		      LDA	ENABLCache	;3
+   1142  f59b		       85 1f		      STA	ENABL	;3
+   1143  f59d
+   1144  f59d		       a5 86		      LDA	ENAM0Cache
+   1145  f59f		       85 1d		      STA	ENAM0
+   1146  f5a1
+   1147  f5a1		       60		      RTS		;6
+   1148  f5a2				   EndLoadAll
+   1149  f5a2
+   1150  f5a2				   NextDifficulty
+   1151  f5a2		       a5 c5		      LDA	GameMode	; For now, only game zero changes the difficulty
+   1152  f5a4		       d0 3f		      BNE	ReturnNextDifficulty
+   1153  f5a6
+   1154  f5a6		       a5 c4		      LDA	CurrentDifficulty
+   1155  f5a8		       18		      CLC
+   1156  f5a9		       69 01		      ADC	#1
+   1157  f5ab		       29 03		      AND	#%00000011	; 0 to 3
+   1158  f5ad		       85 c4		      STA	CurrentDifficulty
+   1159  f5af
+   1160  f5af				   ConfigureDifficulty
+   1161  f5af		       a5 c4		      LDA	CurrentDifficulty
+   1162  f5b1		       f0 0b		      BEQ	ConfigureLightTraffic
+   1163  f5b3		       c9 01		      CMP	#1
+   1164  f5b5		       f0 10		      BEQ	ConfigureRegularTraffic
+   1165  f5b7		       c9 02		      CMP	#2
+   1166  f5b9		       f0 15		      BEQ	ConfigureIntenseTraffic
+   1167  f5bb		       4c d9 f5 	      JMP	ConfigureRushHourTraffic
+   1168  f5be
+   1169  f5be				   ConfigureLightTraffic
+   1170  f5be		       a2 0e		      LDX	#TRAFFIC_CHANCE_LIGHT
+   1171  f5c0		       a0 1e		      LDY	#CHECKPOINT_TIME_LIGHT
+   1172  f5c2		       a9 d4		      LDA	#TRAFFIC_COLOR_LIGHT
+   1173  f5c4		       4c df f5 	      JMP	StoreTrafficChance
+   1174  f5c7				   ConfigureRegularTraffic
+   1175  f5c7		       a2 18		      LDX	#TRAFFIC_CHANCE_REGULAR
+   1176  f5c9		       a0 23		      LDY	#CHECKPOINT_TIME_REGULAR
+   1177  f5cb		       a9 34		      LDA	#TRAFFIC_COLOR_REGULAR
+   1178  f5cd		       4c df f5 	      JMP	StoreTrafficChance
+   1179  f5d0				   ConfigureIntenseTraffic
+   1180  f5d0		       a2 22		      LDX	#TRAFFIC_CHANCE_INTENSE
+   1181  f5d2		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
+   1182  f5d4		       a9 f4		      LDA	#TRAFFIC_COLOR_INTENSE
+   1183  f5d6		       4c df f5 	      JMP	StoreTrafficChance
+   1184  f5d9				   ConfigureRushHourTraffic
+   1185  f5d9		       a2 2c		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
+   1186  f5db		       a0 2d		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
+   1187  f5dd		       a9 09		      LDA	#TRAFFIC_COLOR_RUSH_HOUR
+   1188  f5df
+   1189  f5df				   StoreTrafficChance
+   1190  f5df		       86 c1		      STX	TrafficChance
+   1191  f5e1		       84 c2		      STY	CheckpointTime
+   1192  f5e3		       85 c3		      STA	TrafficColor
+   1193  f5e5				   ReturnNextDifficulty
+   1194  f5e5		       60		      RTS
+   1195  f5e6				   EndNextDifficulty
+   1196  f5e6
+   1197  f5e6				   PrintStaticText		; Preload X with the offset referent to StaticText
+   1198  f5e6		       bd 00 ff 	      LDA	StaticText,X
+   1199  f5e9		       85 d0		      STA	ScoreD0
+   1200  f5eb		       e8		      INX
+   1201  f5ec		       bd 00 ff 	      LDA	StaticText,X
+   1202  f5ef		       85 d1		      STA	ScoreD1
+   1203  f5f1		       e8		      INX
+   1204  f5f2		       bd 00 ff 	      LDA	StaticText,X
+   1205  f5f5		       85 d2		      STA	ScoreD2
+   1206  f5f7		       e8		      INX
+   1207  f5f8		       bd 00 ff 	      LDA	StaticText,X
+   1208  f5fb		       85 d3		      STA	ScoreD3
+   1209  f5fd		       e8		      INX
+   1210  f5fe		       bd 00 ff 	      LDA	StaticText,X
+   1211  f601		       85 d4		      STA	ScoreD4
+   1212  f603		       60		      RTS
+   1213  f604
+   1214  f604							;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
+   1215  fd00					      org	$FD00
+   1216  fd00				   Font
+   1217  fd00				   C0
+   1218  fd00		       e7		      .byte.b	#%11100111	;
+   1219  fd01		       a5		      .byte.b	#%10100101	; 
+   1220  fd02		       a5		      .byte.b	#%10100101	; 
+   1221  fd03		       a5		      .byte.b	#%10100101	; 
+   1222  fd04		       e7		      .byte.b	#%11100111	;	
+   1223  fd05				   C1
+   1224  fd05		       e7		      .byte.b	#%11100111	;
+   1225  fd06		       42		      .byte.b	#%01000010	; 
+   1226  fd07		       42		      .byte.b	#%01000010	; 
+   1227  fd08		       42		      .byte.b	#%01000010	; 
+   1228  fd09		       66		      .byte.b	#%01100110	;
+   1229  fd0a				   C2
+   1230  fd0a		       e7		      .byte.b	#%11100111	;
+   1231  fd0b		       24		      .byte.b	#%00100100	; 
+   1232  fd0c		       e7		      .byte.b	#%11100111	; 
+   1233  fd0d		       81		      .byte.b	#%10000001	; 
+   1234  fd0e		       e7		      .byte.b	#%11100111	;
+   1235  fd0f				   C3
+   1236  fd0f		       e7		      .byte.b	#%11100111	;
+   1237  fd10		       81		      .byte.b	#%10000001	; 
+   1238  fd11		       e7		      .byte.b	#%11100111	; 
+   1239  fd12		       81		      .byte.b	#%10000001	; 
+   1240  fd13		       e7		      .byte.b	#%11100111	;
+   1241  fd14				   C4
+   1242  fd14		       81		      .byte.b	#%10000001	;
+   1243  fd15		       81		      .byte.b	#%10000001	; 
+   1244  fd16		       e7		      .byte.b	#%11100111	; 
+   1245  fd17		       a5		      .byte.b	#%10100101	; 
+   1246  fd18		       a5		      .byte.b	#%10100101	;
+   1247  fd19				   C5
+   1248  fd19		       e7		      .byte.b	#%11100111	;
+   1249  fd1a		       81		      .byte.b	#%10000001	; 
+   1250  fd1b		       e7		      .byte.b	#%11100111	; 
+   1251  fd1c		       24		      .byte.b	#%00100100	; 
+   1252  fd1d		       e7		      .byte.b	#%11100111	;
+   1253  fd1e				   C6
+   1254  fd1e		       e7		      .byte.b	#%11100111	;
+   1255  fd1f		       a5		      .byte.b	#%10100101	; 
+   1256  fd20		       e7		      .byte.b	#%11100111	; 
+   1257  fd21		       24		      .byte.b	#%00100100	; 
+   1258  fd22		       e7		      .byte.b	#%11100111	;
+   1259  fd23				   C7
+   1260  fd23		       81		      .byte.b	#%10000001	;
+   1261  fd24		       81		      .byte.b	#%10000001	; 
+   1262  fd25		       81		      .byte.b	#%10000001	; 
+   1263  fd26		       81		      .byte.b	#%10000001	; 
+   1264  fd27		       e7		      .byte.b	#%11100111	;
+   1265  fd28				   C8
+   1266  fd28		       e7		      .byte.b	#%11100111	;
+   1267  fd29		       a5		      .byte.b	#%10100101	; 
+   1268  fd2a		       e7		      .byte.b	#%11100111	; 
+   1269  fd2b		       a5		      .byte.b	#%10100101	; 
+   1270  fd2c		       e7		      .byte.b	#%11100111	;
+   1271  fd2d				   C9
+   1272  fd2d		       e7		      .byte.b	#%11100111	;
+   1273  fd2e		       81		      .byte.b	#%10000001	; 
+   1274  fd2f		       e7		      .byte.b	#%11100111	; 
+   1275  fd30		       a5		      .byte.b	#%10100101	; 
+   1276  fd31		       e7		      .byte.b	#%11100111	;
+   1277  fd32				   CA
+   1278  fd32		       a5		      .byte.b	#%10100101	;
+   1279  fd33		       a5		      .byte.b	#%10100101	; 
+   1280  fd34		       e7		      .byte.b	#%11100111	; 
+   1281  fd35		       a5		      .byte.b	#%10100101	; 
+   1282  fd36		       e7		      .byte.b	#%11100111	;
+   1283  fd37				   CB
+   1284  fd37		       66		      .byte.b	#%01100110	;
+   1285  fd38		       a5		      .byte.b	#%10100101	; 
+   1286  fd39		       66		      .byte.b	#%01100110	; 
+   1287  fd3a		       a5		      .byte.b	#%10100101	;
+   1288  fd3b		       66		      .byte.b	#%01100110	;
+   1289  fd3c				   CC
+   1290  fd3c		       e7		      .byte.b	#%11100111	;
+   1291  fd3d		       24		      .byte.b	#%00100100	; 
+   1292  fd3e		       24		      .byte.b	#%00100100	; 
+   1293  fd3f		       24		      .byte.b	#%00100100	;
+   1294  fd40		       e7		      .byte.b	#%11100111	;
+   1295  fd41
+   1296  fd41				   CD
+   1297  fd41		       66		      .byte.b	#%01100110	;
+   1298  fd42		       a5		      .byte.b	#%10100101	; 
+   1299  fd43		       a5		      .byte.b	#%10100101	; 
+   1300  fd44		       a5		      .byte.b	#%10100101	;
+   1301  fd45		       66		      .byte.b	#%01100110	;
+   1302  fd46
+   1303  fd46				   CE
+   1304  fd46		       e7		      .byte.b	#%11100111	;
+   1305  fd47		       24		      .byte.b	#%00100100	; 
+   1306  fd48		       e7		      .byte.b	#%11100111	; 
+   1307  fd49		       24		      .byte.b	#%00100100	; 
+   1308  fd4a		       e7		      .byte.b	#%11100111	;
+   1309  fd4b
+   1310  fd4b				   CF
+   1311  fd4b		       24		      .byte.b	#%00100100	;
+   1312  fd4c		       24		      .byte.b	#%00100100	; 
+   1313  fd4d		       e7		      .byte.b	#%11100111	; 
+   1314  fd4e		       24		      .byte.b	#%00100100	; 
+   1315  fd4f		       e7		      .byte.b	#%11100111	;
+   1316  fd50
+   1317  fd50				   CG
+   1318  fd50		       c3		      .byte.b	#%11000011	;
+   1319  fd51		       a5		      .byte.b	#%10100101	; 
+   1320  fd52		       a5		      .byte.b	#%10100101	; 
+   1321  fd53		       24		      .byte.b	#%00100100	; 
+   1322  fd54		       c3		      .byte.b	#%11000011	;	
+   1323  fd55
+   1324  fd55				   CL
+   1325  fd55		       e7		      .byte.b	#%11100111	;
+   1326  fd56		       24		      .byte.b	#%00100100	; 
+   1327  fd57		       24		      .byte.b	#%00100100	; 
+   1328  fd58		       24		      .byte.b	#%00100100	; 
+   1329  fd59		       24		      .byte.b	#%00100100	;
+   1330  fd5a
+   1331  fd5a
+   1332  fd5a				   CH
+   1333  fd5a		       a5		      .byte.b	#%10100101	;
+   1334  fd5b		       a5		      .byte.b	#%10100101	; 
+   1335  fd5c		       e7		      .byte.b	#%11100111	; 
+   1336  fd5d		       a5		      .byte.b	#%10100101	; 
+   1337  fd5e		       a5		      .byte.b	#%10100101	;
+   1338  fd5f
+   1339  fd5f				   CM
+   1340  fd5f		       a5		      .byte.b	#%10100101	;
+   1341  fd60		       a5		      .byte.b	#%10100101	; 
+   1342  fd61		       a5		      .byte.b	#%10100101	; 
+   1343  fd62		       e7		      .byte.b	#%11100111	; 
+   1344  fd63		       a5		      .byte.b	#%10100101	;
+   1345  fd64
+   1346  fd64
+   1347  fd64				   CO
+   1348  fd64		       42		      .byte.b	#%01000010	;
+   1349  fd65		       a5		      .byte.b	#%10100101	; 
+   1350  fd66		       a5		      .byte.b	#%10100101	; 
+   1351  fd67		       a5		      .byte.b	#%10100101	; 
+   1352  fd68		       42		      .byte.b	#%01000010	;	
+   1353  fd69
+   1354  fd69				   CP
+   1355  fd69		       24		      .byte.b	#%00100100	;
+   1356  fd6a		       24		      .byte.b	#%00100100	; 
+   1357  fd6b		       e7		      .byte.b	#%11100111	; 
+   1358  fd6c		       a5		      .byte.b	#%10100101	; 
+   1359  fd6d		       e7		      .byte.b	#%11100111	;
+   1360  fd6e
+   1361  fd6e				   CR
+   1362  fd6e		       a5		      .byte.b	#%10100101	;
+   1363  fd6f		       a5		      .byte.b	#%10100101	; 
+   1364  fd70		       66		      .byte.b	#%01100110	; 
+   1365  fd71		       a5		      .byte.b	#%10100101	; 
+   1366  fd72		       66		      .byte.b	#%01100110	;
+   1367  fd73
+   1368  fd73				   CS
+   1369  fd73		       66		      .byte.b	#%01100110	;
+   1370  fd74		       81		      .byte.b	#%10000001	; 
+   1371  fd75		       42		      .byte.b	#%01000010	; 
+   1372  fd76		       24		      .byte.b	#%00100100	; 
+   1373  fd77		       c3		      .byte.b	#%11000011	;
+   1374  fd78
+   1375  fd78				   CT
+   1376  fd78		       42		      .byte.b	#%01000010	;
+   1377  fd79		       42		      .byte.b	#%01000010	; 
+   1378  fd7a		       42		      .byte.b	#%01000010	; 
+   1379  fd7b		       42		      .byte.b	#%01000010	; 
+   1380  fd7c		       e7		      .byte.b	#%11100111	;
+   1381  fd7d
+   1382  fd7d				   CV
+   1383  fd7d		       42		      .byte.b	#%01000010	;
+   1384  fd7e		       a5		      .byte.b	#%10100101	; 
+   1385  fd7f		       a5		      .byte.b	#%10100101	; 
+   1386  fd80		       a5		      .byte.b	#%10100101	; 
+   1387  fd81		       a5		      .byte.b	#%10100101	;	
+   1388  fd82
+   1389  fd82				   CY
+   1390  fd82		       42		      .byte.b	#%01000010	;
+   1391  fd83		       42		      .byte.b	#%01000010	; 
+   1392  fd84		       42		      .byte.b	#%01000010	; 
+   1393  fd85		       a5		      .byte.b	#%10100101	; 
+   1394  fd86		       a5		      .byte.b	#%10100101	;
+   1395  fd87
+   1396  fd87				   CW
+   1397  fd87		       a5		      .byte.b	#%10100101	;
+   1398  fd88		       e7		      .byte.b	#%11100111	; 
+   1399  fd89		       a5		      .byte.b	#%10100101	; 
+   1400  fd8a		       a5		      .byte.b	#%10100101	; 
+   1401  fd8b		       a5		      .byte.b	#%10100101	;
+   1402  fd8c
+   1403  fd8c				   Pipe
+   1404  fd8c		       42		      .byte.b	#%01000010	;
+   1405  fd8d		       00		      .byte.b	#%00000000	; 
+   1406  fd8e		       42		      .byte.b	#%01000010	; 
+   1407  fd8f		       00		      .byte.b	#%00000000	; 
+   1408  fd90		       42		      .byte.b	#%01000010	;
+   1409  fd91
+   1410  fd91				   Exclamation
+   1411  fd91		       42		      .byte.b	#%01000010	;
+   1412  fd92		       00		      .byte.b	#%00000000	; 
+   1413  fd93		       42		      .byte.b	#%01000010	; 
+   1414  fd94		       42		      .byte.b	#%01000010	; 
+   1415  fd95		       42		      .byte.b	#%01000010	;
+   1416  fd96
+   1417  fd96				   Dot
+   1418  fd96		       42		      .byte.b	#%01000010	;
+   1419  fd97		       42		      .byte.b	#%01000010	; 
+   1420  fd98		       00		      .byte.b	#%00000000	; 
+   1421  fd99		       00		      .byte.b	#%00000000	; 
+   1422  fd9a		       00		      .byte.b	#%00000000	;
+   1423  fd9b
+   1424  fd9b				   Space		; Moved from the beggining so 0 to F is fast to draw.
+   1425  fd9b		       00		      .byte.b	#0	;
+   1426  fd9c		       00		      .byte.b	#0	;
+   1427  fd9d		       00		      .byte.b	#0	;
+   1428  fd9e		       00		      .byte.b	#0	;
+   1429  fd9f		       00		      .byte.b	#0	;
+   1430  fda0
+   1431  fda0				   FontLookup		; Very fast font lookup for dynamic values!
+   1432  fda0		       04		      .byte.b	#<C0 + #FONT_OFFSET
+   1433  fda1		       09		      .byte.b	#<C1 + #FONT_OFFSET
+   1434  fda2		       0e		      .byte.b	#<C2 + #FONT_OFFSET
+   1435  fda3		       13		      .byte.b	#<C3 + #FONT_OFFSET
+   1436  fda4		       18		      .byte.b	#<C4 + #FONT_OFFSET
+   1437  fda5		       1d		      .byte.b	#<C5 + #FONT_OFFSET
+   1438  fda6		       22		      .byte.b	#<C6 + #FONT_OFFSET
+   1439  fda7		       27		      .byte.b	#<C7 + #FONT_OFFSET
+   1440  fda8		       2c		      .byte.b	#<C8 + #FONT_OFFSET
+   1441  fda9		       31		      .byte.b	#<C9 + #FONT_OFFSET
+   1442  fdaa		       36		      .byte.b	#<CA + #FONT_OFFSET
+   1443  fdab		       3b		      .byte.b	#<CB + #FONT_OFFSET
+   1444  fdac		       40		      .byte.b	#<CC + #FONT_OFFSET
+   1445  fdad		       45		      .byte.b	#<CD + #FONT_OFFSET
+   1446  fdae		       4a		      .byte.b	#<CE + #FONT_OFFSET
+   1447  fdaf		       4f		      .byte.b	#<CF + #FONT_OFFSET
+   1448  fdb0
+   1449  fdb0				   EngineSoundType
+   1450  fdb0		       02		      .byte.b	#2
+   1451  fdb1		       02		      .byte.b	#2
+   1452  fdb2		       0e		      .byte.b	#14
+   1453  fdb3		       06		      .byte.b	#6
+   1454  fdb4		       06		      .byte.b	#6
+   1455  fdb5		       0e		      .byte.b	#14
+   1456  fdb6
+   1457  fdb6				   EngineBaseFrequence
+   1458  fdb6		       1f		      .byte.b	#31
+   1459  fdb7		       12		      .byte.b	#18
+   1460  fdb8		       14		      .byte.b	#20
+   1461  fdb9		       1f		      .byte.b	#31
+   1462  fdba		       16		      .byte.b	#22
+   1463  fdbb		       03		      .byte.b	#3
+   1464  fdbc
+   1465  fe00					      org	$FE00
+   1466  fe00				   AesTable
+   1467  fe00		       63 7c 77 7b*	      DC.B	$63,$7c,$77,$7b,$f2,$6b,$6f,$c5,$30,$01,$67,$2b,$fe,$d7,$ab,$76
+   1468  fe10		       ca 82 c9 7d*	      DC.B	$ca,$82,$c9,$7d,$fa,$59,$47,$f0,$ad,$d4,$a2,$af,$9c,$a4,$72,$c0
+   1469  fe20		       b7 fd 93 26*	      DC.B	$b7,$fd,$93,$26,$36,$3f,$f7,$cc,$34,$a5,$e5,$f1,$71,$d8,$31,$15
+   1470  fe30		       04 c7 23 c3*	      DC.B	$04,$c7,$23,$c3,$18,$96,$05,$9a,$07,$12,$80,$e2,$eb,$27,$b2,$75
+   1471  fe40		       09 83 2c 1a*	      DC.B	$09,$83,$2c,$1a,$1b,$6e,$5a,$a0,$52,$3b,$d6,$b3,$29,$e3,$2f,$84
+   1472  fe50		       53 d1 00 ed*	      DC.B	$53,$d1,$00,$ed,$20,$fc,$b1,$5b,$6a,$cb,$be,$39,$4a,$4c,$58,$cf
+   1473  fe60		       d0 ef aa fb*	      DC.B	$d0,$ef,$aa,$fb,$43,$4d,$33,$85,$45,$f9,$02,$7f,$50,$3c,$9f,$a8
+   1474  fe70		       51 a3 40 8f*	      DC.B	$51,$a3,$40,$8f,$92,$9d,$38,$f5,$bc,$b6,$da,$21,$10,$ff,$f3,$d2
+   1475  fe80		       cd 0c 13 ec*	      DC.B	$cd,$0c,$13,$ec,$5f,$97,$44,$17,$c4,$a7,$7e,$3d,$64,$5d,$19,$73
+   1476  fe90		       60 81 4f dc*	      DC.B	$60,$81,$4f,$dc,$22,$2a,$90,$88,$46,$ee,$b8,$14,$de,$5e,$0b,$db
+   1477  fea0		       e0 32 3a 0a*	      DC.B	$e0,$32,$3a,$0a,$49,$06,$24,$5c,$c2,$d3,$ac,$62,$91,$95,$e4,$79
+   1478  feb0		       e7 c8 37 6d*	      DC.B	$e7,$c8,$37,$6d,$8d,$d5,$4e,$a9,$6c,$56,$f4,$ea,$65,$7a,$ae,$08
+   1479  fec0		       ba 78 25 2e*	      DC.B	$ba,$78,$25,$2e,$1c,$a6,$b4,$c6,$e8,$dd,$74,$1f,$4b,$bd,$8b,$8a
+   1480  fed0		       70 3e b5 66*	      DC.B	$70,$3e,$b5,$66,$48,$03,$f6,$0e,$61,$35,$57,$b9,$86,$c1,$1d,$9e
+   1481  fee0		       e1 f8 98 11*	      DC.B	$e1,$f8,$98,$11,$69,$d9,$8e,$94,$9b,$1e,$87,$e9,$ce,$55,$28,$df
+   1482  fef0		       8c a1 89 0d*	      DC.B	$8c,$a1,$89,$0d,$bf,$e6,$42,$68,$41,$99,$2d,$0f,$b0,$54,$bb,$16
+   1483  ff00
+   1484  ff00							; From FF00 to FFFB (122 bytes) to use here
+   1485  ff00
+   1486  ff00				   StaticText		; All static text must be on the same MSB block. 
+   1487  ff00				   CheckpointText		; Only the LSB, which is the offset.
+   1488  ff00		       40		      .byte.b	#<CC + #FONT_OFFSET
+   1489  ff01		       5e		      .byte.b	#<CH + #FONT_OFFSET
+   1490  ff02		       6d		      .byte.b	#<CP + #FONT_OFFSET
+   1491  ff03		       7c		      .byte.b	#<CT + #FONT_OFFSET
+   1492  ff04		       95		      .byte.b	#<Exclamation + #FONT_OFFSET
+   1493  ff05
+   1494  ff05				   HellwayLeftText
+   1495  ff05		       9f		      .byte.b	#<Space + #FONT_OFFSET
+   1496  ff06		       90		      .byte.b	#<Pipe + #FONT_OFFSET
+   1497  ff07		       5e		      .byte.b	#<CH + #FONT_OFFSET
+   1498  ff08		       4a		      .byte.b	#<CE + #FONT_OFFSET
+   1499  ff09		       59		      .byte.b	#<CL + #FONT_OFFSET
+   1500  ff0a
+   1501  ff0a				   HellwayRightText
+   1502  ff0a		       59		      .byte.b	#<CL + #FONT_OFFSET
+   1503  ff0b		       8b		      .byte.b	#<CW + #FONT_OFFSET
+   1504  ff0c		       36		      .byte.b	#<CA + #FONT_OFFSET
+   1505  ff0d		       86		      .byte.b	#<CY + #FONT_OFFSET
+   1506  ff0e		       95		      .byte.b	#<Exclamation + #FONT_OFFSET
+   1507  ff0f
+   1508  ff0f				   OpbText
+   1509  ff0f		       9f		      .byte.b	#<Space + #FONT_OFFSET
+   1510  ff10		       90		      .byte.b	#<Pipe + #FONT_OFFSET
+   1511  ff11		       68		      .byte.b	#<CO + #FONT_OFFSET
+   1512  ff12		       6d		      .byte.b	#<CP + #FONT_OFFSET
+   1513  ff13		       3b		      .byte.b	#<CB + #FONT_OFFSET
+   1514  ff14
+   1515  ff14				   YearText
+   1516  ff14		       9f		      .byte.b	#<Space + #FONT_OFFSET
+   1517  ff15		       0e		      .byte.b	#<C2 + #FONT_OFFSET
+   1518  ff16		       04		      .byte.b	#<C0 + #FONT_OFFSET
+   1519  ff17		       0e		      .byte.b	#<C2 + #FONT_OFFSET
+   1520  ff18		       09		      .byte.b	#<C1 + #FONT_OFFSET
+   1521  ff19
+   1522  ff19				   GameText
+   1523  ff19		       54		      .byte.b	#<CG + #FONT_OFFSET
+   1524  ff1a		       36		      .byte.b	#<CA + #FONT_OFFSET
+   1525  ff1b		       63		      .byte.b	#<CM + #FONT_OFFSET
+   1526  ff1c		       4a		      .byte.b	#<CE + #FONT_OFFSET
+   1527  ff1d		       9f		      .byte.b	#<Space + #FONT_OFFSET
+   1528  ff1e
+   1529  ff1e				   OverText
+   1530  ff1e		       68		      .byte.b	#<CO + #FONT_OFFSET
+   1531  ff1f		       81		      .byte.b	#<CV + #FONT_OFFSET
+   1532  ff20		       4a		      .byte.b	#<CE + #FONT_OFFSET
+   1533  ff21		       72		      .byte.b	#<CR + #FONT_OFFSET
+   1534  ff22		       9f		      .byte.b	#<Space + #FONT_OFFSET
+   1535  ff23
+   1536  ff23				   EndStaticText
+   1537  ff23
+   1538  ff23				   CarSprite		; Upside down
+   1539  ff23		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+   1540  ff24		       7e		      .byte.b	#%01111110
+   1541  ff25		       24		      .byte.b	#%00100100
+   1542  ff26		       bd		      .byte.b	#%10111101
+   1543  ff27		       3c		      .byte.b	#%00111100
+   1544  ff28		       bd		      .byte.b	#%10111101
+   1545  ff29		       3c		      .byte.b	#%00111100
+   1546  ff2a		       00 00 00 00*	      ds	GAMEPLAY_AREA - 8
+   1547  ff5c
+   1548  ff5c
+   1549  ff5c				   TrafficSpeeds		;maybe move to ram for dynamic changes of speed and 0 page access
+   1550  ff5c		       00		      .byte.b	#$00	;  Trafic0 L
+   1551  ff5d		       00		      .byte.b	#$00	;  Trafic0 H
+   1552  ff5e		       0a		      .byte.b	#$0A	;  Trafic1 L
+   1553  ff5f		       01		      .byte.b	#$01	;  Trafic1 H
+   1554  ff60		       e6		      .byte.b	#$E6	;  Trafic2 L
+   1555  ff61		       00		      .byte.b	#$00	;  Trafic2 H
+   1556  ff62		       c2		      .byte.b	#$C2	;  Trafic3 L
+   1557  ff63		       00		      .byte.b	#$00	;  Trafic3 H
+   1558  ff64		       9e		      .byte.b	#$9E	;  Trafic4 L
+   1559  ff65		       00		      .byte.b	#$00	;  Trafic4 H
+   1560  ff66
+   1561  fffc					      org	$FFFC
+   1562  fffc		       00 f0		      .word.w	BeforeStart
+   1563  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)

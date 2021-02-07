@@ -49,7 +49,7 @@ PLAYER1_COLOR = $96
 
 SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
-SCORE_FONT_COLOR_BAD = $30
+SCORE_FONT_COLOR_BAD = $33
 SCORE_FONT_COLOR_OVER = $0C
 
 PLAYER_0_X_START = $35;
@@ -1013,6 +1013,8 @@ StoreGameOverText
 RightScoreWriteEnd
 
 LeftSound
+	LDA CountdownTimer
+	BEQ EngineOff
 	LDA Player0SpeedL
 	AND #%10000000
 	ORA Player0SpeedH
@@ -1032,6 +1034,12 @@ LeftSound
 	STA AUDF0
 	LDA EngineSoundType,X
 	STA AUDC0
+	JMP EndLeftSound
+EngineOff
+	LDA #0
+	STA AUDC0
+
+EndLeftSound
 
 
 RightSound ; More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
@@ -1077,7 +1085,7 @@ PlayBeforeCheckpoint
 	STA AUDF1
 	LDA #12
 	STA AUDC1
-	LDA #5
+	LDA #2
 	STA AUDV1
 	JMP EndRightSound
 	

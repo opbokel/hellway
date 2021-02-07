@@ -66,10 +66,10 @@ CheckpointText           ff00              (R )
 CheckpointTime           00c2              (R )
 ChooseSide               f408                  
 CL                       fd55              (R )
-ClearAll                 f55d              (R )
+ClearAll                 f568              (R )
 ClearMem                 f00d              (R )
-ClearPF                  f56f              (R )
-ClearPFSkipLDA0          f571                  
+ClearPF                  f57a              (R )
+ClearPFSkipLDA0          f57c                  
 CM                       fd5f              (R )
 CO                       fd64              (R )
 COLLISION_FRAMES         00ff              (R )
@@ -80,12 +80,12 @@ COLUP0                   0006              (R )
 COLUP1                   0007              (R )
 COLUPF                   0008              (R )
 CompareLBreakSpeed       f146              (R )
-ConfigureDifficulty      f5a4              (R )
-ConfigureIntenseTraffic  f5c5              (R )
-ConfigureLightTraffic    f5b3              (R )
+ConfigureDifficulty      f5af              (R )
+ConfigureIntenseTraffic  f5d0              (R )
+ConfigureLightTraffic    f5be              (R )
 ConfigurePFForScore      f24c                  
-ConfigureRegularTraffic  f5bc              (R )
-ConfigureRushHourTraffic f5ce              (R )
+ConfigureRegularTraffic  f5c7              (R )
+ConfigureRushHourTraffic f5d9              (R )
 ContinueWithGameLogic    f0ff              (R )
 CountdownTimer           00bc              (R )
 CountFrame               f0f2                  
@@ -133,14 +133,16 @@ ENAM0                    001d              (R )
 ENAM0Cache               0086              (R )
 ENAM1                    001e              (R )
 ENAM1Cache               0087              (R )
-EndClearAll              f57e                  
+EndClearAll              f589                  
 EndDrawDistance          f44c                  
-EndLoadAll               f597                  
-EndNextDifficulty        f5db                  
+EndLeftSound             f50c              (R )
+EndLoadAll               f5a2                  
+EndNextDifficulty        f5e6                  
 EndReadSwitches          f0f2              (R )
-EndRightSound            f555              (R )
+EndRightSound            f560              (R )
 EndStaticText            ff23                  
 EngineBaseFrequence      fdb6              (R )
+EngineOff                f508              (R )
 EngineSoundType          fdb0              (R )
 EorOffsetWithCarry       f32e              (R )
 EorOffsetWithCarry2      f349              (R )
@@ -194,19 +196,19 @@ JumpSkipTimeOver         f3f6              (R )
 LeftScoreOn              f263                  
 LeftScoreWrite           f40e                  
 LeftSound                f4e0                  
-LoadAll                  f57e              (R )
+LoadAll                  f589              (R )
 macro.h                  0000 ????         (R )
 MainLoop                 f092              (R )
 MAX_GAME_MODE            0001              (R )
-MuteRightSound           f551              (R )
+MuteRightSound           f55c              (R )
 NextCheckpoint           00d7              (R )
-NextDifficulty           f597              (R )
+NextDifficulty           f5a2              (R )
 NO_ILLEGAL_OPCODES       0001              (R )
 NoCollision              f1fa              (R )
 NUSIZ0                   0004              (R )
 NUSIZ1                   0005              (R )
 OpbText                  ff0f              (R )
-OverScanWait             f555              (R )
+OverScanWait             f560              (R )
 OverText                 ff1e              (R )
 PF0                      000d              (R )
 PF0Cache                 0081              (R )
@@ -215,9 +217,9 @@ PF1Cache                 0082              (R )
 PF2                      000f              (R )
 PF2Cache                 0083              (R )
 Pipe                     fd8c              (R )
-PlayBeforeCheckpoint     f53e              (R )
-PlayCheckpoint           f52c              (R )
-PlayColision             f51d              (R )
+PlayBeforeCheckpoint     f549              (R )
+PlayCheckpoint           f537              (R )
+PlayColision             f528              (R )
 Player0SpeedH            008f              (R )
 Player0SpeedL            008e              (R )
 Player0X                 00bb              (R )
@@ -237,7 +239,7 @@ PrintHellwayLeft         f457              (R )
 PrintHellwayRight        f4bf              (R )
 PrintOverText            f4db              (R )
 PrintRightIntro          f4cc              (R )
-PrintStaticText          f5db              (R )
+PrintStaticText          f5e6              (R )
 ProcessScoreFontColor    f3b5                  
 ReadSwitches             f0be                  
 REFP0                    000b                  
@@ -255,16 +257,16 @@ RESMP0                   0028
 RESMP1                   0029                  
 RESP0                    0010              (R )
 RESP1                    0011              (R )
-ReturnNextDifficulty     f5da              (R )
+ReturnNextDifficulty     f5e5              (R )
 RightScoreOn             f272              (R )
 RightScoreWrite          f474              (R )
 RightScoreWriteEnd       f4e0              (R )
-RightSound               f501                  
+RightSound               f50c                  
 RSYNC                    0003                  
 ScanLoop                 f2fa              (R )
 SCORE_BACKGROUND_COLOR   00a0              (R )
 SCORE_FONT_COLOR         00f9              (R )
-SCORE_FONT_COLOR_BAD     0030              (R )
+SCORE_FONT_COLOR_BAD     0033              (R )
 SCORE_FONT_COLOR_GOOD    00d8              (R )
 SCORE_FONT_COLOR_OVER    000c              (R )
 SCORE_FONT_HOLD_CHANGE   00ff              (R )
@@ -304,8 +306,8 @@ StaticText               ff00              (R )
 StoreGameMode            f0e7              (R )
 StoreGameOverText        f4dd              (R )
 StoreHMove               f237              (R )
-StoreTrafficChance       f5d4              (R )
-Subroutines              f55d                  
+StoreTrafficChance       f5df              (R )
+Subroutines              f568                  
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
