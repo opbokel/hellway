@@ -50,6 +50,7 @@ PLAYER1_COLOR = $96
 SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
 SCORE_FONT_COLOR_BAD = $33
+SCORE_FONT_COLOR_START = $C8 ;Cannot be the same as good, font colors = game state
 SCORE_FONT_COLOR_OVER = $0C
 
 PLAYER_0_X_START = $35;
@@ -60,11 +61,11 @@ CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = %00000111 ; Every 8 frames
 
-SWITCHES_DEBOUNCE_TIME = 40 ; Frames
+SWITCHES_DEBOUNCE_TIME = 30 ; Frames
 
 BLACK = $00;
 
-MAX_GAME_MODE = 1
+MAX_GAME_MODE = 15
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -105,7 +106,7 @@ TrafficChance=$C1
 CheckpointTime=$C2
 TrafficColor=$C3
 CurrentDifficulty=$C4
-GameMode=$C5
+GameMode=$C5 ; Bit 0 controls fixed levels, bit 1 rand positions
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -141,23 +142,15 @@ SkipClean
 	
 ;Setting some variables...
 
+
+SettingTrafficOffsets; Time sensitive with player H position
 	STA WSYNC ;We will set player position
-	LDA #1
-	STA TrafficOffset1 + 0 ; So we can detect loop
-	LDA #$20
-	STA TrafficOffset1 + 2
-	LDA #$40
-	STA TrafficOffset2 + 2	;Initial Y Position
-	LDA #$60
-	STA TrafficOffset3 + 2	;Initial Y Position
-	LDA #$80
-	STA TrafficOffset4 + 2	;Initial Y Position
-	LDA #$A0
+	JSR DefaultOffsets
 
 	LDA TrafficSpeeds + 4 * 2 ; Same as the line he is in.
 	STA Player0SpeedL
 	
-	SLEEP 18
+	SLEEP 11;18
 	STA RESP0
 		
 	LDX 0
@@ -242,12 +235,42 @@ StartGame
 	STA FrameCount1
 	LDA #10
 	STA AUDV0
-	;LDA #SCORE_FONT_COLOR_GOOD
-	;STA ScoreFontColor
-	;LDA #SCORE_FONT_HOLD_CHANGE
-	;STA ScoreFontColorHoldChange
+	LDA #SCORE_FONT_COLOR_START
+	STA ScoreFontColor
+	LDA #SCORE_FONT_HOLD_CHANGE
+	STA ScoreFontColorHoldChange
 	JMP SkipIncFC1 ; Make the worse case stable
 SkipGameStart
+
+RandomizeGame
+	LDA GameStatus ;Could be merge with code block bellow
+	BNE EndRandomizeGame
+	LDA GameMode ; Games 3 and for and not running
+	AND #%00000010
+	BEQ DeterministicGame
+	LDX TrafficOffset1 + 2
+	LDA AesTable,X
+	EOR FrameCount0
+	STA TrafficOffset1 + 2
+	LDX TrafficOffset2 + 2
+	LDA AesTable,X
+	EOR FrameCount0
+	STA TrafficOffset2 + 2
+	LDX TrafficOffset3 + 2
+	LDA AesTable,X
+	EOR FrameCount0
+	STA TrafficOffset3 + 2
+	LDX TrafficOffset4 + 2
+	LDA AesTable,X
+	EOR FrameCount0
+	STA TrafficOffset4 + 2
+	JMP EndRandomizeGame
+
+DeterministicGame
+	JSR DefaultOffsets
+
+EndRandomizeGame
+
 
 ReadSwitches
 	LDX SwitchDebounceCounter
@@ -259,8 +282,11 @@ ReadSwitches
 	STA SwitchDebounceCounter
 	JMP Start
 SkipReset
+
+GameModeSelect
 	LDA GameStatus ;We don't read game select while running and save precious cycles
 	BNE SkipGameSelect
+	JSR CheckRandomDifficulty ; Keeps randomizing dificulti for modes 8 to F
 	LDA #%00000010
 	BIT SWCHB
 	BNE SkipGameSelect
@@ -396,9 +422,14 @@ ResetToMaxSpeed ; Speed is more, or is already max
 	STA Player0SpeedL
 SkipAccelerate
 
-;Updates all offsets 24 bits
+InitUpdateOffsets
 	LDX #0 ; Memory Offset 24 bit
 	LDY #0 ; Line Speeds 16 bits
+	LDA GameMode
+	AND #%00000100 ; GameModes with high delta
+	BEQ UpdateOffsets
+	LDY TrafficSpeedsHighDelta - TrafficSpeeds
+	
 UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SEC
 	LDA Player0SpeedL
@@ -457,6 +488,8 @@ TestCollision;
 	BNE NoCollision	
 	LDA ScoreFontColor ; Ignore colisions during checkpoint (Green Score)
 	CMP #SCORE_FONT_COLOR_GOOD
+	BEQ NoCollision
+	CMP #SCORE_FONT_COLOR_START
 	BEQ NoCollision
 	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
 	STA CollisionCounter	;and store as colision.
@@ -657,7 +690,14 @@ PrepareForTraffic
 	LDY GAMEPLAY_AREA ;2; (Score)
 
 	LDA Tmp3 ;3
-	SLEEP 10 ; Make it in the very end, so we have one more nice blue line
+
+	STA WSYNC
+	;What a wast of cycles, I must place some computation that fits here!
+	JSR Sleep16
+	JSR Sleep16
+	JSR Sleep16
+	JSR Sleep16
+	SLEEP 6 ; Make it in the very end, so we have one more nice blue line
 	STA COLUBK ;3
 
 ;main scanline loop...
@@ -802,7 +842,7 @@ PrepareOverscan
 	STA WSYNC  	
 	STA VBLANK 	
 	
-	LDA #36 ; one more line before overscan...
+	LDA #34 ; 2 more lines before overscan (was 37)...
 	STA TIM64T	
 
 ProcessScoreFontColor
@@ -870,6 +910,8 @@ LeftScoreWrite
 	LDA ScoreFontColor
 	CMP #SCORE_FONT_COLOR_GOOD
 	BEQ PrintCheckpoint
+	CMP #SCORE_FONT_COLOR_START
+	BEQ PrintStartGame
 	LDA GameStatus
 	BEQ PrintHellwayLeft
 WriteDistance ;Not optimized yet, ugly code.
@@ -916,6 +958,10 @@ EndDrawDistance
 
 PrintCheckpoint
 	LDX #<CheckpointText
+	JSR PrintStaticText
+	JMP RightScoreWriteEnd;3
+PrintStartGame
+	LDX #<GoText
 	JSR PrintStaticText
 	JMP RightScoreWriteEnd;3
 
@@ -1148,8 +1194,9 @@ LoadAll ; 36
 EndLoadAll
 
 NextDifficulty 
-	LDA GameMode ; For now, only game zero changes the difficulty
-	BNE ReturnNextDifficulty
+	LDA GameMode ; For now, even games change the difficult
+	AND #%00000001
+	BNE CheckRandomDifficulty
 
 	LDA CurrentDifficulty
 	CLC
@@ -1190,9 +1237,33 @@ StoreTrafficChance
 	STX TrafficChance
 	STY CheckpointTime
 	STA TrafficColor
-ReturnNextDifficulty
+
+CheckRandomDifficulty
+	LDA GameMode
+	AND #%00001000 ; Random difficulties
+	BEQ ReturnFromNextDifficulty
+RandomDificulty
+	LDX FrameCount0
+	LDA AesTable,X
+	EOR TrafficChance
+	AND #%00111111
+	STA TrafficChance
+	
+ReturnFromNextDifficulty
 	RTS
 EndNextDifficulty
+
+DefaultOffsets
+	LDA #$20
+	STA TrafficOffset1 + 2
+	LDA #$40
+	STA TrafficOffset2 + 2	;Initial Y Position
+	LDA #$60
+	STA TrafficOffset3 + 2	;Initial Y Position
+	LDA #$80
+	STA TrafficOffset4 + 2	;Initial Y Position
+	LDA #$A0
+	RTS
 
 PrintStaticText ; Preload X with the offset referent to StaticText
 	LDA StaticText,X
@@ -1209,6 +1280,11 @@ PrintStaticText ; Preload X with the offset referent to StaticText
 	INX
 	LDA StaticText,X
 	STA ScoreD4
+	RTS
+
+Sleep16
+	NOP
+	NOP
 	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
@@ -1456,7 +1532,7 @@ EngineSoundType
 
 EngineBaseFrequence
 	.byte #31
-	.byte #18
+	.byte #21
 	.byte #20
 	.byte #31
 	.byte #22
@@ -1532,6 +1608,12 @@ OverText
 	.byte #<CE + #FONT_OFFSET
 	.byte #<CR + #FONT_OFFSET 
 	.byte #<Space + #FONT_OFFSET
+GoText
+	.byte #<CG + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<Exclamation + #FONT_OFFSET
+	.byte #<Exclamation + #FONT_OFFSET 
+	.byte #<Exclamation + #FONT_OFFSET
 
 EndStaticText
 
@@ -1544,9 +1626,8 @@ CarSprite ; Upside down
 	.byte #%10111101
 	.byte #%00111100
 	ds GAMEPLAY_AREA - 8
-
 	
-TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
+TrafficSpeeds
 	.byte #$00;  Trafic0 L
 	.byte #$00;  Trafic0 H
 	.byte #$0A;  Trafic1 L
@@ -1556,6 +1637,17 @@ TrafficSpeeds ;maybe move to ram for dynamic changes of speed and 0 page access
 	.byte #$C2;  Trafic3 L
 	.byte #$00;  Trafic3 H
 	.byte #$9E;  Trafic4 L
+	.byte #$00;  Trafic4 H
+TrafficSpeedsHighDelta
+	.byte #$00;  Trafic0 L
+	.byte #$00;  Trafic0 H
+	.byte #$0A;  Trafic1 L
+	.byte #$01;  Trafic1 H
+	.byte #$C8;  Trafic2 L
+	.byte #$00;  Trafic2 H
+	.byte #$86;  Trafic3 L
+	.byte #$00;  Trafic3 H
+	.byte #$44;  Trafic4 L
 	.byte #$00;  Trafic4 H
 
 	org $FFFC
