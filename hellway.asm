@@ -286,7 +286,7 @@ SkipReset
 GameModeSelect
 	LDA GameStatus ;We don't read game select while running and save precious cycles
 	BNE SkipGameSelect
-	JSR CheckRandomDifficulty ; Keeps randomizing dificulti for modes 8 to F
+	JSR ConfigureDifficulty ; Keeps randomizing dificulty for modes 8 to F, also resets it for other modes
 	LDA #%00000010
 	BIT SWCHB
 	BNE SkipGameSelect

@@ -768,7 +768,7 @@
     286  f0f6				   GameModeSelect
     287  f0f6		       a5 c0		      LDA	GameStatus	;We don't read game select while running and save precious cycles
     288  f0f8		       d0 1c		      BNE	SkipGameSelect
-    289  f0fa		       20 34 f6 	      JSR	CheckRandomDifficulty	; Keeps randomizing dificulti for modes 8 to F
+    289  f0fa		       20 fe f5 	      JSR	ConfigureDifficulty	; Keeps randomizing dificulty for modes 8 to F, also resets it for other modes
     290  f0fd		       a9 02		      LDA	#%00000010
     291  f0ff		       2c 82 02 	      BIT	SWCHB
     292  f102		       d0 12		      BNE	SkipGameSelect
