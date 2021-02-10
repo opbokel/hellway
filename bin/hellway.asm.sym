@@ -64,7 +64,7 @@ CHECKPOINT_TIME_REGULAR  0023              (R )
 CHECKPOINT_TIME_RUSH_HOUR 002d              (R )
 CheckpointText           ff00              (R )
 CheckpointTime           00c2              (R )
-CheckRandomDifficulty    f634              (R )
+CheckRandomDifficulty    f638              (R )
 ChooseSide               f449                  
 CL                       fd55              (R )
 ClearAll                 f5b5              (R )
@@ -81,12 +81,12 @@ COLUP0                   0006              (R )
 COLUP1                   0007              (R )
 COLUPF                   0008              (R )
 CompareLBreakSpeed       f16f              (R )
-ConfigureDifficulty      f5fe              (R )
-ConfigureIntenseTraffic  f61f              (R )
-ConfigureLightTraffic    f60d              (R )
+ConfigureDifficulty      f602              (R )
+ConfigureIntenseTraffic  f623              (R )
+ConfigureLightTraffic    f611              (R )
 ConfigurePFForScore      f281                  
-ConfigureRegularTraffic  f616              (R )
-ConfigureRushHourTraffic f628              (R )
+ConfigureRegularTraffic  f61a              (R )
+ConfigureRushHourTraffic f62c              (R )
 ContinueWithGameLogic    f128              (R )
 CountdownTimer           00bc              (R )
 CountFrame               f11b                  
@@ -111,7 +111,7 @@ CY                       fd82              (R )
 DecreaseSpeed            f15a                  
 DecrementCollision       f22f                  
 DecrementSwitchDebounceCounter f119              (R )
-DefaultOffsets           f646              (R )
+DefaultOffsets           f64a              (R )
 DeterministicGame        f0e1              (R )
 Digit0Distance           f45d                  
 Digit0Speed              f4e7                  
@@ -139,8 +139,8 @@ ENAM1Cache               0087              (R )
 EndClearAll              f5d6                  
 EndDrawDistance          f491                  
 EndLeftSound             f559              (R )
-EndLoadAll               f5ef                  
-EndNextDifficulty        f646                  
+EndLoadAll               f5f3                  
+EndNextDifficulty        f64a                  
 EndRandomizeGame         f0e4              (R )
 EndReadSwitches          f11b              (R )
 EndRightSound            f5ad              (R )
@@ -209,7 +209,7 @@ MainLoop                 f07c              (R )
 MAX_GAME_MODE            000f              (R )
 MuteRightSound           f5a9              (R )
 NextCheckpoint           00d7              (R )
-NextDifficulty           f5ef              (R )
+NextDifficulty           f5f3              (R )
 NO_ILLEGAL_OPCODES       0001              (R )
 NoCollision              f22f              (R )
 NUSIZ0                   0004              (R )
@@ -247,9 +247,9 @@ PrintHellwayRight        f50c              (R )
 PrintOverText            f528              (R )
 PrintRightIntro          f519              (R )
 PrintStartGame           f49c              (R )
-PrintStaticText          f659              (R )
+PrintStaticText          f65d              (R )
 ProcessScoreFontColor    f3f6                  
-RandomDificulty          f63a                  
+RandomDificulty          f63e                  
 RandomizeGame            f0b0                  
 ReadSwitches             f0e4                  
 REFP0                    000b                  
@@ -267,7 +267,7 @@ RESMP0                   0028
 RESMP1                   0029                  
 RESP0                    0010              (R )
 RESP1                    0011              (R )
-ReturnFromNextDifficulty f645              (R )
+ReturnFromNextDifficulty f649              (R )
 RightScoreOn             f2a7              (R )
 RightScoreWrite          f4c1              (R )
 RightScoreWriteEnd       f52d              (R )
@@ -311,7 +311,7 @@ SkipResetPlayerPosition  f249              (R )
 SkipScoreFontColor       f404              (R )
 SkipSetColisionSpeed     f226              (R )
 SkipUpdateLogic          f270              (R )
-Sleep16                  f677              (R )
+Sleep16                  f67b              (R )
 Space                    fd9b              (R )
 Start                    f006              (R )
 StartGame                f091                  
@@ -319,7 +319,7 @@ StaticText               ff00              (R )
 StoreGameMode            f110              (R )
 StoreGameOverText        f52a              (R )
 StoreHMove               f26c              (R )
-StoreTrafficChance       f62e              (R )
+StoreTrafficChance       f632              (R )
 Subroutines              f5b5                  
 SWACNT                   0281                  
 SWBCNT                   0283                  

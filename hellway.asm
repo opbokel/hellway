@@ -329,7 +329,6 @@ EverySecond ; 64 frames to be more precise
 SkipEverySecondAction
 
 
-
 BreakOnTimeOver ; Uses LDX as the breaking speed
 	LDX #0
 	LDA CountdownTimer
@@ -1171,7 +1170,7 @@ ClearPFSkipLDA0
 	RTS ;6
 EndClearAll
 
-LoadAll ; 36
+LoadAll ; 48
 	LDA PF0Cache  ;3
 	STA PF0		  ;3
 	
@@ -1187,8 +1186,11 @@ LoadAll ; 36
 	LDA ENABLCache ;3
 	STA ENABL      ;3
 
-	LDA ENAM0Cache
-	STA ENAM0
+	LDA ENAM0Cache ;3
+	STA ENAM0      ;3
+
+	LDA ENAM1Cache ;3
+	STA ENAM1      ;3
 
 	RTS ;6
 EndLoadAll
