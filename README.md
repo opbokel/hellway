@@ -17,27 +17,52 @@ Every track has its own speed, and the car generation is deterministic. Accelera
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
 
-Every checkpoint you receive more time, and the score and the car turn green. This will make will invincible for a few seconds.
+Every checkpoint (0x100) you receive more time, and the score and the car turn green. This will make you invincible for a few seconds. You will receive an audio alert just before it.
 
-If the time is over the score and the car turn red, but you still can reach a checkpoint, since the car slowly decelerates.
+If the time is over the score and the car turns red, but you still can reach a checkpoint, since the car slowly decelerates.
 
 The game is over when the time is over and the car is stopped. The score turns white.
 
 ## Switches
-* Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants of color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme.
-    * 0 - BB = Light traffic, Green
-    * 1 - BA = Regular traffic, Red (ish) That is the traffic level I personally enjoy the most.
-    * 3 - AB = Intense Traffic, Brown
-    * 4 - AA = Rush Hour, White (ish)
+* Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants regarding color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme. It might have slightly different effects depending on the game mode. The time added per checkpoint also varies.
+    * 0 - BB = Light traffic, Green (+ 30 seconds)
+    * 1 - BA = Regular traffic, Red (ish) (+ 35 seconds)
+    * 3 - AB = Intense Traffic, Brown (+ 40 seconds)
+    * 4 - AA = Rush Hour, White (ish) (+ 45 seconds)
     
 * Game Reset: Restarts the the current game mode and apply the difficulty switches.
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay.
 
-* Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. The game mode is in the top left corner:   
-    * Mode 0 = Default mode, traffic level changes every checkpoint.
-    * Mode 1 = The traffic level does not change.
+* Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. The game mode is in the top left corner:
+    * Mode 0 = Default mode, traffic level changes every checkpoint, and keep cycling. The difficulty switches define only the starting traffic intensity.
+    * Mode 1 = The traffic level defined by the switches does not change.
+    * Mode 2 = Mode 0 + Randomized traffic lines.
+    * Mode 3 = Mode 1 + Randomized traffic lines.
+    * Mode 4 = Mode 0 + Bigger speed difference between traffic lines.
+    * Mode 5 = Mode 1 + Bigger speed difference between traffic lines.
+    * Mode 6 = Mode 2 + Bigger speed difference between traffic lines.
+    * Mode 7 = Mode 3 + Bigger speed difference between traffic lines.
+    * Mode 8 = Mode 0 + Random traffic intensity every checkpoint.
+    * Mode 9 = Mode 1 + Random traffic intensity every checkpoint. 
+    * Mode A = Mode 2 + Random traffic intensity every checkpoint.
+    * Mode B = Mode 3 + Random traffic intensity every checkpoint.
+    * Mode C = Mode 4 + Random traffic intensity every checkpoint.
+    * Mode D = Mode 5 + Random traffic intensity every checkpoint. 
+    * Mode E = Mode 6 + Random traffic intensity every checkpoint.
+    * Mode F = Mode 7 + Random traffic intensity every checkpoint.
 
+For modes 8 to F, the traffic level to be cyclic or fixed is only applied for the checkpoint time.
+
+It much easier to read it as a binary number (like linux file permissions). Each byte defines a property (0 / 1).
+
+* D0 => (Cyclic / Fixed) traffic intensity.
+* D1 => (Constant / Randomized) traffic lines.
+* D2 => (Smaller / Bigger) speed difference between lines.
+* D3 => (Constant / Random) traffic intensity.
+
+Deterministic game modes (0,1,4,5) will always generate the same sequence of cars for each line.
+ 
 ## Controls
 * The button starts the game and accelerates.
 * Up also accelerates, down breaks, and you can move left to right.
