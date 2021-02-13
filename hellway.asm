@@ -66,6 +66,8 @@ SWITCHES_DEBOUNCE_TIME = 30 ; Frames
 BLACK = $00;
 
 MAX_GAME_MODE = 15
+
+PARALLAX_SIZE = 8
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -75,6 +77,8 @@ GRP1Cache = $84
 ENABLCache = $85
 ENAM0Cache = $86
 ENAM1Cache = $87
+
+ParallaxMode = $88
 
 FrameCount0 = $8C;
 FrameCount1 = $8D;
@@ -108,6 +112,11 @@ TrafficColor=$C3
 CurrentDifficulty=$C4
 GameMode=$C5 ; Bit 0 controls fixed levels, bit 1 rand positions
 
+ParallaxOffset1=$C6 ; C7 
+ParallaxOffset2=$C8 ; C9
+
+BorderType=$C10
+
 ScoreD0 = $D0
 ScoreD1 = $D1
 ScoreD2 = $D2
@@ -117,12 +126,17 @@ ScoreFontColor=$D5
 ScoreFontColorHoldChange=$D6
 NextCheckpoint=$D7
 
+ParallaxCache=$D8 ; to $DF
+ParallaxCache2=$F0 ; to F8
+
 
 ;generic start up stuff, put zero in all...
 BeforeStart ;All variables that are kept on game reset or select
 	LDY #0
 	STY SwitchDebounceCounter
 	STY GameMode
+	LDY #%11100000 ; Default Parallax
+	STY ParallaxMode
 
 Start
 	SEI	
@@ -134,6 +148,8 @@ ClearMem
 	CPX #SwitchDebounceCounter
 	BEQ SkipClean
 	CPX #GameMode
+	BEQ SkipClean
+	CPX #ParallaxMode
 	BEQ SkipClean
 	STA 0,X		
 SkipClean	
@@ -287,6 +303,13 @@ GameModeSelect
 	LDA GameStatus ;We don't read game select while running and save precious cycles
 	BNE SkipGameSelect
 	JSR ConfigureDifficulty ; Keeps randomizing dificulty for modes 8 to F, also resets it for other modes
+ReadDpadParallax
+	LDA SWCHA
+	AND #%11110000
+	CMP #%11110000 ; 1 means it is not on that direction 
+	BEQ ContinueGameSelect ; We do not change parallax while gamepad is centered!
+	STA ParallaxMode
+ContinueGameSelect
 	LDA #%00000010
 	BIT SWCHB
 	BNE SkipGameSelect
@@ -404,7 +427,7 @@ IncreaseCarSpeed
 	ADC #0
 	STA Player0SpeedH
 
-;Checks if already max
+CheckIfAlreadyMaxSpeed
 	CMP #CAR_MAX_SPEED_H
 	BCC SkipAccelerate ; less than my max speed
 	BNE ResetToMaxSpeed ; Not equal, so if I am less, and not equal, I am more!
@@ -442,7 +465,6 @@ UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SBC #0
 	STA Tmp2
 
-
 AddsTheResult
 	CLC
 	LDA Tmp0
@@ -472,6 +494,7 @@ PrepareNextUpdateLoop
 	INX
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
+
 
 ;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
@@ -555,8 +578,82 @@ StoreHMove
 	STX HMP0	;set the move for player 0, not the missile like last time...
 	STA CXCLR	;reset the collision detection for next frame.
 
+DividePlayerSpeedBy4
+	LDA Player0SpeedH
+	ASL
+	ASL
+	ASL
+	ASL
+	ASL
+	ASL
+	STA Tmp1
+	LDA Player0SpeedL
+	LSR
+	LSR
+	AND #%00111111
+	ORA Tmp1
+	STA Tmp0 ; Division Result
 
-SkipUpdateLogic
+CalculateParallax1Offset ; 7/8 speed
+	SEC
+	LDA Player0SpeedL
+	SBC Tmp0
+	STA Tmp2
+	LDA Player0SpeedH
+	SBC #0
+	STA Tmp3
+
+	CLC
+	LDA ParallaxOffset1
+	ADC Tmp2
+	STA ParallaxOffset1
+	LDA ParallaxOffset1 + 1
+	ADC Tmp3
+	STA ParallaxOffset1 + 1
+
+CalculateParallax2Offset ; 6/8 speed
+	SEC
+	LDA Tmp2
+	SBC Tmp0
+	STA Tmp2
+	LDA Tmp3
+	SBC #0
+	STA Tmp3
+
+	CLC
+	LDA ParallaxOffset2
+	ADC Tmp2
+	STA ParallaxOffset2
+	LDA ParallaxOffset2 + 1
+	ADC Tmp3
+	STA ParallaxOffset2 + 1
+
+SkipUpdateLogic ; Continue here if not paused
+
+ProcessBorder ;Can be optimized (probably)
+	LDY #PARALLAX_SIZE - 1 ; Used by all SBRs
+	LDA ParallaxMode
+	CMP #%01110000
+	BEQ HorizontalParallaxMode
+	CMP #%11010000
+	BEQ VerticalParallaxMode
+	CMP #%10110000
+	BEQ TachographMode	
+
+DefaultBorderMode
+	JSR DefaultBorderLoop
+	JMP EndProcessingBorder
+VerticalParallaxMode
+	JSR VerticalParallaxLoop
+	JMP EndProcessingBorder
+TachographMode
+	JSR PrepareTachographBorderLoop
+	JMP EndProcessingBorder
+HorizontalParallaxMode
+	JSR HorizontalParallaxLoop
+
+EndProcessingBorder
+
 ScoreBackgroundColor
 	LDX #0
 	LDA SWCHB
@@ -704,7 +801,10 @@ ScanLoop
 	STA WSYNC ;?? from the end of the scan loop, sync the final line
 
 ;Start of next line!			
-DrawCache ;54 Is the last line going to the top of the next frame?
+DrawCache ;57 Is the last line going to the top of the next frame?
+
+	LDA PF0Cache ;3
+	STA PF0	     ;3
 
 	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
 	STA GRP0      ;3   ;put it as graphics now
@@ -725,7 +825,7 @@ DrawCache ;54 Is the last line going to the top of the next frame?
 	STA ENAM1 ;3
 
 	LDA #0		 ;2
-	STA PF1Cache ;3
+	;STA PF1Cache ;3
 	STA GRP1Cache ;3
 	STA ENABLCache ;3
 	STA ENAM0Cache ;3
@@ -814,12 +914,12 @@ FinishDrawTraffic4
 
 DrawTraffic0; 15
 	TYA ;2
-	CLC ;2
-	ADC TrafficOffset0 + 1 ; 3
-	AND #%00000100 ;2 Every 4 game lines, draw the border
-	BEQ SkipDrawTraffic0; 2
-	LDA #$FF; 2
+	AND #%00000111 ;2
+	TAX ;2
+	LDA ParallaxCache,X ;4
 	STA PF1Cache ;3
+	LDA ParallaxCache2,X ;4
+	STA PF0Cache ;3
 
 SkipDrawTraffic0
 
@@ -1289,6 +1389,193 @@ Sleep16
 	NOP
 	RTS
 
+HorizontalParallaxLoop
+	LDA #%11101111 ; Clear the house
+	AND ParallaxCache,Y	
+	STA ParallaxCache,Y	
+CalculateParallax0
+	TYA
+	CLC
+	ADC TrafficOffset0 + 1
+	AND #%00000100
+	BEQ HasEmptySpace0
+HasBorder0
+	LDA ParallaxCache,Y
+	ORA #%00001111
+	JMP StoreParallax0
+HasEmptySpace0
+	LDA ParallaxCache,Y
+	AND #%11110000
+
+StoreParallax0
+	STA ParallaxCache,Y
+
+CalculateParallax1
+	TYA
+	CLC
+	ADC ParallaxOffset1 + 1
+	AND #%00000100
+	BEQ HasEmptySpace1
+HasBorder1
+	LDA ParallaxCache,Y
+	ORA #%11100000
+	JMP StoreParallax1
+HasEmptySpace1
+	LDA ParallaxCache,Y
+	AND #%00011111
+
+StoreParallax1
+	STA ParallaxCache,Y
+
+CalculateParallax2
+	TYA
+	CLC
+	ADC ParallaxOffset2 + 1
+	AND #%00000100
+	BEQ HasEmptySpace2
+HasBorder2
+	LDA #%01100000 
+	JMP StoreParallax2
+HasEmptySpace2
+	LDA #0
+
+StoreParallax2
+	STA ParallaxCache2,Y
+
+ContinueHorizontalParallaxLoop
+	DEY
+	BPL HorizontalParallaxLoop
+	RTS
+
+DefaultBorderLoop
+CalculateDefaultBorder
+	TYA
+	CLC
+	ADC TrafficOffset0 + 1
+	AND #%00000100
+	BEQ HasEmptySpace
+HasBorder
+	LDA #$FF
+	JMP StoreBorder
+HasEmptySpace
+	LDA #0
+
+StoreBorder
+	STA ParallaxCache,Y	
+	LDA #0
+	STA ParallaxCache2,Y ; Clear other modes
+
+ContinueDefaultBorderLoop
+	DEY
+	BPL DefaultBorderLoop
+	RTS
+
+PrepareTachographBorderLoop
+	LDA Player0SpeedL
+	AND #%10000000
+	ORA Player0SpeedH
+	CLC
+	ROL
+	ADC #0
+	STA Tmp0 ; Gear
+	LDA Player0SpeedL
+	LSR
+	LSR
+	LSR
+	LSR
+	AND #%00000111
+	STA Tmp1 ; RPM
+
+TachographBorderLoop
+	TYA
+	CLC
+	ADC TrafficOffset0 + 1
+	AND #%00000100
+	BEQ HasBorderTac
+	LDX Tmp0
+	LDA TachographGearLookup,X
+	STA ParallaxCache,Y
+	LDA #0
+	STA ParallaxCache2,Y
+	JMP ContinueBorderTac
+HasBorderTac
+	LDA #5
+	CMP Tmp0 ; Only on max speed
+	BEQ FullBorderTac
+	LDX Tmp1
+	LDA TachographSizeLookup1,X
+	STA ParallaxCache,Y
+	LDA TachographSizeLookup2,X
+	STA ParallaxCache2,Y
+	JMP ContinueBorderTac
+
+FullBorderTac
+	LDA #$FF
+	STA ParallaxCache,Y
+	STA ParallaxCache2,Y
+	JMP ContinueBorderTac
+
+ContinueBorderTac
+	DEY
+	BPL TachographBorderLoop
+	RTS
+
+VerticalParallaxLoop
+CalculateVerticalParallax0
+	TYA
+	CLC
+	ADC TrafficOffset0 + 1
+	AND #%00000110
+	BNE HasNoVerticalLine0
+HasVerticalLine0
+	LDA #$FF
+	STA ParallaxCache,Y
+	STA ParallaxCache2,Y
+	JMP ContinueVerticalParallaxLoop ; Biggest line possible
+HasNoVerticalLine0
+	LDA #0
+	STA ParallaxCache,Y
+	STA ParallaxCache2,Y
+
+CalculateVerticalParallax1
+	TYA
+	CLC
+	ADC ParallaxOffset1 + 1
+	AND #%00000111
+	BNE HasNoVerticalLine1
+
+HasVerticalLine1
+	LDA #%11111100
+	STA ParallaxCache,Y
+	LDA #%11000000
+	STA ParallaxCache2,Y
+	JMP ContinueVerticalParallaxLoop
+HasNoVerticalLine1
+	LDA #0
+	STA ParallaxCache,Y
+	STA ParallaxCache2,Y
+
+CalculateVerticalParallax2
+	TYA
+	CLC
+	ADC ParallaxOffset2 + 1
+	AND #%00000111
+	BNE HasNoVerticalLine2
+
+HasVerticalLine2
+	LDA #%11110000
+	STA ParallaxCache,Y
+	JMP ContinueVerticalParallaxLoop
+HasNoVerticalLine2
+	LDA #0
+	STA ParallaxCache,Y
+	STA ParallaxCache2,Y
+
+ContinueVerticalParallaxLoop
+	DEY
+	BPL VerticalParallaxLoop
+	RTS
+
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
 	org $FD00
 Font	
@@ -1539,6 +1826,34 @@ EngineBaseFrequence
 	.byte #31
 	.byte #22
 	.byte #3
+
+TachographSizeLookup1
+	.byte #%00011111
+	.byte #%00111111
+	.byte #%01111111
+	.byte #%11111111
+	.byte #%11111111
+	.byte #%11111111
+	.byte #%11111111
+	.byte #%11111111
+
+TachographSizeLookup2
+	.byte #%00000000
+	.byte #%00000000
+	.byte #%00000000
+	.byte #%00000000
+	.byte #%10000000
+	.byte #%11000000
+	.byte #%11100000
+	.byte #%11110000
+
+TachographGearLookup
+	.byte #%00000001
+	.byte #%00000010
+	.byte #%00000100
+	.byte #%00001000
+	.byte #%00010000
+	.byte #%00110000
 
 	org $FE00
 AesTable
