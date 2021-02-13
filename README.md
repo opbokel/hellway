@@ -1,4 +1,4 @@
-# Hellway
+# Hellway V0.9(RC1)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -67,12 +67,6 @@ Deterministic game modes (0,1,4,5) will always generate the same sequence of car
 * The button starts the game and accelerates.
 * Up also accelerates, down breaks, and you can move left to right.
 * It is possible to break and accelerate at the same time, this will break with half intensity (Heel-and-toe).
-
-## Current Roadmap (the priorities might change):
-* A mode where the tracks start at a random position.
-* A mode where the tracks speeds are also random.
-* Sound (Engine and collision)
-* Parallax (Screen edges)
 
 ## Closing Thoughts
 A very special thanks to all the AtariAge community. You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
