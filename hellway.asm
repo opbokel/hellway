@@ -45,6 +45,8 @@ TRAFFIC_COLOR_RUSH_HOUR = $09
 BACKGROUND_COLOR = $03 ;Grey
 SCORE_BACKGROUND_COLOR = $A0
 
+SCORE_FONT_COLOR_EASTER_EGG = $38
+
 PLAYER1_COLOR = $96
 
 SCORE_FONT_COLOR = $F9
@@ -68,6 +70,8 @@ BLACK = $00;
 MAX_GAME_MODE = 15
 
 PARALLAX_SIZE = 8
+
+HALF_TEXT_SIZE = 5
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -638,7 +642,7 @@ ProcessBorder ;Can be optimized (probably)
 	CMP #%11010000
 	BEQ VerticalParallaxMode
 	CMP #%10110000
-	BEQ TachographMode	
+	BEQ TachometerMode	
 
 DefaultBorderMode
 	JSR DefaultBorderLoop
@@ -646,8 +650,8 @@ DefaultBorderMode
 VerticalParallaxMode
 	JSR VerticalParallaxLoop
 	JMP EndProcessingBorder
-TachographMode
-	JSR PrepareTachographBorderLoop
+TachometerMode
+	JSR PrepareTachometerBorderLoop
 	JMP EndProcessingBorder
 HorizontalParallaxMode
 	JSR HorizontalParallaxLoop
@@ -998,12 +1002,22 @@ IsTimeOver
 	STA ScoreFontColor
 SkipIsTimeOver
 
+PrintEasterEggCondition
+	LDA FrameCount1
+	AND #%00111000
+	ORA GameStatus
+	CMP #%00111000
+	BNE ChooseTextSide
+	JSR PrintEasterEgg
+	JMP RightScoreWriteEnd
+
 ;Could be done during on vblank to save this comparisson time (before draw score), 
 ;but I am saving vblank cycles for now, in case of 2 players.
-ChooseSide ; 
+ChooseTextSide ; 
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
-	BEQ RightScoreWrite ; Half of the screen with the correct colors.
+	BNE LeftScoreWrite ; Half of the screen with the correct colors.
+	JMP RightScoreWrite 
 
 LeftScoreWrite
 	LDA ScoreFontColor
@@ -1050,8 +1064,22 @@ Digit3Distance
 	LDA FontLookup,X ;4 
 	STA ScoreD0 ;3
 
+DistanceOverflowDigit ; If overflow, the pipe becomes the last digit
+	LDA Traffic0Msb
+	AND #%11110000 ;2
+	BNE DrawDistanceExtraDigit
 	LDA #<Pipe + #FONT_OFFSET;3
 	STA ScoreD4 ;3
+	JMP EndDrawDistance
+DrawDistanceExtraDigit
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	LSR ; 2
+	TAX ; 2
+	LDA FontLookup,X ;4
+	STA ScoreD4 ;3
+
 EndDrawDistance
 	JMP RightScoreWriteEnd;3
 
@@ -1470,7 +1498,7 @@ ContinueDefaultBorderLoop
 	BPL DefaultBorderLoop
 	RTS
 
-PrepareTachographBorderLoop
+PrepareTachometerBorderLoop
 	LDA Player0SpeedL
 	AND #%10000000
 	ORA Player0SpeedH
@@ -1486,14 +1514,14 @@ PrepareTachographBorderLoop
 	AND #%00000111
 	STA Tmp1 ; RPM
 
-TachographBorderLoop
+TachometerBorderLoop
 	TYA
 	CLC
 	ADC TrafficOffset0 + 1
 	AND #%00000100
 	BEQ HasBorderTac
 	LDX Tmp0
-	LDA TachographGearLookup,X
+	LDA TachometerGearLookup,X
 	STA ParallaxCache,Y
 	LDA #0
 	STA ParallaxCache2,Y
@@ -1503,9 +1531,9 @@ HasBorderTac
 	CMP Tmp0 ; Only on max speed
 	BEQ FullBorderTac
 	LDX Tmp1
-	LDA TachographSizeLookup1,X
+	LDA TachometerSizeLookup1,X
 	STA ParallaxCache,Y
-	LDA TachographSizeLookup2,X
+	LDA TachometerSizeLookup2,X
 	STA ParallaxCache2,Y
 	JMP ContinueBorderTac
 
@@ -1517,7 +1545,7 @@ FullBorderTac
 
 ContinueBorderTac
 	DEY
-	BPL TachographBorderLoop
+	BPL TachometerBorderLoop
 	RTS
 
 VerticalParallaxLoop
@@ -1574,6 +1602,85 @@ HasNoVerticalLine2
 ContinueVerticalParallaxLoop
 	DEY
 	BPL VerticalParallaxLoop
+	RTS
+
+PrintEasterEgg ; Not very optimized, but I have cycles to spare.
+	LDA #SCORE_FONT_COLOR_EASTER_EGG
+	STA ScoreFontColor
+	LDA #1
+	STA ScoreFontColorHoldChange
+
+	LDA FrameCount1
+	AND #%00000111
+	STA Tmp3
+	;0 is Zelda Name, (default)
+	LDA #1
+	CMP Tmp3
+	BEQ PrintZeldaDateLeft
+
+	LDA #2
+	CMP Tmp3
+	BEQ PrintPolvinhosLeft
+
+	LDA #3
+	CMP Tmp3
+	BEQ PrintPolvinhosDateLeft
+
+	LDA #4
+	CMP Tmp3
+	BEQ PrintIvonneLeft
+
+	LDA #5
+	CMP Tmp3
+	BEQ PrintIvonneDateLeft
+
+	LDA #6
+	CMP Tmp3
+	BEQ PrintArtLeft
+
+	LDA #7
+	CMP Tmp3
+	BEQ PrintLeonardoLeft
+	
+PrintZeldaLeft
+	LDX #<ZeldaTextLeft
+	JMP ProcessPrintEasterEgg
+PrintPolvinhosLeft
+	LDX #<PolvinhosTextLeft
+	JMP ProcessPrintEasterEgg
+PrintIvonneLeft
+	LDX #<IvonneTextLeft
+	JMP ProcessPrintEasterEgg
+PrintArtLeft
+	LDX #<PaperArtTextLeft
+	JMP ProcessPrintEasterEgg
+
+PrintZeldaDateLeft
+	LDX #<ZeldaDateLeft
+	JMP ProcessPrintEasterEgg
+PrintPolvinhosDateLeft
+	LDX #<PolvinhosDateLeft
+	JMP ProcessPrintEasterEgg
+PrintIvonneDateLeft
+	LDX #<IvonneDateLeft
+	JMP ProcessPrintEasterEgg
+PrintLeonardoLeft
+	LDX #<LeonardoTextLeft
+	JMP ProcessPrintEasterEgg
+
+ProcessPrintEasterEgg
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ TranformIntoRightText
+	JMP PrintEasterEggText
+TranformIntoRightText ; Just adds 5 to X, texts are properly aligned
+	TXA
+	CLC
+	ADC #HALF_TEXT_SIZE
+	TAX
+
+PrintEasterEggText
+	JSR PrintStaticText
 	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
@@ -1686,14 +1793,6 @@ CG
 	.byte #%00100100; 
 	.byte #%11000011;	
 
-CL
-	.byte #%11100111;
-	.byte #%00100100; 
-	.byte #%00100100; 
-	.byte #%00100100; 
-	.byte #%00100100;
-
-
 CH
 	.byte #%10100101;
 	.byte #%10100101; 
@@ -1701,12 +1800,33 @@ CH
 	.byte #%10100101; 
 	.byte #%10100101;
 
+CL
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%00100100; 
+	.byte #%00100100; 
+	.byte #%00100100;
+
+CI
+	.byte #%01000010;
+	.byte #%01000010; 
+	.byte #%01000010; 
+	.byte #%00000000; 
+	.byte #%01000010;
+
 CM
 	.byte #%10100101;
 	.byte #%10100101; 
 	.byte #%10100101; 
 	.byte #%11100111; 
 	.byte #%10100101;
+
+CN
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%10100101; 
+	.byte #%01100110;	
 
 
 CO
@@ -1764,6 +1884,13 @@ CW
 	.byte #%10100101; 
 	.byte #%10100101; 
 	.byte #%10100101;
+
+CZ 
+	.byte #%11100111;
+	.byte #%00100100; 
+	.byte #%01000010; 
+	.byte #%10000001; 
+	.byte #%11100111;
 
 Pipe
 	.byte #%01000010;
@@ -1827,7 +1954,7 @@ EngineBaseFrequence
 	.byte #22
 	.byte #3
 
-TachographSizeLookup1
+TachometerSizeLookup1
 	.byte #%00011111
 	.byte #%00111111
 	.byte #%01111111
@@ -1837,7 +1964,7 @@ TachographSizeLookup1
 	.byte #%11111111
 	.byte #%11111111
 
-TachographSizeLookup2
+TachometerSizeLookup2
 	.byte #%00000000
 	.byte #%00000000
 	.byte #%00000000
@@ -1847,7 +1974,7 @@ TachographSizeLookup2
 	.byte #%11100000
 	.byte #%11110000
 
-TachographGearLookup
+TachometerGearLookup
 	.byte #%00000001
 	.byte #%00000010
 	.byte #%00000100
@@ -1931,6 +2058,119 @@ GoText
 	.byte #<Exclamation + #FONT_OFFSET
 	.byte #<Exclamation + #FONT_OFFSET 
 	.byte #<Exclamation + #FONT_OFFSET
+
+ZeldaTextLeft
+	.byte #<CZ + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET
+	.byte #<CL + #FONT_OFFSET
+	.byte #<CD + #FONT_OFFSET 
+	.byte #<CA + #FONT_OFFSET
+
+ZeldaTextRight
+	.byte #<Space + #FONT_OFFSET
+	.byte #<CM + #FONT_OFFSET
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<CB + #FONT_OFFSET 
+	.byte #<Dot + #FONT_OFFSET
+
+ZeldaDateLeft
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C9 + #FONT_OFFSET
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
+	.byte #<C6 + #FONT_OFFSET
+
+ZeldaDateRight
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET 
+	.byte #<C0 + #FONT_OFFSET
+
+PolvinhosTextLeft
+	.byte #<CP + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CL + #FONT_OFFSET
+	.byte #<CV + #FONT_OFFSET 
+	.byte #<CI + #FONT_OFFSET
+
+PolvinhosTextRight
+	.byte #<CN + #FONT_OFFSET
+	.byte #<CH + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CS + #FONT_OFFSET 
+	.byte #<Space + #FONT_OFFSET
+
+PolvinhosDateLeft
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C7 + #FONT_OFFSET
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
+	.byte #<C9 + #FONT_OFFSET
+
+PolvinhosDateRight
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET
+	.byte #<C1 + #FONT_OFFSET 
+	.byte #<C4 + #FONT_OFFSET
+
+IvonneTextLeft
+	.byte #<CV + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET
+	.byte #<Space + #FONT_OFFSET 
+	.byte #<CI + #FONT_OFFSET
+
+IvonneTextRight
+	.byte #<CV + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CN + #FONT_OFFSET
+	.byte #<CN + #FONT_OFFSET 
+	.byte #<CE + #FONT_OFFSET
+
+IvonneDateLeft
+	.byte #<C1 + #FONT_OFFSET
+	.byte #<C4 + #FONT_OFFSET
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
+	.byte #<C2 + #FONT_OFFSET
+
+IvonneDateRight
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C1 + #FONT_OFFSET
+	.byte #<C9 + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET 
+	.byte #<C8 + #FONT_OFFSET
+
+PaperArtTextLeft
+	.byte #<CP + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET
+	.byte #<CP + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET 
+	.byte #<CR + #FONT_OFFSET
+
+PaperArtTextRight
+	.byte #<Space + #FONT_OFFSET
+	.byte #<CA + #FONT_OFFSET
+	.byte #<CR + #FONT_OFFSET
+	.byte #<CT + #FONT_OFFSET 
+	.byte #<Space + #FONT_OFFSET
+
+LeonardoTextLeft
+	.byte #<CL + #FONT_OFFSET
+	.byte #<CE + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<CN + #FONT_OFFSET 
+	.byte #<CA + #FONT_OFFSET
+
+LeonardoTextRight
+	.byte #<CR + #FONT_OFFSET
+	.byte #<CD + #FONT_OFFSET
+	.byte #<CO + #FONT_OFFSET
+	.byte #<Space + #FONT_OFFSET 
+	.byte #<CN + #FONT_OFFSET
+
 
 EndStaticText
 
