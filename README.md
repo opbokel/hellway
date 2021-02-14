@@ -1,4 +1,4 @@
-# Hellway V0.9(RC1)
+# Hellway V0.95(RC1)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -62,6 +62,15 @@ It much easier to read it as a binary number (like linux file permissions). Each
 * D3 => (Constant / Random) traffic intensity.
 
 Deterministic game modes (0,1,4,5) will always generate the same sequence of cars for each line.
+
+## Border Effects
+
+While in the title screen it is possible to change what the border of the screen looks like by pressing the D-pad:
+* Up (default) => Basic strip pattern.
+* Left => Tachometer, the stripes grow representing the engine RPM, the vertical line position represents the current gear.
+* Down => Vertical parallax, the planes are on top of each other
+* Right => Horizontal Parallax, the planes are next to each other.
+
  
 ## Controls
 * The button starts the game and accelerates.
