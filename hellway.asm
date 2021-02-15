@@ -6,7 +6,7 @@
 	org $F000
 	
 ;contants
-SCREEN_SIZE = 64;(VSy)
+SCREEN_SIZE = 72;(VSy)
 SCORE_SIZE = 5
 GAMEPLAY_AREA = SCREEN_SIZE - SCORE_SIZE - 1;
 FONT_OFFSET = #SCORE_SIZE -1
@@ -162,7 +162,6 @@ SkipClean
 	
 ;Setting some variables...
 
-
 SettingTrafficOffsets; Time sensitive with player H position
 	STA WSYNC ;We will set player position
 	JSR DefaultOffsets
@@ -238,7 +237,7 @@ MainLoop
 DoNotSetPlayerX
 
 	STA WSYNC ;3
-	LDA #43 ;2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
+	LDA #41 ;43 default, one less line 2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
 	STA TIM64T ;3	
 	LDA #0 ;2
 	STA VSYNC ;3	
@@ -634,6 +633,7 @@ CalculateParallax2Offset ; 6/8 speed
 
 SkipUpdateLogic ; Continue here if not paused
 
+
 ProcessBorder ;Can be optimized (probably)
 	LDY #PARALLAX_SIZE - 1 ; Used by all SBRs
 	LDA ParallaxMode
@@ -657,296 +657,6 @@ HorizontalParallaxMode
 	JSR HorizontalParallaxLoop
 
 EndProcessingBorder
-
-ScoreBackgroundColor
-	LDX #0
-	LDA SWCHB
-	AND #%00001000 ; If Black and white, this will make A = 0
-	BEQ BlackAndWhiteScoreBg
-	LDA #SCORE_BACKGROUND_COLOR
-	LDX #BACKGROUND_COLOR
-BlackAndWhiteScoreBg
-	STA Tmp2 ; Score Background
-	STX Tmp3 ; Traffic Background
-
-ConfigurePFForScore
-	;LDA #SCORE_BACKGROUND_COLOR; Done above
-	STA COLUBK
-	LDA ScoreFontColor
-	STA COLUPF  
-	JSR ClearAll
-	LDA #%00000010 ; Score mode
-	STA CTRLPF
-	LDY #FONT_OFFSET
-	LDX #0
-	LDA FrameCount0 ;3
-	AND #%00000001 ;2
-	BEQ RightScoreOn ; Half of the screen with the correct colors.
-LeftScoreOn
-	LDA ScoreFontColor
-	STA COLUP1
-	LDA Tmp2
-	STA COLUP0
-	LDA #1 ;Jumps faster in the draw loop
-	STA Tmp1
-	JMP WaitForVblankEnd
-RightScoreOn
-	LDA ScoreFontColor
-	STA COLUP0
-	LDA Tmp2
-	STA COLUP1
-	LDA #0 ;Jumps faster in the draw loop
-	STA Tmp1
-
-
-; After here we are going to update the screen, No more heavy code
-WaitForVblankEnd
-	LDA INTIM	
-	BNE WaitForVblankEnd ;Is there a better way?	
-	;STA WSYNC ; Seems wastefull, can I live killing vblank midline?
-	STA VBLANK 		
-
-ScoreLoop ; Runs in 2 lines, this is the best I can do!
-	STA WSYNC
-
-	LDA PF0Cache  ;3 Move to a macro?
-	STA PF0		  ;3
-	
-	LDA PF1Cache ;3
-	STA PF1	     ;3
-	
-	LDA PF2Cache ;3
-	STA PF2 ;3
-
-;39
-DrawScore
-	LDX ScoreD0 ; 4
-	LDA Font,X	;4
-	STA PF0Cache ;3
-	DEC ScoreD0 ;6 Can only DEC with X
-	;17
-
-	LDX ScoreD1 ; 4
-	LDA Font,X	;4
-	ASL ;2
-	ASL ;2
-	ASL ;2
-	ASL ;2
-	STA PF1Cache ;3
-	DEC ScoreD1 ;6
-	;9 (After Wsync)
-
-	LDX ScoreD2 ; 4
-	LDA Font,X	;4
-	AND #%00001111
-	ORA PF1Cache ;3
-	STA PF1Cache ;3
-	DEC ScoreD2 ;6
-	;20
-
-	LDX ScoreD3 ; 3
-	LDA Font,X	;4
-	LSR ;2
-	LSR ;2
-	LSR ;2
-	LSR ;2
-	STA PF2Cache ;3
-	DEC ScoreD3 ;5
-	;23
-
-	LDX ScoreD4 ; 3
-	LDA Font,X	;4
-	AND #%11110000
-	ORA PF2Cache ;3
-	STA PF2Cache ;3
-	DEC ScoreD4 ;5
-	;18
-
-	DEY ;2
-	BPL ScoreLoop ;4
-
-	STA WSYNC
-
-	JSR LoadAll
-
-	STA WSYNC
-	STA WSYNC
-
-PrepareForTraffic
-	JSR ClearPF ; 32
-
-	LDA #%00110001 ; Score mode
-	STA CTRLPF
-	
-	LDA TrafficColor ;2
-	STA COLUPF
-	
-	LDA #PLAYER1_COLOR ;2
-	STA COLUP1 ;3
-
-	LDA ScoreFontColor ;3
-	STA COLUP0 ;3
-
-	LDY GAMEPLAY_AREA ;2; (Score)
-
-	LDA Tmp3 ;3
-
-	STA WSYNC
-	;What a wast of cycles, I must place some computation that fits here!
-	JSR Sleep16
-	JSR Sleep16
-	JSR Sleep16
-	JSR Sleep16
-	SLEEP 6 ; Make it in the very end, so we have one more nice blue line
-	STA COLUBK ;3
-
-;main scanline loop...
-ScanLoop 
-	STA WSYNC ;?? from the end of the scan loop, sync the final line
-
-;Start of next line!			
-DrawCache ;57 Is the last line going to the top of the next frame?
-
-	LDA PF0Cache ;3
-	STA PF0	     ;3
-
-	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
-	STA GRP0      ;3   ;put it as graphics now
-	
-	LDA PF1Cache ;3
-	STA PF1	     ;3
-	
-	LDA GRP1Cache ;3
-	STA GRP1      ;3
-
-	LDA ENABLCache ;3
-	STA ENABL      ;3
-
-	LDA ENAM0Cache ;3
-	STA ENAM0    ;3
-
-	LDA ENAM1Cache  ;3
-	STA ENAM1 ;3
-
-	LDA #0		 ;2
-	;STA PF1Cache ;3
-	STA GRP1Cache ;3
-	STA ENABLCache ;3
-	STA ENAM0Cache ;3
-	STA ENAM1Cache; 3
-
-	;BEQ DrawTraffic3
-DrawTraffic1; 33
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset1 + 1;3
-	AND #TRAFFIC_1_MASK ;2 ;#%11111000
-	BCS EorOffsetWithCarry; 2(worse not to jump), 4 if branch
-	EOR TrafficOffset1 + 2 ; 3
-	JMP AfterEorOffsetWithCarry ; 3
-EorOffsetWithCarry
-	EOR TrafficOffset1 + 3 ; 3
-AfterEorOffsetWithCarry ;17
-	TAX ;2
-	LDA AesTable,X ; 4
-	CMP TrafficChance;3
-	BCS FinishDrawTraffic1 ; 2
-	LDA #$FF ;2
-	STA GRP1Cache ;3
-FinishDrawTraffic1
-
-DrawTraffic2; 33
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset2 + 1;3
-	AND #TRAFFIC_1_MASK ;2
-	BCS EorOffsetWithCarry2; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset2 + 2 ; 3
-	JMP AfterEorOffsetWithCarry2 ; 3
-EorOffsetWithCarry2
-	EOR TrafficOffset2 + 3 ; 3
-AfterEorOffsetWithCarry2 ;17
-	TAX ;2
-	LDA AesTable,X ; 4
-	CMP TrafficChance;3
-	BCS FinishDrawTraffic2 ; 2
-	LDA #%00000010 ;2
-	STA ENABLCache;3
-FinishDrawTraffic2	
-
-	;STA WSYNC ;65 / 137
-
-	; LDA Tmp0 ; Flicker this line if drawing car
-	; BEQ FinishDrawTraffic4
-DrawTraffic3; 33
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset3 + 1;3
-	AND #TRAFFIC_1_MASK ;2
-	BCS EorOffsetWithCarry3; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset3 + 2 ; 3
-	JMP AfterEorOffsetWithCarry3 ; 3
-EorOffsetWithCarry3
-	EOR TrafficOffset3 + 3 ; 3
-AfterEorOffsetWithCarry3 ;17
-	TAX ;2
-	LDA AesTable,X ; 4
-	CMP TrafficChance;3
-	BCS FinishDrawTraffic3 ; 2 
-	LDA #%00000010 ;2
-	STA ENAM0Cache
-FinishDrawTraffic3	
-	
-DrawTraffic4; 33
-	TYA; 2
-	CLC; 2 
-	ADC TrafficOffset4 + 1;3
-	AND #TRAFFIC_1_MASK ;2
-	BCS EorOffsetWithCarry4; 4 max if branch max, 2 otherwise
-	EOR TrafficOffset4 + 2 ; 3
-	JMP AfterEorOffsetWithCarry4 ; 3
-EorOffsetWithCarry4
-	EOR TrafficOffset4 + 3 ; 3
-AfterEorOffsetWithCarry4 ;17
-	TAX ;2
-	LDA AesTable,X ; 4
-	CMP TrafficChance;3
-	BCS FinishDrawTraffic4 ; 2
-	LDA #%00000010 ;2
-	STA ENAM1Cache	;3
-FinishDrawTraffic4
-
-DrawTraffic0; 15
-	TYA ;2
-	AND #%00000111 ;2
-	TAX ;2
-	LDA ParallaxCache,X ;4
-	STA PF1Cache ;3
-	LDA ParallaxCache2,X ;4
-	STA PF0Cache ;3
-
-SkipDrawTraffic0
-
-WhileScanLoop 
-	DEY	;2
-	BMI FinishScanLoop ;2 two big Breach, needs JMP
-	JMP ScanLoop ;3
-FinishScanLoop ; 7 209 of 222
-
-	STA WSYNC ;3 Draw the last line, without wrapping
-	JSR LoadAll
-	STA WSYNC ; do stuff!
-	STA WSYNC
-	STA WSYNC
-	;42 cycles to use here
-
-PrepareOverscan
-	LDA #2		
-	STA WSYNC  	
-	STA VBLANK 	
-	
-	LDA #34 ; 2 more lines before overscan (was 37)...
-	STA TIM64T	
 
 ProcessScoreFontColor
 	LDX ScoreFontColorHoldChange
@@ -1016,7 +726,7 @@ PrintEasterEggCondition
 ChooseTextSide ; 
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
-	BNE LeftScoreWrite ; Half of the screen with the correct colors.
+	BEQ LeftScoreWrite ; Half of the screen with the correct colors.
 	JMP RightScoreWrite 
 
 LeftScoreWrite
@@ -1185,29 +895,314 @@ StoreGameOverText
 	JSR PrintStaticText
 RightScoreWriteEnd
 
-LeftSound
-	LDA CountdownTimer
-	BEQ EngineOff
-	LDA Player0SpeedL
-	AND #%10000000
-	ORA Player0SpeedH
-	CLC
-	ROL
-	ADC #0 ; Places the possible carry produced by ROL
-	TAX
-	LDA Player0SpeedL
-	LSR
-	LSR
-	LSR
+
+ScoreBackgroundColor
+	LDX #0
+	LDA SWCHB
+	AND #%00001000 ; If Black and white, this will make A = 0
+	BEQ BlackAndWhiteScoreBg
+	LDA #SCORE_BACKGROUND_COLOR
+	LDX #BACKGROUND_COLOR
+BlackAndWhiteScoreBg
+	STA Tmp2 ; Score Background
+	STX Tmp3 ; Traffic Background
+
+ConfigurePFForScore
+	;LDA #SCORE_BACKGROUND_COLOR; Done above
+	STA COLUBK
+	LDA ScoreFontColor
+	STA COLUPF  
+	JSR ClearAll
+	LDA #%00000010 ; Score mode
+	STA CTRLPF
+	LDY #FONT_OFFSET
+	LDX #0
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ RightScoreOn ; Half of the screen with the correct colors.
+LeftScoreOn
+	LDA ScoreFontColor
+	STA COLUP1
+	LDA Tmp2
+	STA COLUP0
+	LDA #1 ;Jumps faster in the draw loop
+	STA Tmp1
+	JMP WaitForVblankEnd
+RightScoreOn
+	LDA ScoreFontColor
+	STA COLUP0
+	LDA Tmp2
+	STA COLUP1
+	LDA #0 ;Jumps faster in the draw loop
+	STA Tmp1
+
+; After here we are going to update the screen, No more heavy code
+WaitForVblankEnd
+	LDA INTIM	
+	BNE WaitForVblankEnd ;Is there a better way?	
+	STA WSYNC ; Seems wastefull, can I live killing vblank midline? 
+	STA VBLANK 		
+
+ScoreLoop ; Runs in 2 lines, this is the best I can do!
+	STA WSYNC
+
+	LDA PF0Cache  ;3 Move to a macro?
+	STA PF0		  ;3
+	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
+	
+	LDA PF2Cache ;3
+	STA PF2 ;3
+
+;39
+DrawScore
+	LDX ScoreD0 ; 4
+	LDA Font,X	;4
+	STA PF0Cache ;3
+	DEC ScoreD0 ;6 Can only DEC with X
+	;17
+
+	LDX ScoreD1 ; 4
+	LDA Font,X	;4
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	STA PF1Cache ;3
+	DEC ScoreD1 ;6
+	;9 (After Wsync)
+
+	LDX ScoreD2 ; 4
+	LDA Font,X	;4
 	AND #%00001111
-	STA Tmp0
-	LDA EngineBaseFrequence,X ; Max of 5 bits
-	SEC
-	SBC Tmp0
-	STA AUDF0
-	LDA EngineSoundType,X
-	STA AUDC0
-	JMP EndLeftSound
+	ORA PF1Cache ;3
+	STA PF1Cache ;3
+	DEC ScoreD2 ;6
+	;20
+
+	LDX ScoreD3 ; 3
+	LDA Font,X	;4
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	STA PF2Cache ;3
+	DEC ScoreD3 ;5
+	;23
+
+	LDX ScoreD4 ; 3
+	LDA Font,X	;4
+	AND #%11110000
+	ORA PF2Cache ;3
+	STA PF2Cache ;3
+	DEC ScoreD4 ;5
+	;18
+
+	DEY ;2
+	BPL ScoreLoop ;4
+
+	STA WSYNC
+
+	JSR LoadAll
+
+	STA WSYNC
+	STA WSYNC
+
+PrepareForTraffic
+	JSR ClearPF ; 32
+
+	LDA #%00110001 ; Score mode
+	STA CTRLPF
+	
+	LDA TrafficColor ;2
+	STA COLUPF
+	
+	LDA #PLAYER1_COLOR ;2
+	STA COLUP1 ;3
+
+	LDA ScoreFontColor ;3
+	STA COLUP0 ;3
+
+	LDY #GAMEPLAY_AREA ;2; (Score)
+
+	STA WSYNC
+	STA WSYNC
+
+;main scanline loop...
+ScanLoop 
+	STA WSYNC ;?? from the end of the scan loop, sync the final line
+
+;Start of next line!			
+DrawCache ;63 Is the last line going to the top of the next frame?
+	;Supper wastefull, but I had 17 cycles, This only avoids the score line to finish a litle earlier...
+	LDA Tmp3 ;3
+	STA COLUBK ;3
+
+	LDA PF0Cache ;3
+	STA PF0	     ;3
+
+	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
+	STA GRP0      ;3   ;put it as graphics now
+	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
+	
+	LDA GRP1Cache ;3
+	STA GRP1      ;3
+
+	LDA ENABLCache ;3
+	STA ENABL      ;3
+
+	LDA ENAM0Cache ;3
+	STA ENAM0    ;3
+
+	LDA ENAM1Cache  ;3
+	STA ENAM1 ;3
+
+	LDA #0		 ;2
+	;STA PF1Cache ;3
+	STA GRP1Cache ;3
+	STA ENABLCache ;3
+	STA ENAM0Cache ;3
+	STA ENAM1Cache; 3
+
+	;BEQ DrawTraffic3
+DrawTraffic1; 33
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset1 + 1;3
+	AND #TRAFFIC_1_MASK ;2 ;#%11111000
+	BCS EorOffsetWithCarry; 2(worse not to jump), 4 if branch
+	EOR TrafficOffset1 + 2 ; 3
+	JMP AfterEorOffsetWithCarry ; 3
+EorOffsetWithCarry
+	EOR TrafficOffset1 + 3 ; 3
+AfterEorOffsetWithCarry ;17
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP TrafficChance;3
+	BCS FinishDrawTraffic1 ; 2
+	LDA #$FF ;2
+	STA GRP1Cache ;3
+FinishDrawTraffic1
+
+DrawTraffic2; 33
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset2 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry2; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset2 + 2 ; 3
+	JMP AfterEorOffsetWithCarry2 ; 3
+EorOffsetWithCarry2
+	EOR TrafficOffset2 + 3 ; 3
+AfterEorOffsetWithCarry2 ;17
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP TrafficChance;3
+	BCS FinishDrawTraffic2 ; 2
+	LDA #%00000010 ;2
+	STA ENABLCache;3
+FinishDrawTraffic2	
+
+	;STA WSYNC ;65 / 137
+
+	; LDA Tmp0 ; Flicker this line if drawing car
+	; BEQ FinishDrawTraffic4
+DrawTraffic3; 33
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset3 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry3; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset3 + 2 ; 3
+	JMP AfterEorOffsetWithCarry3 ; 3
+EorOffsetWithCarry3
+	EOR TrafficOffset3 + 3 ; 3
+AfterEorOffsetWithCarry3 ;17
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP TrafficChance;3
+	BCS FinishDrawTraffic3 ; 2 
+	LDA #%00000010 ;2
+	STA ENAM0Cache
+FinishDrawTraffic3	
+	
+DrawTraffic4; 33
+	TYA; 2
+	CLC; 2 
+	ADC TrafficOffset4 + 1;3
+	AND #TRAFFIC_1_MASK ;2
+	BCS EorOffsetWithCarry4; 4 max if branch max, 2 otherwise
+	EOR TrafficOffset4 + 2 ; 3
+	JMP AfterEorOffsetWithCarry4 ; 3
+EorOffsetWithCarry4
+	EOR TrafficOffset4 + 3 ; 3
+AfterEorOffsetWithCarry4 ;17
+	TAX ;2
+	LDA AesTable,X ; 4
+	CMP TrafficChance;3
+	BCS FinishDrawTraffic4 ; 2
+	LDA #%00000010 ;2
+	STA ENAM1Cache	;3
+FinishDrawTraffic4
+
+DrawTraffic0; 15
+	TYA ;2
+	AND #%00000111 ;2
+	TAX ;2
+	LDA ParallaxCache,X ;4
+	STA PF1Cache ;3
+	LDA ParallaxCache2,X ;4
+	STA PF0Cache ;3
+
+SkipDrawTraffic0
+
+WhileScanLoop 
+	DEY	;2
+	BMI FinishScanLoop ;2 two big Breach, needs JMP
+	JMP ScanLoop ;3
+FinishScanLoop ; 7 209 of 222
+
+	STA WSYNC ;3 Draw the last line, without wrapping
+	JSR LoadAll
+	STA WSYNC ; do stuff!
+	STA WSYNC
+	STA WSYNC
+	;42 cycles to use here
+
+PrepareOverscan
+	LDA #2		
+	STA WSYNC  	
+	STA VBLANK 	
+	
+	LDA #6 ; 2 more lines before overscan (was 37)...
+	STA TIM64T	
+
+LeftSound ;58
+	LDA CountdownTimer ;3
+	BEQ EngineOff      ;2
+	LDA Player0SpeedL  ;3
+	AND #%10000000      ;2
+	ORA Player0SpeedH   ;3
+	CLC                 ;2
+	ROL                 ;2
+	ADC #0 ; 2 Places the possible carry produced by ROL
+	TAX ;2
+	LDA Player0SpeedL ;3
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	AND #%00001111 ;2
+	STA Tmp0 ;3
+	LDA EngineBaseFrequence,X ; 4 Max of 5 bits
+	SEC ;2
+	SBC Tmp0 ;3
+	STA AUDF0 ;3
+	LDA EngineSoundType,X ;4
+	STA AUDC0 ;3
+	JMP EndLeftSound ;3
 EngineOff
 	LDA #0
 	STA AUDC0
@@ -1215,20 +1210,20 @@ EngineOff
 EndLeftSound
 
 
-RightSound ; More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
-	LDA ScoreFontColor
-	CMP #SCORE_FONT_COLOR_OVER
-	BEQ MuteRightSound ; A little bit of silence, since you will be run over all the time
-	CMP #SCORE_FONT_COLOR_GOOD
-	BEQ PlayCheckpoint
-	LDA CollisionCounter
-	CMP #$E0
-	BCS PlayColision
-	LDA NextCheckpoint
-	SEC
-	SBC TrafficOffset0 + 2
-	CMP #$02
-	BCC PlayBeforeCheckpoint
+RightSound ; 56 More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
+	LDA ScoreFontColor ;3
+	CMP #SCORE_FONT_COLOR_OVER ;2
+	BEQ MuteRightSound ;2 A little bit of silence, since you will be run over all the time
+	CMP #SCORE_FONT_COLOR_GOOD ;2
+	BEQ PlayCheckpoint ;2
+	LDA CollisionCounter ;3
+	CMP #$E0 ;2
+	BCS PlayColision ;2
+	LDA NextCheckpoint ;3
+	SEC ;2
+	SBC TrafficOffset0 + 2 ;3
+	CMP #$02 ;2
+	BCC PlayBeforeCheckpoint ;4
 	JMP MuteRightSound
 PlayColision
 	LDA #31
@@ -1240,33 +1235,33 @@ PlayColision
 	JMP EndRightSound
 
 PlayCheckpoint
-	LDA ScoreFontColorHoldChange
-	LSR
-	LSR
-	LSR
-	STA AUDF1
-	LDA #12
-	STA AUDC1
-	LDA #6
-	STA AUDV1
-	JMP EndRightSound
+	LDA ScoreFontColorHoldChange ;3
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	STA AUDF1 ;3
+	LDA #12 ;2
+	STA AUDC1 ;3
+	LDA #6 ;2
+	STA AUDV1 ;3
+	JMP EndRightSound ;3
 
 PlayBeforeCheckpoint
-	LDA FrameCount0
-	AND #%00011100
-	ORA #%00000011
-	STA AUDF1
-	LDA #12
-	STA AUDC1
-	LDA #3
-	STA AUDV1
-	JMP EndRightSound
+	LDA FrameCount0 ;3
+	AND #%00011100 ;2
+	ORA #%00000011;2
+	STA AUDF1 ;3
+	LDA #12 ;2
+	STA AUDC1 ;3
+	LDA #3 ;2
+	STA AUDV1 ;3
+	JMP EndRightSound ;3
 	
 MuteRightSound
 	LDA #0
 	STA AUDV1
-
 EndRightSound
+
 
 OverScanWait
 	LDA INTIM	
@@ -1671,7 +1666,7 @@ PrintLeonardoLeft
 ProcessPrintEasterEgg
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
-	BEQ TranformIntoRightText
+	BNE TranformIntoRightText
 	JMP PrintEasterEggText
 TranformIntoRightText ; Just adds 5 to X, texts are properly aligned
 	TXA
@@ -1811,7 +1806,7 @@ CI
 	.byte #%01000010;
 	.byte #%01000010; 
 	.byte #%01000010; 
-	.byte #%00000000; 
+	.byte #%01000010; 
 	.byte #%01000010;
 
 CM
@@ -2175,6 +2170,7 @@ LeonardoTextRight
 EndStaticText
 
 CarSprite ; Upside down
+	ds 6
 	.byte #%00000000 ; Easist way to stop drawing
 	.byte #%01111110
 	.byte #%00100100
@@ -2182,7 +2178,7 @@ CarSprite ; Upside down
 	.byte #%00111100
 	.byte #%10111101
 	.byte #%00111100
-	ds GAMEPLAY_AREA - 8
+	ds GAMEPLAY_AREA - 2
 	
 TrafficSpeeds
 	.byte #$00;  Trafic0 L
