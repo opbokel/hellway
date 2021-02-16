@@ -233,9 +233,6 @@ MainLoop
 	STA WSYNC
 	STA WSYNC					;Apply Movement, must be done after a WSYNC
 	STA HMOVE  ;2
-;This must be done after a WSync, otherwise it is impossible to predict the X position
-DoNotSetPlayerX
-
 	STA WSYNC ;3
 	LDA #41 ;43 default, one less line 2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
 	STA TIM64T ;3	
