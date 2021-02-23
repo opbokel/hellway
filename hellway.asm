@@ -172,7 +172,7 @@ SettingTrafficOffsets; Time sensitive with player H position
 	SLEEP 11;18
 	STA RESP0
 		
-	LDX 0
+	LDX #0
 	LDA SWCHB ; Reading the switches and mapping to difficulty id
 	AND #%11000000
 	BEQ CallConfigureDifficulty

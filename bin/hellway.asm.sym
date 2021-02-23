@@ -143,7 +143,6 @@ Digit2Distance           f382
 Digit3Distance           f390                  
 DistanceOverflowDigit    f39a                  
 DividePlayerSpeedBy4     f283                  
-DoNotSetPlayerX          f08e                  
 Dot                      fda5              (R )
 DrawCache                f50b                  
 DrawDistanceExtraDigit   f3a7              (R )
