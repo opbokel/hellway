@@ -56,7 +56,7 @@ Mode 0 tries to offer the most balanced experience.
 
 Bigger speed difference between traffic lines makes the game a little harder, with opportunities for overtaking opening and closing much faster and changing lines is more difficult. 
 
-For modes 8 to F, the traffic level to be cyclic or fixed is only applied for the checkpoint time.
+For modes 8 to F, the traffic level to be cyclic or fixed only has effect on the checkpoint time. In this mode, locking into rush hour for example, will make the game easier, since you will always get 45 seconds.
 
 It much easier to read it as a binary number (like linux file permissions). Each byte defines a property (0 / 1).
 
