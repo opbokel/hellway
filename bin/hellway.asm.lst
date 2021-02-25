@@ -411,7 +411,7 @@
      36  f000
      37  f000		       00 22	   TRAFFIC_CHANCE_INTENSE =	34
      38  f000		       00 28	   CHECKPOINT_TIME_INTENSE =	40
-     39  f000		       00 f4	   TRAFFIC_COLOR_INTENSE =	$F4
+     39  f000		       00 79	   TRAFFIC_COLOR_INTENSE =	$79
      40  f000
      41  f000		       00 2c	   TRAFFIC_CHANCE_RUSH_HOUR =	44
      42  f000		       00 2d	   CHECKPOINT_TIME_RUSH_HOUR =	45
@@ -1830,7 +1830,7 @@
    1348  f6c0				   ConfigureIntenseTraffic
    1349  f6c0		       a2 22		      LDX	#TRAFFIC_CHANCE_INTENSE
    1350  f6c2		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
-   1351  f6c4		       a9 f4		      LDA	#TRAFFIC_COLOR_INTENSE
+   1351  f6c4		       a9 79		      LDA	#TRAFFIC_COLOR_INTENSE
    1352  f6c6		       4c cf f6 	      JMP	StoreTrafficChance
    1353  f6c9				   ConfigureRushHourTraffic
    1354  f6c9		       a2 2c		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
