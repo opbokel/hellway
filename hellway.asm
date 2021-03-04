@@ -72,6 +72,8 @@ MAX_GAME_MODE = 15
 PARALLAX_SIZE = 8
 
 HALF_TEXT_SIZE = 5
+
+ONE_SECOND_FRAMES = 60
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -97,29 +99,45 @@ TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
 TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 
 ;Temporary variables, multiple uses
-Tmp0=$B0
-Tmp1=$B1
-Tmp2=$B2
-Tmp3=$B3
+Tmp0 = $B0
+Tmp1 = $B1
+Tmp2 = $B2
+Tmp3 = $B3
 
-CollisionCounter=$BA
-Player0X = $BB
-CountdownTimer = $BC
-Traffic0Msb=$BD
-SwitchDebounceCounter=$BE
+ScoreBcd0 = $B4
+ScoreBcd1 = $B5
+ScoreBcd2 = $B6
+ScoreBcd3 = $B7
 
+CollisionCounter=$B8
+Player0X = $B9
+CountdownTimer = $BA
+Traffic0Msb = $BB
+SwitchDebounceCounter = $BC
+
+TimeBcd0 = $BD
+TimeBcd1 = $BE
+TimeBcd2 = $BF
 
 GameStatus = $C0 ; Not zero is running! No need to make it byte a flag for now.
-TrafficChance=$C1
-CheckpointTime=$C2
-TrafficColor=$C3
-CurrentDifficulty=$C4
-GameMode=$C5 ; Bit 0 controls fixed levels, bit 1 rand positions
+TrafficChance = $C1
+CheckpointTime = $C2
+TrafficColor = $C3
+CurrentDifficulty = $C4
+GameMode = $C5 ; Bit 0 controls fixed levels, bit 1 rand positions
 
-ParallaxOffset1=$C6 ; C7 
-ParallaxOffset2=$C8 ; C9
+ParallaxOffset1 = $C6 ; C7 
+ParallaxOffset2 = $C8 ; C9
 
-BorderType=$C10
+BorderType = $CA
+
+HitCountBcd0 = $CB
+HitCountBcd1 = $CC
+
+GlideTimeBcd0 = $CD
+GlideTimeBcd1 = $CE
+
+OneSecondConter = $CF
 
 ScoreD0 = $D0
 ScoreD1 = $D1
@@ -187,6 +205,10 @@ SettingTrafficOffsets; Time sensitive with player H position
 CallConfigureDifficulty
 	STX CurrentDifficulty
 	JSR ConfigureDifficulty
+
+ConfigureOneSecondTimer
+	LDA #ONE_SECOND_FRAMES
+	STA OneSecondConter
 
 HPositioning
 	STA WSYNC
@@ -286,7 +308,6 @@ DeterministicGame
 	JSR DefaultOffsets
 
 EndRandomizeGame
-
 
 ReadSwitches
 	LDX SwitchDebounceCounter
@@ -447,10 +468,11 @@ SkipAccelerate
 InitUpdateOffsets
 	LDX #0 ; Memory Offset 24 bit
 	LDY #0 ; Line Speeds 16 bits
+	LDA TrafficOffset0 + 1;
+	STA Tmp3 ; Used for bcd score, to detect change on D4
 	LDA GameMode
 	AND #%00000100 ; GameModes with high delta
 	BEQ UpdateOffsets
-	LDY TrafficSpeedsHighDelta - TrafficSpeeds
 	
 UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SEC
@@ -495,6 +517,29 @@ PrepareNextUpdateLoop
 	CPX #TRAFFIC_LINE_COUNT * 4;
 	BNE UpdateOffsets
 
+BcdScore ; 48
+	LDA TrafficOffset0 + 1 ;3
+	EOR Tmp3 ;3
+	AND #%00010000 ; 2 Change in D4 means change on screen first digit, inc BCD
+	BEQ FinishBcdScore ;2
+
+ContinueBcdScore
+	SED ;2
+	CLC ;2
+	LDA ScoreBcd0 ;3
+	ADC #1 ;2
+	STA ScoreBcd0 ;3
+	LDA ScoreBcd1 ;3
+	ADC #0 ;2
+	STA ScoreBcd1 ;3
+	LDA ScoreBcd2 ;3
+	ADC #0 ;2
+	STA ScoreBcd2 ;3
+	LDA ScoreBcd3 ;3
+	ADC #0 ;2
+	STA ScoreBcd3 ;3
+	CLD ;2
+FinishBcdScore
 
 ;Until store the movemnt, LDX contains the value to be stored.
 TestCollision;
@@ -515,6 +560,17 @@ TestCollision;
 	BEQ NoCollision
 	LDA #COLLISION_FRAMES	;must be a hit! Change rand color bg
 	STA CollisionCounter	;and store as colision.
+CountBcdColision
+	SED ;2
+	CLC ;2
+	LDA HitCountBcd0 ;3
+	ADC #1 ;3
+	STA HitCountBcd0 ;3
+	LDA HitCountBcd1 ;3
+	ADC #0 ;2
+	STA HitCountBcd1 ;3
+	CLD ;2
+EndCountBcdColision
 	LDA #COLLISION_SPEED_L ;
 	CMP Player0SpeedL
 	BCS SkipSetColisionSpeed
@@ -737,7 +793,6 @@ LeftScoreWrite
 WriteDistance ;Not optimized yet, ugly code.
 Digit0Distance
 	LDA TrafficOffset0 + 1 ;3
-	AND #%11110000 ;2
 	LSR ; 2
 	LSR ; 2
 	LSR ; 2
@@ -755,7 +810,6 @@ Digit1Distance
 
 Digit2Distance
 	LDA TrafficOffset0 + 2 ;3
-	AND #%11110000 ;2
 	LSR ; 2
 	LSR ; 2
 	LSR ; 2
@@ -832,7 +886,6 @@ Digit0Timer
 
 Digit1Timer
 	LDA CountdownTimer ;3
-	AND #%11110000 ;2
 	LSR ; 2
 	LSR ; 2
 	LSR ; 2
@@ -907,13 +960,9 @@ BlackAndWhiteScoreBg
 ConfigurePFForScore
 	;LDA #SCORE_BACKGROUND_COLOR; Done above
 	STA COLUBK
-	LDA ScoreFontColor
-	STA COLUPF  
 	JSR ClearAll
 	LDA #%00000010 ; Score mode
 	STA CTRLPF
-	LDY #FONT_OFFSET
-	LDX #0
 	LDA FrameCount0 ;3
 	AND #%00000001 ;2
 	BEQ RightScoreOn ; Half of the screen with the correct colors.
@@ -940,70 +989,24 @@ WaitForVblankEnd
 	STA WSYNC ; Seems wastefull, can I live killing vblank midline? 
 	STA VBLANK 		
 
-ScoreLoop ; Runs in 2 lines, this is the best I can do!
-	STA WSYNC
-
-	LDA PF0Cache  ;3 Move to a macro?
-	STA PF0		  ;3
-	
-	LDA PF1Cache ;3
-	STA PF1	     ;3
-	
-	LDA PF2Cache ;3
-	STA PF2 ;3
-
-;39
-DrawScore
-	LDX ScoreD0 ; 4
-	LDA Font,X	;4
-	STA PF0Cache ;3
-	DEC ScoreD0 ;6 Can only DEC with X
-	;17
-
-	LDX ScoreD1 ; 4
-	LDA Font,X	;4
-	ASL ;2
-	ASL ;2
-	ASL ;2
-	ASL ;2
-	STA PF1Cache ;3
-	DEC ScoreD1 ;6
-	;9 (After Wsync)
-
-	LDX ScoreD2 ; 4
-	LDA Font,X	;4
-	AND #%00001111
-	ORA PF1Cache ;3
-	STA PF1Cache ;3
-	DEC ScoreD2 ;6
-	;20
-
-	LDX ScoreD3 ; 3
-	LDA Font,X	;4
-	LSR ;2
-	LSR ;2
-	LSR ;2
-	LSR ;2
-	STA PF2Cache ;3
-	DEC ScoreD3 ;5
-	;23
-
-	LDX ScoreD4 ; 3
-	LDA Font,X	;4
-	AND #%11110000
-	ORA PF2Cache ;3
-	STA PF2Cache ;3
-	DEC ScoreD4 ;5
-	;18
-
-	DEY ;2
-	BPL ScoreLoop ;4
+DrawScoreHud
+	JSR PrintScore
 
 	STA WSYNC
 
-	JSR LoadAll
+	LDA INPT4 ;3
+	BPL WaitAnotherScoreLine ; Draw traffic while button is pressed.
+	LDA ScoreFontColor
+	CMP #SCORE_FONT_COLOR_OVER
+	BNE WaitAnotherScoreLine
+	LDA FrameCount0 ;3
+	AND #%00000001 ;2
+	BEQ LeftScoreOnGameOver
+	JMP DrawGameOverScreenRight
+LeftScoreOnGameOver
+	JMP DrawGameOverScreenLeft
 
-	STA WSYNC
+WaitAnotherScoreLine
 	STA WSYNC
 
 PrepareForTraffic
@@ -1259,6 +1262,46 @@ MuteRightSound
 	STA AUDV1
 EndRightSound
 
+ExactlyEverySecond ; 88 Here to use this nice extra cycles of the 5 scanlines
+	LDA GameStatus ;3
+	BEQ EndExactlyEverySecond ; 2 Count only while game running
+	LDA ScoreFontColor ;3
+	CMP #SCORE_FONT_COLOR_OVER ;2
+	BEQ EndExactlyEverySecond ;2
+	DEC OneSecondConter ;5
+	BNE EndExactlyEverySecond ;2
+
+	SED ;2 BCD Operations after this point
+CountGlideTimeBcd
+	LDA ScoreFontColor ;3
+	CMP #SCORE_FONT_COLOR_BAD ;2
+	BNE EndCountGlideTimeBcd ;2
+	CLC ;2
+	LDA GlideTimeBcd0 ;3
+	ADC #1 ;3
+	STA GlideTimeBcd0 ;3
+	LDA GlideTimeBcd1 ;3
+	ADC #0 ;2
+	STA GlideTimeBcd1 ;3
+EndCountGlideTimeBcd
+IncreaseTotalTimerBcd
+	CLC ;2
+	LDA TimeBcd0 ;3
+	ADC #1 ;2
+	STA TimeBcd0 ;3
+	LDA TimeBcd1 ;3
+	ADC #0 ;2
+	STA TimeBcd1 ;3
+	LDA TimeBcd2 ;3
+	ADC #0 ;2
+	STA TimeBcd2 ;3
+
+ResetOneSecondCounter
+	CLD ;2
+	LDA #ONE_SECOND_FRAMES ;3
+	STA OneSecondConter ;3
+
+EndExactlyEverySecond
 
 OverScanWait
 	LDA INTIM	
@@ -1402,11 +1445,6 @@ PrintStaticText ; Preload X with the offset referent to StaticText
 	INX
 	LDA StaticText,X
 	STA ScoreD4
-	RTS
-
-Sleep16
-	NOP
-	NOP
 	RTS
 
 HorizontalParallaxLoop
@@ -1675,6 +1713,290 @@ PrintEasterEggText
 	JSR PrintStaticText
 	RTS
 
+PrintScore ; Runs in 2 lines, this is the best I can do!
+	LDX #0
+	LDY #FONT_OFFSET
+
+ScoreLoop ; 20 
+	STA WSYNC ;2
+
+	LDA PF0Cache  ;3 Move to a macro?
+	STA PF0		  ;3
+	
+	LDA PF1Cache ;3
+	STA PF1	     ;3
+	
+	LDA PF2Cache ;3
+	STA PF2 ;3
+
+DrawScoreD0 ; 15
+	LDX ScoreD0 ; 3
+	LDA Font,X	;4
+	STA PF0Cache ;3
+	DEC ScoreD0 ;5
+
+DrawScoreD1 ; 23	
+	LDX ScoreD1 ; 3
+	LDA Font,X	;4
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	ASL ;2
+	STA PF1Cache ;3
+	DEC ScoreD1 ;5
+
+DrawScoreD2 ; 20
+	LDX ScoreD2 ; 3
+	LDA Font,X	;4
+	AND #%00001111 ;2
+	ORA PF1Cache ;3
+	STA PF1Cache ;3
+	DEC ScoreD2 ;5
+
+DrawScoreD3 ; 23
+	LDX ScoreD3 ; 3
+	LDA Font,X	;4
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	LSR ;2
+	STA PF2Cache ;3
+	DEC ScoreD3 ;5
+
+DrawScoreD4 ; 20
+	LDX ScoreD4 ; 3
+	LDA Font,X	;4
+	AND #%11110000 ;2
+	ORA PF2Cache ;3
+	STA PF2Cache ;3
+	DEC ScoreD4 ;5
+
+
+	DEY ;2
+	BPL ScoreLoop ;4
+
+	STA WSYNC
+
+	JSR LoadAll
+
+	RTS ; 6
+
+DrawGameOverScreenLeft
+	STA WSYNC
+	JSR ClearPF
+	LDA #SCORE_FONT_COLOR
+	STA COLUP0
+	STA WSYNC
+DrawBcdScoreLeft
+	LDA #<CS + #FONT_OFFSET
+	STA ScoreD0
+
+	LDA #<Colon + #FONT_OFFSET
+	STA ScoreD1
+
+	LDA ScoreBcd3
+	AND #%00001111
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD2 ;3
+
+	LDA ScoreBcd2
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+
+	LDA ScoreBcd2
+	AND #%00001111
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD4 ;3
+	
+	STA WSYNC
+	JSR PrintScore
+	STA WSYNC
+	STA WSYNC
+	JSR ClearPF
+
+	LDA #SCORE_FONT_COLOR_EASTER_EGG
+	STA COLUP0
+	STA WSYNC
+
+DrawTimerLeft
+	LDA #<CT + #FONT_OFFSET
+	STA ScoreD0
+	LDA #<Colon + #FONT_OFFSET
+	STA ScoreD1
+	LDA #<C0 + #FONT_OFFSET
+	STA ScoreD2
+	LDA TimeBcd2
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+	LDA TimeBcd2
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD4 ;3
+	
+	STA WSYNC
+	JSR PrintScore
+	STA WSYNC
+	STA WSYNC
+	JSR ClearPF
+	STA WSYNC
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JMP FinalizeDrawGameOver
+
+DrawGameOverScreenRight
+	STA WSYNC
+	JSR ClearPF
+	STA WSYNC
+DrawBcdScoreRight
+	
+	LDA ScoreBcd1
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD0 ;3
+
+	LDA ScoreBcd1
+	AND #%00001111
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD1 ;3
+
+	LDA ScoreBcd0
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD2 ;3
+
+	LDA ScoreBcd0
+	AND #%00001111
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+
+	LDA #<Triangle + #FONT_OFFSET
+	STA ScoreD4
+
+	STA WSYNC
+	JSR PrintScore
+	STA WSYNC
+	STA WSYNC
+
+	JSR ClearPF
+
+DrawTimerRight
+	STA WSYNC
+	LDA TimeBcd1
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD0 ;3
+	LDA TimeBcd1
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD1 ;3
+	LDA TimeBcd0
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD2 ;3
+	LDA TimeBcd0
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+	LDA #<Triangle + #FONT_OFFSET
+	STA ScoreD4
+	STA WSYNC
+	JSR PrintScore
+
+	STA WSYNC
+	STA WSYNC
+	JSR ClearPF
+
+	STA WSYNC
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+
+
+
+FinalizeDrawGameOver
+	LDA #SCORE_FONT_COLOR_OVER ;Restores the game state
+	STA ScoreFontColor
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JMP PrepareOverscan
+
+Sleep8Lines
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	RTS
+
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
 	org $FD00
 Font	
@@ -1792,6 +2114,13 @@ CH
 	.byte #%10100101; 
 	.byte #%10100101;
 
+CK
+	.byte #%10100101;
+	.byte #%10100101; 
+	.byte #%01100110; 
+	.byte #%10100101; 
+	.byte #%10100101;
+
 CL
 	.byte #%11100111;
 	.byte #%00100100; 
@@ -1905,6 +2234,20 @@ Dot
 	.byte #%00000000; 
 	.byte #%00000000;
 
+Colon
+	.byte #%01000010;
+	.byte #%01000010; 
+	.byte #%00000000; 
+	.byte #%01000010; 
+	.byte #%01000010;
+
+Triangle
+	.byte #%10000001;
+	.byte #%11000011; 
+	.byte #%11100111; 
+	.byte #%11000011; 
+	.byte #%10000001;
+
 Space ; Moved from the beggining so 0 to F is fast to draw.
 	.byte #0;
 	.byte #0;
@@ -1998,7 +2341,7 @@ AesTable
 StaticText ; All static text must be on the same MSB block. 
 CheckpointText; Only the LSB, which is the offset.
 	.byte #<CC + #FONT_OFFSET
-	.byte #<CH + #FONT_OFFSET
+	.byte #<CK + #FONT_OFFSET
 	.byte #<CP + #FONT_OFFSET 
 	.byte #<CT + #FONT_OFFSET
 	.byte #<Exclamation + #FONT_OFFSET
@@ -2162,6 +2505,13 @@ LeonardoTextRight
 	.byte #<CO + #FONT_OFFSET
 	.byte #<Space + #FONT_OFFSET 
 	.byte #<CN + #FONT_OFFSET
+
+HitsText
+	.byte #<CH + #FONT_OFFSET
+	.byte #<CI + #FONT_OFFSET
+	.byte #<CT + #FONT_OFFSET
+	.byte #<CS + #FONT_OFFSET 
+	.byte #<Colon + #FONT_OFFSET
 
 
 EndStaticText
