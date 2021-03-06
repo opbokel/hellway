@@ -81,7 +81,7 @@ While in the title screen it is possible to change what the border of the screen
 * It is possible to break and accelerate at the same time, this will break with half intensity (Heel-and-toe).
 
 ## Game Over Screen
-Gives you a full status of the game session.
+Gives you a detailed statistics of the game session:
 * S: Score (also distance) in decimal. This is a direct conversion of the HUD.
 * T: The total time you spend playing in seconds.
 * G: The time you spent gliding (unable to accelerate) in seconds.
