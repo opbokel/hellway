@@ -61,7 +61,7 @@ PLAYER_0_MAX_X = $36 ; Going left will underflow to FF, so it only have to be le
 INITIAL_COUNTDOWN_TIME = 90; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
-TIMEOVER_BREAK_INTERVAL = %00000111 ; Every 8 frames
+TIMEOVER_BREAK_INTERVAL = %00000011 ; Every 4 frames
 
 SWITCHES_DEBOUNCE_TIME = 30 ; Frames
 
@@ -1872,6 +1872,7 @@ DrawGameOverScreenLeft
 	JSR ClearPF
 
 DrawBcdScoreLeft
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR
 	STA COLUP0
 	STA WSYNC
@@ -1893,6 +1894,7 @@ DrawBcdScoreLeft
 	JSR DrawGameOverScoreLine
 
 DrawTimerLeft
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_EASTER_EGG
 	STA COLUP0
 	STA WSYNC
@@ -1908,6 +1910,7 @@ DrawTimerLeft
 	JSR DrawGameOverScoreLine
 
 DrawGlideTimerLeft
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_BAD
 	STA COLUP0
 	STA WSYNC
@@ -1919,6 +1922,7 @@ DrawGlideTimerLeft
 	JSR DrawGameOverScoreLine
 
 DrawHitCountLeft
+	JSR Sleep8Lines
 	LDA #TRAFFIC_COLOR_INTENSE
 	STA COLUP0
 	STA WSYNC
@@ -1930,6 +1934,7 @@ DrawHitCountLeft
 	JSR DrawGameOverScoreLine
 
 DrawCheckpointCountLeft
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_GOOD
 	STA COLUP0
 	STA WSYNC
@@ -1941,6 +1946,7 @@ DrawCheckpointCountLeft
 	JSR DrawGameOverScoreLine
 
 DrawGameVersionLeft
+	JSR Sleep8Lines
 	LDA #VERSION_COLOR
 	STA COLUP0
 
@@ -1982,12 +1988,8 @@ DrawGameVersionLeft
 	STA WSYNC
 	STA WSYNC
 	STA WSYNC
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
+
+
 	JSR Sleep8Lines
 	JSR Sleep8Lines
 	JSR Sleep8Lines
@@ -1999,6 +2001,7 @@ DrawGameOverScreenRight
 	JSR ClearPF
 	
 DrawBcdScoreRight	
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR
 	STA COLUP1
 	STA WSYNC
@@ -2008,6 +2011,7 @@ DrawBcdScoreRight
 	JSR DrawGameOverScoreLine
 
 DrawTimerRight
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_EASTER_EGG
 	STA COLUP1
 	STA WSYNC
@@ -2016,6 +2020,7 @@ DrawTimerRight
 
 	JSR DrawGameOverScoreLine
 DrawGlideTimeRight
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_BAD
 	STA COLUP1
 	LDY #GlideTimeBcd0
@@ -2023,6 +2028,7 @@ DrawGlideTimeRight
 	JSR DrawGameOverScoreLine
 
 DrawHitCountRight
+	JSR Sleep8Lines
 	LDA #TRAFFIC_COLOR_INTENSE
 	STA COLUP1
 	LDY #HitCountBcd0
@@ -2030,6 +2036,7 @@ DrawHitCountRight
 	JSR DrawGameOverScoreLine
 
 DrawCheckpointCountRight
+	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_GOOD
 	STA COLUP1
 	LDY #CheckpointBcd0
@@ -2037,6 +2044,7 @@ DrawCheckpointCountRight
 	JSR DrawGameOverScoreLine
 
 DrawVersionRight
+	JSR Sleep8Lines
 	LDA #VERSION_COLOR
 	STA COLUP1
 	STA WSYNC
@@ -2047,12 +2055,7 @@ DrawVersionRight
 	STA WSYNC
 	STA WSYNC
 	STA WSYNC
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
+
 	JSR Sleep8Lines
 	JSR Sleep8Lines
 	JSR Sleep8Lines

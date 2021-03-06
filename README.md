@@ -1,4 +1,4 @@
-# Hellway V1.01 (Digital Release)
+# Hellway V1.10 (Digital Release)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -68,7 +68,6 @@ It much easier to read it as a binary number (like linux file permissions). Each
 Deterministic game modes (0,1,4,5) will always generate the same sequence of cars for each line.
 
 ## Border Effects
-
 While in the title screen it is possible to change what the border of the screen looks like by pressing the D-pad:
 * Up (default) => Basic strip pattern.
 * Left => Tachometer, the stripes grow representing the engine RPM, the vertical line position represents the current gear.
@@ -80,6 +79,20 @@ While in the title screen it is possible to change what the border of the screen
 * The button starts the game and accelerates.
 * Up also accelerates, down breaks, and you can move left to right.
 * It is possible to break and accelerate at the same time, this will break with half intensity (Heel-and-toe).
+
+## Game Over Screen
+Gives you a full status of the game session.
+* S: Score (also distance) in decimal. This is a direct conversion of the HUD.
+* T: The total time you spend playing in seconds.
+* G: The time you spent gliding (unable to accelerate) in seconds.
+* H: The number of times you hit another car.
+* C: Total number of checkpoints.
+* Last line is a unique identifier of the version of the game and the configuration played. By uniquely identifying, this makes it easy to compare scores among friends and online, and also for archiving your scores, it reads like this:
+GameMode (0 to F) | Difficulty Switch 1 (B - A) Difficulty Switch 2 (B - A) | Game Version. 
+Example: E|AB|1.10
+
+* Holding the fire button allows you to see the traffic passing by (like in the previous version).
+
 
 ## Closing Thoughts
 A very special thanks to all the AtariAge community. You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/

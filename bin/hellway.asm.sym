@@ -157,31 +157,31 @@ Dot                      fdaa              (R )
 DrawBcdScoreLeft         f99e                  
 DrawBcdScoreRight        fa7c                  
 DrawCache                f512                  
-DrawCheckpointCountLeft  fa02                  
-DrawCheckpointCountRight fab0                  
+DrawCheckpointCountLeft  fa0e                  
+DrawCheckpointCountRight fabc                  
 DrawDistanceExtraDigit   f3f2              (R )
 DrawGameOverScoreLine    f98c              (R )
 DrawGameOverScreenLeft   f999              (R )
 DrawGameOverScreenRight  fa77              (R )
-DrawGameVersionLeft      fa16                  
-DrawGlideTimeRight       fa98                  
-DrawGlideTimerLeft       f9da                  
-DrawHitCountLeft         f9ee                  
-DrawHitCountRight        faa4                  
+DrawGameVersionLeft      fa25                  
+DrawGlideTimeRight       fa9e                  
+DrawGlideTimerLeft       f9e0                  
+DrawHitCountLeft         f9f7                  
+DrawHitCountRight        faad                  
 DrawScoreD0              f8ee                  
 DrawScoreD1              f8f7                  
 DrawScoreD2              f904                  
 DrawScoreD3              f911                  
 DrawScoreD4              f91e                  
 DrawScoreHud             f4da                  
-DrawTimerLeft            f9be                  
-DrawTimerRight           fa8a                  
+DrawTimerLeft            f9c1                  
+DrawTimerRight           fa8d                  
 DrawTraffic0             f5a9                  
 DrawTraffic1             f53d                  
 DrawTraffic2             f558                  
 DrawTraffic3             f573                  
 DrawTraffic4             f58e                  
-DrawVersionRight         fabc                  
+DrawVersionRight         facb                  
 ENABL                    001f              (R )
 ENABLCache               0085              (R )
 ENAM0                    001d              (R )
@@ -478,7 +478,7 @@ TIM8T                    0295
 TimeBcd0                 00bd              (R )
 TimeBcd1                 00be              (R )
 TimeBcd2                 00bf              (R )
-TIMEOVER_BREAK_INTERVAL  0007              (R )
+TIMEOVER_BREAK_INTERVAL  0003              (R )
 TIMEOVER_BREAK_SPEED     0001              (R )
 TIMINT                   0285                  
 Tmp0                     00b0              (R )
