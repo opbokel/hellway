@@ -87,7 +87,7 @@ Gives you a detailed statistics of the game session:
 * G: The time you spent gliding (unable to accelerate) in seconds.
 * H: The number of times you hit another car.
 * C: Total number of checkpoints.
-* Last line is a unique identifier of the version of the game and the configuration played. By uniquely identifying, this makes it easy to compare scores among friends and online, and also for archiving your scores, it reads like this:
+* Last line is a unique identifier of the version of the game and the configuration played, making it easier to to compare scores among friends and online, and also for archiving your scores, it reads like this:
 GameMode (0 to F) | Difficulty Switch 1 (B - A) Difficulty Switch 2 (B - A) | Game Version. 
 Example: E|AB|1.10
 
