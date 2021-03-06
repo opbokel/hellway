@@ -271,7 +271,7 @@ HorizontalParallaxMode   f327              (R )
 HPositioning             f053                  
 IncreaseCarSpeed         f1ab              (R )
 IncreaseTotalTimerBcd    f66d                  
-INITIAL_COUNTDOWN_TIME   0000              (R )
+INITIAL_COUNTDOWN_TIME   005a              (R )
 InitUpdateOffsets        f1cc                  
 INPT0                    0008                  
 INPT1                    0009                  

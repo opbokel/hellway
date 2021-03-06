@@ -433,7 +433,7 @@
      58  f000		       00 35	   PLAYER_0_X_START =	$35	;
      59  f000		       00 36	   PLAYER_0_MAX_X =	$36	; Going left will underflow to FF, so it only have to be less (unsigned) than this
      60  f000
-     61  f000		       00 00	   INITIAL_COUNTDOWN_TIME =	0	;90; Seconds +-
+     61  f000		       00 5a	   INITIAL_COUNTDOWN_TIME =	90	; Seconds +-
      62  f000		       00 10	   CHECKPOINT_INTERVAL =	$10	; Acts uppon TrafficOffset0 + 3
      63  f000		       00 01	   TIMEOVER_BREAK_SPEED =	1
      64  f000		       00 07	   TIMEOVER_BREAK_INTERVAL =	%00000111	; Every 8 frames
@@ -627,7 +627,7 @@
     227  f05b		       a9 35		      LDA	#PLAYER_0_X_START	;2
     228  f05d		       85 b9		      STA	Player0X	;3
     229  f05f
-    230  f05f		       a9 00		      LDA	#INITIAL_COUNTDOWN_TIME	;2
+    230  f05f		       a9 5a		      LDA	#INITIAL_COUNTDOWN_TIME	;2
     231  f061		       85 ba		      STA	CountdownTimer	;3
     232  f063
     233  f063		       a9 10		      LDA	#CHECKPOINT_INTERVAL
