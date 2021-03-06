@@ -51,14 +51,14 @@ PLAYER1_COLOR = $96
 
 SCORE_FONT_COLOR = $F9
 SCORE_FONT_COLOR_GOOD = $D8
-SCORE_FONT_COLOR_BAD = $33
+SCORE_FONT_COLOR_BAD = $44
 SCORE_FONT_COLOR_START = $C8 ;Cannot be the same as good, font colors = game state
 SCORE_FONT_COLOR_OVER = $0C
 
 PLAYER_0_X_START = $35;
 PLAYER_0_MAX_X = $36 ; Going left will underflow to FF, so it only have to be less (unsigned) than this
 
-INITIAL_COUNTDOWN_TIME = 90; Seconds +-
+INITIAL_COUNTDOWN_TIME = 0;90; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
 TIMEOVER_BREAK_INTERVAL = %00000111 ; Every 8 frames
@@ -74,6 +74,8 @@ PARALLAX_SIZE = 8
 HALF_TEXT_SIZE = 5
 
 ONE_SECOND_FRAMES = 60
+
+VERSION_COLOR = $49
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -97,6 +99,10 @@ TrafficOffset1 = $94; Traffic 1 $94 $95 (24 bit) $96 is cache
 TrafficOffset2 = $98; Traffic 1 $99 $9A (24 bit) $9B is cache
 TrafficOffset3 = $9C; Traffic 1 $9D $9E (24 bit) $9F is cache
 TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
+
+CheckpointBcd0 = $A4
+CheckpointBcd1 = $A5
+StartSWCHB = $A6 ; Used for Score, so it cannot be cheated.
 
 ;Temporary variables, multiple uses
 Tmp0 = $B0
@@ -192,6 +198,7 @@ SettingTrafficOffsets; Time sensitive with player H position
 		
 	LDX #0
 	LDA SWCHB ; Reading the switches and mapping to difficulty id
+	STA StartSWCHB ; For game over
 	AND #%11000000
 	BEQ CallConfigureDifficulty
 	INX
@@ -737,6 +744,17 @@ IsCheckpoint
 	LDA NextCheckpoint
 	CMP TrafficOffset0 + 2
 	BNE SkipIsCheckpoint
+AddCheckpointBcd
+	SED ;2
+	CLC ;2
+	LDA CheckpointBcd0 ;3
+	ADC #1 ;3
+	STA CheckpointBcd0 ;3
+	LDA CheckpointBcd1 ;3
+	ADC #0 ;2
+	STA CheckpointBcd1 ;3
+	CLD ;2
+EndCheckpointBcd
 	CLC
 	ADC #CHECKPOINT_INTERVAL
 	STA NextCheckpoint
@@ -1776,18 +1794,84 @@ DrawScoreD4 ; 20
 	BPL ScoreLoop ;4
 
 	STA WSYNC
-
 	JSR LoadAll
-
 	RTS ; 6
+
+PrintRightDecimalDigits
+	LDA 0,Y
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD2 ;3
+
+	LDA 0,Y
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+
+	INY
+	LDA 0,Y
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD0 ;3
+
+	LDA 0,Y
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD1 ;3
+
+	LDA #<Triangle + FONT_OFFSET
+	STA ScoreD4
+	RTS
+
+PrintLastLeftDecimalDigits
+	LDA 0,Y
+	LSR
+	LSR
+	LSR
+	LSR
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD3 ;3
+	LDA 0,Y
+	AND #%00001111
+	TAX 
+	LDA FontLookup,X ;4
+	STA ScoreD4 ;3
+	RTS
+
+PrintZerosLeft
+	LDA #<C0 + FONT_OFFSET
+	STA ScoreD2
+	STA ScoreD3
+	STA ScoreD4
+	RTS
+
+DrawGameOverScoreLine
+	STA WSYNC
+	JSR PrintScore
+	STA WSYNC
+	STA WSYNC
+	JSR ClearPF
+	RTS
 
 DrawGameOverScreenLeft
 	STA WSYNC
 	JSR ClearPF
+
+DrawBcdScoreLeft
 	LDA #SCORE_FONT_COLOR
 	STA COLUP0
 	STA WSYNC
-DrawBcdScoreLeft
 	LDA #<CS + #FONT_OFFSET
 	STA ScoreD0
 
@@ -1800,66 +1884,101 @@ DrawBcdScoreLeft
 	LDA FontLookup,X ;4
 	STA ScoreD2 ;3
 
-	LDA ScoreBcd2
-	LSR
-	LSR
-	LSR
-	LSR
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD3 ;3
-
-	LDA ScoreBcd2
-	AND #%00001111
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD4 ;3
+	LDY #ScoreBcd2
+	JSR PrintLastLeftDecimalDigits
 	
-	STA WSYNC
-	JSR PrintScore
-	STA WSYNC
-	STA WSYNC
-	JSR ClearPF
+	JSR DrawGameOverScoreLine
 
+DrawTimerLeft
 	LDA #SCORE_FONT_COLOR_EASTER_EGG
 	STA COLUP0
 	STA WSYNC
-
-DrawTimerLeft
 	LDA #<CT + #FONT_OFFSET
 	STA ScoreD0
 	LDA #<Colon + #FONT_OFFSET
 	STA ScoreD1
 	LDA #<C0 + #FONT_OFFSET
 	STA ScoreD2
-	LDA TimeBcd2
-	LSR
-	LSR
-	LSR
-	LSR
+	LDY #TimeBcd2
+	STA WSYNC
+	JSR PrintLastLeftDecimalDigits
+	JSR DrawGameOverScoreLine
+
+DrawGlideTimerLeft
+	LDA #SCORE_FONT_COLOR_BAD
+	STA COLUP0
+	STA WSYNC
+	LDA #<CG + #FONT_OFFSET
+	STA ScoreD0
+	LDA #<Colon + #FONT_OFFSET
+	STA ScoreD1
+	JSR PrintZerosLeft
+	JSR DrawGameOverScoreLine
+
+DrawHitCountLeft
+	LDA #TRAFFIC_COLOR_INTENSE
+	STA COLUP0
+	STA WSYNC
+	LDA #<CH + #FONT_OFFSET
+	STA ScoreD0
+	LDA #<Colon + #FONT_OFFSET
+	STA ScoreD1
+	JSR PrintZerosLeft
+	JSR DrawGameOverScoreLine
+
+DrawCheckpointCountLeft
+	LDA #SCORE_FONT_COLOR_GOOD
+	STA COLUP0
+	STA WSYNC
+	LDA #<CC + #FONT_OFFSET
+	STA ScoreD0
+	LDA #<Colon + #FONT_OFFSET
+	STA ScoreD1
+	JSR PrintZerosLeft
+	JSR DrawGameOverScoreLine
+
+DrawGameVersionLeft
+	LDA #VERSION_COLOR
+	STA COLUP0
+
+	LDA GameMode
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD0 ;3
+	LDA #<Pipe + FONT_OFFSET
+	STA ScoreD1
+
+	LDA StartSWCHB
+	AND #%01000000 ; P0 difficulty
+	EOR #%01000000 ; Reverse bytes
+	ROL
+	ROL
+	ROL 
+	CLC
+	ADC #10
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD2 ;3
+
+	LDA StartSWCHB
+	AND #%10000000 ; P0 difficulty
+	EOR #%10000000 ; Reverse bytes
+	ROL
+	ROL
+	CLC
+	ADC #10
 	TAX
 	LDA FontLookup,X ;4
 	STA ScoreD3 ;3
-	LDA TimeBcd2
-	AND #%00001111
-	TAX 
-	LDA FontLookup,X ;4
-	STA ScoreD4 ;3
-	
-	STA WSYNC
-	JSR PrintScore
+
+	LDA #<Pipe + FONT_OFFSET
+	STA ScoreD4
+
+	JSR DrawGameOverScoreLine
+
 	STA WSYNC
 	STA WSYNC
-	JSR ClearPF
 	STA WSYNC
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
 	JSR Sleep8Lines
 	JSR Sleep8Lines
 	JSR Sleep8Lines
@@ -1875,86 +1994,55 @@ DrawTimerLeft
 DrawGameOverScreenRight
 	STA WSYNC
 	JSR ClearPF
-	STA WSYNC
-DrawBcdScoreRight
 	
-	LDA ScoreBcd1
-	LSR
-	LSR
-	LSR
-	LSR
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD0 ;3
-
-	LDA ScoreBcd1
-	AND #%00001111
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD1 ;3
-
-	LDA ScoreBcd0
-	LSR
-	LSR
-	LSR
-	LSR
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD2 ;3
-
-	LDA ScoreBcd0
-	AND #%00001111
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD3 ;3
-
-	LDA #<Triangle + #FONT_OFFSET
-	STA ScoreD4
-
+DrawBcdScoreRight	
+	LDA #SCORE_FONT_COLOR
+	STA COLUP1
 	STA WSYNC
-	JSR PrintScore
-	STA WSYNC
-	STA WSYNC
+	LDY #ScoreBcd0
+	JSR PrintRightDecimalDigits
 
-	JSR ClearPF
+	JSR DrawGameOverScoreLine
 
 DrawTimerRight
+	LDA #SCORE_FONT_COLOR_EASTER_EGG
+	STA COLUP1
 	STA WSYNC
-	LDA TimeBcd1
-	LSR
-	LSR
-	LSR
-	LSR
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD0 ;3
-	LDA TimeBcd1
-	AND #%00001111
-	TAX 
-	LDA FontLookup,X ;4
-	STA ScoreD1 ;3
-	LDA TimeBcd0
-	LSR
-	LSR
-	LSR
-	LSR
-	TAX
-	LDA FontLookup,X ;4
-	STA ScoreD2 ;3
-	LDA TimeBcd0
-	AND #%00001111
-	TAX 
-	LDA FontLookup,X ;4
-	STA ScoreD3 ;3
-	LDA #<Triangle + #FONT_OFFSET
-	STA ScoreD4
+	LDY #TimeBcd0
+	JSR PrintRightDecimalDigits
+
+	JSR DrawGameOverScoreLine
+DrawGlideTimeRight
+	LDA #SCORE_FONT_COLOR_BAD
+	STA COLUP1
+	LDY #GlideTimeBcd0
+	JSR PrintRightDecimalDigits
+	JSR DrawGameOverScoreLine
+
+DrawHitCountRight
+	LDA #TRAFFIC_COLOR_INTENSE
+	STA COLUP1
+	LDY #HitCountBcd0
+	JSR PrintRightDecimalDigits
+	JSR DrawGameOverScoreLine
+
+DrawCheckpointCountRight
+	LDA #SCORE_FONT_COLOR_GOOD
+	STA COLUP1
+	LDY #CheckpointBcd0
+	JSR PrintRightDecimalDigits
+	JSR DrawGameOverScoreLine
+
+DrawVersionRight
+	LDA #VERSION_COLOR
+	STA COLUP1
 	STA WSYNC
-	JSR PrintScore
+	LDX #<VersionText
+	JSR PrintStaticText
+	JSR DrawGameOverScoreLine
 
 	STA WSYNC
 	STA WSYNC
-	JSR ClearPF
-
 	STA WSYNC
 	JSR Sleep8Lines
 	JSR Sleep8Lines
@@ -1966,16 +2054,6 @@ DrawTimerRight
 	JSR Sleep8Lines
 	JSR Sleep8Lines
 	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-
-
 
 FinalizeDrawGameOver
 	LDA #SCORE_FONT_COLOR_OVER ;Restores the game state
@@ -2506,12 +2584,12 @@ LeonardoTextRight
 	.byte #<Space + #FONT_OFFSET 
 	.byte #<CN + #FONT_OFFSET
 
-HitsText
-	.byte #<CH + #FONT_OFFSET
-	.byte #<CI + #FONT_OFFSET
-	.byte #<CT + #FONT_OFFSET
-	.byte #<CS + #FONT_OFFSET 
-	.byte #<Colon + #FONT_OFFSET
+VersionText
+	.byte #<C1 + #FONT_OFFSET
+	.byte #<Dot + #FONT_OFFSET
+	.byte #<C1 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
+	.byte #<Triangle + #FONT_OFFSET
 
 
 EndStaticText
