@@ -155,19 +155,19 @@ DistanceOverflowDigit    f3e5
 DividePlayerSpeedBy4     f2c3                  
 Dot                      fdaa              (R )
 DrawBcdScoreLeft         f99e                  
-DrawBcdScoreRight        fa7c                  
+DrawBcdScoreRight        fa68                  
 DrawCache                f512                  
-DrawCheckpointCountLeft  fa0e                  
-DrawCheckpointCountRight fabc                  
+DrawCheckpointCountLeft  fa0c                  
+DrawCheckpointCountRight faa6                  
 DrawDistanceExtraDigit   f3f2              (R )
 DrawGameOverScoreLine    f98c              (R )
 DrawGameOverScreenLeft   f999              (R )
-DrawGameOverScreenRight  fa77              (R )
-DrawGameVersionLeft      fa25                  
-DrawGlideTimeRight       fa9e                  
-DrawGlideTimerLeft       f9e0                  
-DrawHitCountLeft         f9f7                  
-DrawHitCountRight        faad                  
+DrawGameOverScreenRight  fa63              (R )
+DrawGameVersionLeft      fa23                  
+DrawGlideTimeRight       fa88                  
+DrawGlideTimerLeft       f9de                  
+DrawHitCountLeft         f9f5                  
+DrawHitCountRight        fa97                  
 DrawScoreD0              f8ee                  
 DrawScoreD1              f8f7                  
 DrawScoreD2              f904                  
@@ -175,13 +175,13 @@ DrawScoreD3              f911
 DrawScoreD4              f91e                  
 DrawScoreHud             f4da                  
 DrawTimerLeft            f9c1                  
-DrawTimerRight           fa8d                  
+DrawTimerRight           fa79                  
 DrawTraffic0             f5a9                  
 DrawTraffic1             f53d                  
 DrawTraffic2             f558                  
 DrawTraffic3             f573                  
 DrawTraffic4             f58e                  
-DrawVersionRight         facb                  
+DrawVersionRight         fab5                  
 ENABL                    001f              (R )
 ENABLCache               0085              (R )
 ENAM0                    001d              (R )
@@ -212,7 +212,7 @@ EorOffsetWithCarry4      f59b              (R )
 EverySecond              f141                  
 ExactlyEverySecond       f651                  
 Exclamation              fda5              (R )
-FinalizeDrawGameOver     faee              (R )
+FinalizeDrawGameOver     fac6              (R )
 FinishBcdScore           f23c              (R )
 FinishDecrementCollision f28d              (R )
 FinishDrawTraffic1       f558              (R )
@@ -441,7 +441,9 @@ SkipResetPlayerPosition  f29c              (R )
 SkipScoreFontColor       f33e              (R )
 SkipSetColisionSpeed     f279              (R )
 SkipUpdateLogic          f30b              (R )
-Sleep8Lines              fb01              (R )
+Sleep32Lines             fae6              (R )
+Sleep4Lines              fad6              (R )
+Sleep8Lines              fadf              (R )
 Space                    fdb9              (R )
 Start                    f00a              (R )
 StartGame                f09f                  

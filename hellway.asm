@@ -1897,7 +1897,6 @@ DrawTimerLeft
 	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_EASTER_EGG
 	STA COLUP0
-	STA WSYNC
 	LDA #<CT + #FONT_OFFSET
 	STA ScoreD0
 	LDA #<Colon + #FONT_OFFSET
@@ -1984,16 +1983,7 @@ DrawGameVersionLeft
 	STA ScoreD4
 
 	JSR DrawGameOverScoreLine
-
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-
-
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
+	
 	JMP FinalizeDrawGameOver
 
 DrawGameOverScreenRight
@@ -2014,7 +2004,6 @@ DrawTimerRight
 	JSR Sleep8Lines
 	LDA #SCORE_FONT_COLOR_EASTER_EGG
 	STA COLUP1
-	STA WSYNC
 	LDY #TimeBcd0
 	JSR PrintRightDecimalDigits
 
@@ -2052,33 +2041,31 @@ DrawVersionRight
 	JSR PrintStaticText
 	JSR DrawGameOverScoreLine
 
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-
 FinalizeDrawGameOver
 	LDA #SCORE_FONT_COLOR_OVER ;Restores the game state
 	STA ScoreFontColor
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
+	JSR Sleep4Lines
+	JSR Sleep32Lines
+	JSR Sleep32Lines
 	JMP PrepareOverscan
 
+Sleep4Lines
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	RTS
+
 Sleep8Lines
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
-	STA WSYNC
+	JSR Sleep4Lines
+	JSR Sleep4Lines
+	RTS
+
+Sleep32Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
 	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
