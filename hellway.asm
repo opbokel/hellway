@@ -480,6 +480,7 @@ InitUpdateOffsets
 	LDA GameMode
 	AND #%00000100 ; GameModes with high delta
 	BEQ UpdateOffsets
+	LDY #(TrafficSpeedsHighDelta - TrafficSpeeds)
 	
 UpdateOffsets; Car sped - traffic speed = how much to change offet (signed)
 	SEC
