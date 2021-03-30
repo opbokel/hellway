@@ -67,7 +67,7 @@ SWITCHES_DEBOUNCE_TIME = 30 ; Frames
 
 BLACK = $00;
 
-MAX_GAME_MODE = 15
+MAX_GAME_MODE = 16
 
 PARALLAX_SIZE = 8
 
@@ -76,6 +76,11 @@ HALF_TEXT_SIZE = 5
 ONE_SECOND_FRAMES = 60
 
 VERSION_COLOR = $49
+
+QR_CODE_LINE_HEIGHT = 7
+QR_CODE_BACKGROUNG = $0F
+QR_CODE_COLOR = $00
+QR_CODE_SIZE = 21
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -162,6 +167,7 @@ ParallaxCache2=$F0 ; to F8
 BeforeStart ;All variables that are kept on game reset or select
 	LDY #0
 	STY SwitchDebounceCounter
+	LDY #16
 	STY GameMode
 	LDY #%11100000 ; Default Parallax
 	STY ParallaxMode
@@ -273,7 +279,17 @@ StartGame
 	LDA INPT4 ;3
 	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
 	LDA GameStatus ;3
+	ORA SwitchDebounceCounter ; Do not start during debounce
 	BNE SkipGameStart
+	LDA GameMode
+	CMP #MAX_GAME_MODE
+	BNE SetGameRunning
+	LDA #0
+	STA GameMode
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+	JMP SkipGameStart
+SetGameRunning 
 	INC GameStatus
 	LDA #0;
 	STA FrameCount0
@@ -364,11 +380,19 @@ CountFrame
 	INC FrameCount1 ; 5 Still not used
 SkipIncFC1
 
+CallDrawQrCode
+	LDA GameMode
+	CMP #MAX_GAME_MODE
+	BNE TestIsGameRunning
+	JMP DrawQrCode
+
 ;Does not update the game if not running
+TestIsGameRunning
 	LDA GameStatus ;3
 	BNE ContinueWithGameLogic ;3 Cannot branch more than 128 bytes, so we have to use JMP
 	JMP SkipUpdateLogic
 ContinueWithGameLogic
+
 
 EverySecond ; 64 frames to be more precise
 	LDA #%00111111
@@ -886,9 +910,7 @@ PrintCreditsLeft
 
 PrintGameMode
 	JSR PrintStaticText
-	LDA GameMode
-	AND #%00001111
-	TAX ; 2
+	LDX GameMode
 	LDA FontLookup,X ;4 
 	STA ScoreD0 ;3
 	JMP RightScoreWriteEnd;3
@@ -995,7 +1017,7 @@ LeftScoreOn
 	STA COLUP0
 	LDA #1 ;Jumps faster in the draw loop
 	STA Tmp1
-	JMP WaitForVblankEnd
+	JMP CallWaitForVblankEnd
 RightScoreOn
 	LDA ScoreFontColor
 	STA COLUP0
@@ -1005,11 +1027,8 @@ RightScoreOn
 	STA Tmp1
 
 ; After here we are going to update the screen, No more heavy code
-WaitForVblankEnd
-	LDA INTIM	
-	BNE WaitForVblankEnd ;Is there a better way?	
-	STA WSYNC ; Seems wastefull, can I live killing vblank midline? 
-	STA VBLANK 		
+CallWaitForVblankEnd
+	JSR WaitForVblankEnd
 
 DrawScoreHud
 	JSR PrintScore
@@ -2050,6 +2069,66 @@ FinalizeDrawGameOver
 	JSR Sleep32Lines
 	JMP PrepareOverscan
 
+DrawQrCode
+	LDX #QR_CODE_BACKGROUNG ;2
+	LDY #QR_CODE_COLOR ;2
+	LDA #%00000001 ; Mirror playfield
+	STA CTRLPF
+	LDA SWCHB
+	AND #%00001000 ; If Black and white, this will make A = 0
+	BEQ StoreReversedQrCode
+	STX COLUBK
+	STY COLUPF
+	JMP ContinueQrCode
+StoreReversedQrCode
+	STX COLUPF
+	STY COLUBK
+
+ContinueQrCode
+	LDY #QR_CODE_SIZE - 1
+	LDX #QR_CODE_LINE_HEIGHT
+	JSR WaitForVblankEnd
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+
+QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a-simple-display-timing-diagram/
+	STA WSYNC
+	LDA QrCode1,Y ; 4
+	STA PF1  ;3
+	LDA QrCode2,Y ;4
+	STA PF2 ;3
+	SLEEP 27 ; 
+	LDA QrCode3,Y ;4
+	STA PF2 ;3 Write ends at cycle 48 exactly!
+	LDA #0 ;2
+	STA PF1
+
+	DEX ;2
+	BNE QrCodeLoop ;2
+	LDX #QR_CODE_LINE_HEIGHT ;2
+	DEY ;2
+	BPL QrCodeLoop ;4
+
+EndQrCodeLoop
+	STA WSYNC ;
+	LDA #0
+	STA PF1  ;3
+	STA PF2  ;3
+
+	JSR Sleep32Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
+
+	JMP PrepareOverscan
+
+WaitForVblankEnd
+	LDA INTIM	
+	BNE WaitForVblankEnd ;Is there a better way?	
+	STA WSYNC ; Seems wastefull, can I live killing vblank midline? 
+	STA VBLANK
+	RTS	
+
 Sleep4Lines
 	STA WSYNC
 	STA WSYNC
@@ -2070,6 +2149,76 @@ Sleep32Lines
 	RTS
 
 ;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
+	org $FC00
+QrCode1
+	.byte #%00011111
+	.byte #%00010000
+	.byte #%00010111
+	.byte #%00010111
+	.byte #%00010111
+	.byte #%00010000
+	.byte #%00011111
+	.byte #%00000000
+	.byte #%00001110
+	.byte #%00001101
+	.byte #%00001001
+	.byte #%00011001
+	.byte #%00011011
+	.byte #%00000000
+	.byte #%00011111
+	.byte #%00010000
+	.byte #%00010111
+	.byte #%00010111
+	.byte #%00010111
+	.byte #%00010000
+	.byte #%00011111
+
+QrCode2
+    .byte #%11111011
+    .byte #%10101010
+    .byte #%10100010
+    .byte #%01001010
+    .byte #%01101010
+    .byte #%10010010
+    .byte #%11010011
+    .byte #%01111000
+    .byte #%10101111
+    .byte #%10010100
+    .byte #%10101111
+    .byte #%00001100
+    .byte #%10110010
+    .byte #%00001000
+    .byte #%10101011
+    .byte #%11010010
+    .byte #%01100010
+    .byte #%01000010
+    .byte #%00100010
+    .byte #%11010010
+    .byte #%01011011	
+
+QrCode3
+	.byte #%01100000
+	.byte #%01111111
+	.byte #%01010011
+	.byte #%01000010
+	.byte #%00001001
+	.byte #%11111111
+	.byte #%01010000
+	.byte #%01010110
+	.byte #%10001000
+	.byte #%10010111
+	.byte #%00101111
+	.byte #%10000110
+	.byte #%01000001
+	.byte #%00000000
+	.byte #%01111111
+	.byte #%01000001
+	.byte #%01011101
+	.byte #%01011101
+	.byte #%01011101
+	.byte #%01000001
+	.byte #%01111111
+    
 	org $FD00
 Font	
 C0
@@ -2344,6 +2493,7 @@ FontLookup ; Very fast font lookup for dynamic values!
 	.byte #<CD + #FONT_OFFSET
 	.byte #<CE + #FONT_OFFSET
 	.byte #<CF + #FONT_OFFSET
+	.byte #<CG + #FONT_OFFSET
 
 EngineSoundType
 	.byte #2
