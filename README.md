@@ -1,4 +1,4 @@
-# Hellway V1.11 (Digital Release)
+# Hellway V1.20 (Digital Release, cartridge comming soon)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -13,6 +13,8 @@ Feel free to download, play, burn to a cartridge and have fun. The only restrict
 I will sell physical copies in the near future and donate every profit I make to charity projects and people in need. If you like the game, please consider doing any action to make a better day for another person or buying a copy. Also, feel free to talk about it in social medias using the hashtag #hellway2600
 
 ## Instructions
+The game starts with a QR code, pointing to this repo at the moment. It can be dismissed by pressing fire or game select. Expect improved functionalities in the future. An updated high score and a mobile optimized quick manual are exemples.
+
 Every track has its own speed, and the car generation is deterministic. Accelerating and breaking are equally important.
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
@@ -32,7 +34,7 @@ The game is over when the time is over and the car is stopped. The score turns w
     
 * Game Reset: Restarts the the current game mode and apply the difficulty switches.
 
-* TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay.
+* TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
 
 * Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. The game mode is in the top left corner:
     * Mode 0 = Default mode, traffic level changes every checkpoint, and keep cycling. The difficulty switches define only the starting traffic intensity.

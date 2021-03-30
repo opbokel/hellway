@@ -2731,8 +2731,8 @@ LeonardoTextRight
 VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
-	.byte #<C1 + #FONT_OFFSET
-	.byte #<C1 + #FONT_OFFSET 
+	.byte #<C2 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 

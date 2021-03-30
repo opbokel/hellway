@@ -3254,8 +3254,8 @@
    2731  ff78				   VersionText
    2732  ff78		       09		      .byte.b	#<C1 + #FONT_OFFSET
    2733  ff79		       ae		      .byte.b	#<Dot + #FONT_OFFSET
-   2734  ff7a		       09		      .byte.b	#<C1 + #FONT_OFFSET
-   2735  ff7b		       09		      .byte.b	#<C1 + #FONT_OFFSET
+   2734  ff7a		       0e		      .byte.b	#<C2 + #FONT_OFFSET
+   2735  ff7b		       04		      .byte.b	#<C0 + #FONT_OFFSET
    2736  ff7c		       b8		      .byte.b	#<Triangle + #FONT_OFFSET
    2737  ff7d
    2738  ff7d
