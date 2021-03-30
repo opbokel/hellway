@@ -13,7 +13,7 @@ Feel free to download, play, burn to a cartridge and have fun. The only restrict
 I will sell physical copies in the near future and donate every profit I make to charity projects and people in need. If you like the game, please consider doing any action to make a better day for another person or buying a copy. Also, feel free to talk about it in social medias using the hashtag #hellway2600
 
 ## Instructions
-The game starts with a QR code, pointing to this repo at the moment. It can be dismissed by pressing fire or game select. Expect improved functionalities in the future. An updated high score and a mobile optimized quick manual are exemples.
+The game starts with a QR code, pointing to this repo at the moment. It can be dismissed by pressing fire or game select. Expect improved functionalities in the future. An updated high score and a mobile optimized quick manual are exemples. It can be shown again by cycling through the game modes.
 
 Every track has its own speed, and the car generation is deterministic. Accelerating and breaking are equally important.
 
@@ -53,6 +53,7 @@ The game is over when the time is over and the car is stopped. The score turns w
     * Mode D = Mode 5 + Random traffic intensity every checkpoint. 
     * Mode E = Mode 6 + Random traffic intensity every checkpoint.
     * Mode F = Mode 7 + Random traffic intensity every checkpoint.
+    * Mode G = QR code
 
 Mode 0 tries to offer the most balanced experience.
 
