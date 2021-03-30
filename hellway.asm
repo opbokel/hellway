@@ -2104,7 +2104,6 @@ QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a
 	LDA #0 ;2
 	STA PF1
 
-
 	DEX ;2
 	BNE QrCodeLoop ;2
 	LDX #QR_CODE_LINE_HEIGHT ;2
