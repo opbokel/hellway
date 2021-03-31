@@ -2074,6 +2074,7 @@ DrawQrCode
 	LDY #QR_CODE_COLOR ;2
 	LDA #%00000001 ; Mirror playfield
 	STA CTRLPF
+	JSR ClearAll ; To be 100 sure!
 	LDA SWCHB
 	AND #%00001000 ; If Black and white, this will make A = 0
 	BEQ StoreReversedQrCode

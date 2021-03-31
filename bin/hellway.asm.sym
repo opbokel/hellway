@@ -114,7 +114,7 @@ ContinueBorderTac        f829              (R )
 ContinueDefaultBorderLoop f7d5                  
 ContinueGameSelect       f12b              (R )
 ContinueHorizontalParallaxLoop f7ba                  
-ContinueQrCode           fb07              (R )
+ContinueQrCode           fb0a              (R )
 ContinueVerticalParallaxLoop f87d              (R )
 ContinueWithGameLogic    f15f              (R )
 CountBcdColision         f27c                  
@@ -203,7 +203,7 @@ EndLeftSound             f614              (R )
 EndLoadAll               f6e8                  
 EndNextDifficulty        f73f                  
 EndProcessingBorder      f350              (R )
-EndQrCodeLoop            fb42                  
+EndQrCodeLoop            fb45                  
 EndRandomizeGame         f107              (R )
 EndReadSwitches          f149              (R )
 EndRightSound            f668              (R )
@@ -385,7 +385,7 @@ QR_CODE_SIZE             0015              (R )
 QrCode1                  fc00              (R )
 QrCode2                  fc15              (R )
 QrCode3                  fc2a              (R )
-QrCodeLoop               fb17              (R )
+QrCodeLoop               fb1a              (R )
 RandomDificulty          f733                  
 RandomizeGame            f0d3                  
 ReadDpadParallax         f120                  
@@ -456,9 +456,9 @@ SkipResetPlayerPosition  f2bc              (R )
 SkipScoreFontColor       f35e              (R )
 SkipSetColisionSpeed     f299              (R )
 SkipUpdateLogic          f32b              (R )
-Sleep32Lines             fb70              (R )
-Sleep4Lines              fb60              (R )
-Sleep8Lines              fb69              (R )
+Sleep32Lines             fb73              (R )
+Sleep4Lines              fb63              (R )
+Sleep8Lines              fb6c              (R )
 Space                    fdb9              (R )
 Start                    f00c              (R )
 StartGame                f0a1                  
@@ -471,7 +471,7 @@ StoreHMove               f2df              (R )
 StoreParallax0           f78d              (R )
 StoreParallax1           f7a5              (R )
 StoreParallax2           f7b7              (R )
-StoreReversedQrCode      fb03              (R )
+StoreReversedQrCode      fb06              (R )
 StoreTrafficChance       f727              (R )
 Subroutines              f6aa                  
 SWACNT                   0281                  
@@ -540,7 +540,7 @@ VerticalParallaxLoop     f82d              (R )
 VerticalParallaxMode     f341              (R )
 VSYNC                    0000              (R )
 WaitAnotherScoreLine     f50c              (R )
-WaitForVblankEnd         fb56              (R )
+WaitForVblankEnd         fb59              (R )
 WhileScanLoop            f5cc                  
 WriteDistance            f3d9                  
 WSYNC                    0002              (R )
