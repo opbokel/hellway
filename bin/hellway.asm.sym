@@ -203,7 +203,7 @@ EndLeftSound             f614              (R )
 EndLoadAll               f6e8                  
 EndNextDifficulty        f73f                  
 EndProcessingBorder      f350              (R )
-EndQrCodeLoop            fb45                  
+EndQrCodeLoop            fb43                  
 EndRandomizeGame         f107              (R )
 EndReadSwitches          f149              (R )
 EndRightSound            f668              (R )
@@ -381,11 +381,12 @@ ProcessScoreFontColor    f350
 QR_CODE_BACKGROUNG       000f              (R )
 QR_CODE_COLOR            0000              (R )
 QR_CODE_LINE_HEIGHT      0007              (R )
-QR_CODE_SIZE             0015              (R )
+QR_CODE_SIZE             0019              (R )
 QrCode1                  fc00              (R )
-QrCode2                  fc15              (R )
-QrCode3                  fc2a              (R )
-QrCodeLoop               fb1a              (R )
+QrCode2                  fc19              (R )
+QrCode3                  fc32              (R )
+QrCode4                  fc4b              (R )
+QrCodeLoop               fb17              (R )
 RandomDificulty          f733                  
 RandomizeGame            f0d3                  
 ReadDpadParallax         f120                  
@@ -456,9 +457,9 @@ SkipResetPlayerPosition  f2bc              (R )
 SkipScoreFontColor       f35e              (R )
 SkipSetColisionSpeed     f299              (R )
 SkipUpdateLogic          f32b              (R )
-Sleep32Lines             fb73              (R )
-Sleep4Lines              fb63              (R )
-Sleep8Lines              fb6c              (R )
+Sleep32Lines             fb6b              (R )
+Sleep4Lines              fb5b              (R )
+Sleep8Lines              fb64              (R )
 Space                    fdb9              (R )
 Start                    f00c              (R )
 StartGame                f0a1                  
@@ -540,7 +541,7 @@ VerticalParallaxLoop     f82d              (R )
 VerticalParallaxMode     f341              (R )
 VSYNC                    0000              (R )
 WaitAnotherScoreLine     f50c              (R )
-WaitForVblankEnd         fb59              (R )
+WaitForVblankEnd         fb51              (R )
 WhileScanLoop            f5cc                  
 WriteDistance            f3d9                  
 WSYNC                    0002              (R )

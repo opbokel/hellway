@@ -80,7 +80,7 @@ VERSION_COLOR = $49
 QR_CODE_LINE_HEIGHT = 7
 QR_CODE_BACKGROUNG = $0F
 QR_CODE_COLOR = $00
-QR_CODE_SIZE = 21
+QR_CODE_SIZE = 25
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -2090,8 +2090,7 @@ ContinueQrCode
 	LDX #QR_CODE_LINE_HEIGHT
 	JSR WaitForVblankEnd
 	JSR Sleep8Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
+	JSR Sleep4Lines
 
 QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a-simple-display-timing-diagram/
 	STA WSYNC
@@ -2102,8 +2101,8 @@ QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a
 	SLEEP 27 ; 
 	LDA QrCode3,Y ;4
 	STA PF2 ;3 Write ends at cycle 48 exactly!
-	LDA #0 ;2
-	STA PF1
+	LDA QrCode4,Y ; 4
+	STA PF1  ;3
 
 	DEX ;2
 	BNE QrCodeLoop ;2
@@ -2118,9 +2117,6 @@ EndQrCodeLoop
 	STA PF2  ;3
 
 	JSR Sleep32Lines
-	JSR Sleep8Lines
-	JSR Sleep8Lines
-
 	JMP PrepareOverscan
 
 WaitForVblankEnd
@@ -2160,11 +2156,15 @@ QrCode1
 	.byte #%00010000
 	.byte #%00011111
 	.byte #%00000000
-	.byte #%00001110
-	.byte #%00001101
-	.byte #%00001001
+	.byte #%00010111
+	.byte #%00010000
+	.byte #%00011101
+	.byte #%00010110
+	.byte #%00000011
 	.byte #%00011001
-	.byte #%00011011
+	.byte #%00010011
+	.byte #%00011100
+	.byte #%00001011
 	.byte #%00000000
 	.byte #%00011111
 	.byte #%00010000
@@ -2175,50 +2175,85 @@ QrCode1
 	.byte #%00011111
 
 QrCode2
-    .byte #%11111011
-    .byte #%10101010
-    .byte #%10100010
-    .byte #%01001010
-    .byte #%01101010
-    .byte #%10010010
-    .byte #%11010011
-    .byte #%01111000
-    .byte #%10101111
-    .byte #%10010100
-    .byte #%10101111
-    .byte #%00001100
-    .byte #%10110010
-    .byte #%00001000
-    .byte #%10101011
-    .byte #%11010010
-    .byte #%01100010
-    .byte #%01000010
-    .byte #%00100010
-    .byte #%11010010
-    .byte #%01011011	
+	.byte #%11000011
+	.byte #%10011010
+	.byte #%10000010
+	.byte #%11011010
+	.byte #%10101010
+	.byte #%11001010
+	.byte #%11110011
+	.byte #%01111000
+	.byte #%11011111
+	.byte #%11111100
+	.byte #%11000111
+	.byte #%10011000
+	.byte #%00100011
+	.byte #%10111001
+	.byte #%11010010
+	.byte #%00110000
+	.byte #%11101011
+	.byte #%00101000
+	.byte #%10101011
+	.byte #%01110010
+	.byte #%11111010
+	.byte #%01111010
+	.byte #%00110010
+	.byte #%00111010
+	.byte #%01100011	
 
 QrCode3
-	.byte #%01100000
-	.byte #%01111111
-	.byte #%01010011
-	.byte #%01000010
-	.byte #%00001001
+	.byte #%10011000
+	.byte #%11000011
+	.byte #%00111001
+	.byte #%00110100
 	.byte #%11111111
-	.byte #%01010000
-	.byte #%01010110
-	.byte #%10001000
+	.byte #%01110001
+	.byte #%11010101
+	.byte #%11010001
+	.byte #%01011111
+	.byte #%00100110
+	.byte #%00101101
+	.byte #%11101001
+	.byte #%11010110
+	.byte #%00100110
+	.byte #%10111010
+	.byte #%00000011
+	.byte #%11011101
+	.byte #%11100000
+	.byte #%01010111
+	.byte #%00010100
+	.byte #%00110101
+	.byte #%11100101
+	.byte #%10110101
+	.byte #%11010100
 	.byte #%10010111
-	.byte #%00101111
-	.byte #%10000110
-	.byte #%01000001
+
+QrCode4
+	.byte #%00001001
+	.byte #%00001110
+	.byte #%00001111
+	.byte #%00001100
+	.byte #%00001100
+	.byte #%00001000
+	.byte #%00001000
+	.byte #%00000110
+	.byte #%00000110
+	.byte #%00001011
+	.byte #%00001111
+	.byte #%00000100
+	.byte #%00001000
+	.byte #%00001111
+	.byte #%00001001
+	.byte #%00000111
+	.byte #%00000101
 	.byte #%00000000
-	.byte #%01111111
-	.byte #%01000001
-	.byte #%01011101
-	.byte #%01011101
-	.byte #%01011101
-	.byte #%01000001
-	.byte #%01111111
+	.byte #%00001111
+	.byte #%00001000
+	.byte #%00001011
+	.byte #%00001011
+	.byte #%00001011
+	.byte #%00001000
+	.byte #%00001111
     
 	org $FD00
 Font	
@@ -2733,7 +2768,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C2 + #FONT_OFFSET
-	.byte #<C0 + #FONT_OFFSET 
+	.byte #<C1 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
