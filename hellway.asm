@@ -2794,7 +2794,6 @@ CarSprite ; Upside down
 	.byte #%00111100
 	ds GAMEPLAY_AREA - 2
 
-	
 TrafficSpeeds
 	.byte #$00;  Trafic0 L
 	.byte #$00;  Trafic0 H

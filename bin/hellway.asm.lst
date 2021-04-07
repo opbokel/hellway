@@ -3317,30 +3317,29 @@
    2794  ff89		       3c		      .byte.b	#%00111100
    2795  ff8a		       00 00 00 00*	      ds	GAMEPLAY_AREA - 2
    2796  ffca
-   2797  ffca
-   2798  ffca				   TrafficSpeeds
-   2799  ffca		       00		      .byte.b	#$00	;  Trafic0 L
-   2800  ffcb		       00		      .byte.b	#$00	;  Trafic0 H
-   2801  ffcc		       0a		      .byte.b	#$0A	;  Trafic1 L
-   2802  ffcd		       01		      .byte.b	#$01	;  Trafic1 H
-   2803  ffce		       e6		      .byte.b	#$E6	;  Trafic2 L
-   2804  ffcf		       00		      .byte.b	#$00	;  Trafic2 H
-   2805  ffd0		       c2		      .byte.b	#$C2	;  Trafic3 L
-   2806  ffd1		       00		      .byte.b	#$00	;  Trafic3 H
-   2807  ffd2		       9e		      .byte.b	#$9E	;  Trafic4 L
-   2808  ffd3		       00		      .byte.b	#$00	;  Trafic4 H
-   2809  ffd4				   TrafficSpeedsHighDelta
-   2810  ffd4		       00		      .byte.b	#$00	;  Trafic0 L
-   2811  ffd5		       00		      .byte.b	#$00	;  Trafic0 H
-   2812  ffd6		       0a		      .byte.b	#$0A	;  Trafic1 L
-   2813  ffd7		       01		      .byte.b	#$01	;  Trafic1 H
-   2814  ffd8		       c8		      .byte.b	#$C8	;  Trafic2 L
-   2815  ffd9		       00		      .byte.b	#$00	;  Trafic2 H
-   2816  ffda		       86		      .byte.b	#$86	;  Trafic3 L
-   2817  ffdb		       00		      .byte.b	#$00	;  Trafic3 H
-   2818  ffdc		       44		      .byte.b	#$44	;  Trafic4 L
-   2819  ffdd		       00		      .byte.b	#$00	;  Trafic4 H
-   2820  ffde
-   2821  fffc					      org	$FFFC
-   2822  fffc		       00 f0		      .word.w	BeforeStart
-   2823  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)
+   2797  ffca				   TrafficSpeeds
+   2798  ffca		       00		      .byte.b	#$00	;  Trafic0 L
+   2799  ffcb		       00		      .byte.b	#$00	;  Trafic0 H
+   2800  ffcc		       0a		      .byte.b	#$0A	;  Trafic1 L
+   2801  ffcd		       01		      .byte.b	#$01	;  Trafic1 H
+   2802  ffce		       e6		      .byte.b	#$E6	;  Trafic2 L
+   2803  ffcf		       00		      .byte.b	#$00	;  Trafic2 H
+   2804  ffd0		       c2		      .byte.b	#$C2	;  Trafic3 L
+   2805  ffd1		       00		      .byte.b	#$00	;  Trafic3 H
+   2806  ffd2		       9e		      .byte.b	#$9E	;  Trafic4 L
+   2807  ffd3		       00		      .byte.b	#$00	;  Trafic4 H
+   2808  ffd4				   TrafficSpeedsHighDelta
+   2809  ffd4		       00		      .byte.b	#$00	;  Trafic0 L
+   2810  ffd5		       00		      .byte.b	#$00	;  Trafic0 H
+   2811  ffd6		       0a		      .byte.b	#$0A	;  Trafic1 L
+   2812  ffd7		       01		      .byte.b	#$01	;  Trafic1 H
+   2813  ffd8		       c8		      .byte.b	#$C8	;  Trafic2 L
+   2814  ffd9		       00		      .byte.b	#$00	;  Trafic2 H
+   2815  ffda		       86		      .byte.b	#$86	;  Trafic3 L
+   2816  ffdb		       00		      .byte.b	#$00	;  Trafic3 H
+   2817  ffdc		       44		      .byte.b	#$44	;  Trafic4 L
+   2818  ffdd		       00		      .byte.b	#$00	;  Trafic4 H
+   2819  ffde
+   2820  fffc					      org	$FFFC
+   2821  fffc		       00 f0		      .word.w	BeforeStart
+   2822  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)
