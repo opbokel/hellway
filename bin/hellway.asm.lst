@@ -3291,7 +3291,7 @@
    2768  ff78		       09		      .byte.b	#<C1 + #FONT_OFFSET
    2769  ff79		       ae		      .byte.b	#<Dot + #FONT_OFFSET
    2770  ff7a		       0e		      .byte.b	#<C2 + #FONT_OFFSET
-   2771  ff7b		       09		      .byte.b	#<C1 + #FONT_OFFSET
+   2771  ff7b		       0e		      .byte.b	#<C2 + #FONT_OFFSET
    2772  ff7c		       b8		      .byte.b	#<Triangle + #FONT_OFFSET
    2773  ff7d
    2774  ff7d
@@ -3299,38 +3299,48 @@
    2776  ff7d
    2777  ff7d				   CarSprite		; Upside down
    2778  ff7d		       00 00 00 00*	      ds	6
-   2779  ff83		       00		      .byte.b	#%00000000	; Easist way to stop drawing
-   2780  ff84		       7e		      .byte.b	#%01111110
-   2781  ff85		       24		      .byte.b	#%00100100
-   2782  ff86		       bd		      .byte.b	#%10111101
-   2783  ff87		       3c		      .byte.b	#%00111100
-   2784  ff88		       bd		      .byte.b	#%10111101
-   2785  ff89		       3c		      .byte.b	#%00111100
-   2786  ff8a		       00 00 00 00*	      ds	GAMEPLAY_AREA - 2
-   2787  ffca
-   2788  ffca				   TrafficSpeeds
-   2789  ffca		       00		      .byte.b	#$00	;  Trafic0 L
-   2790  ffcb		       00		      .byte.b	#$00	;  Trafic0 H
-   2791  ffcc		       0a		      .byte.b	#$0A	;  Trafic1 L
-   2792  ffcd		       01		      .byte.b	#$01	;  Trafic1 H
-   2793  ffce		       e6		      .byte.b	#$E6	;  Trafic2 L
-   2794  ffcf		       00		      .byte.b	#$00	;  Trafic2 H
-   2795  ffd0		       c2		      .byte.b	#$C2	;  Trafic3 L
-   2796  ffd1		       00		      .byte.b	#$00	;  Trafic3 H
-   2797  ffd2		       9e		      .byte.b	#$9E	;  Trafic4 L
-   2798  ffd3		       00		      .byte.b	#$00	;  Trafic4 H
-   2799  ffd4				   TrafficSpeedsHighDelta
-   2800  ffd4		       00		      .byte.b	#$00	;  Trafic0 L
-   2801  ffd5		       00		      .byte.b	#$00	;  Trafic0 H
-   2802  ffd6		       0a		      .byte.b	#$0A	;  Trafic1 L
-   2803  ffd7		       01		      .byte.b	#$01	;  Trafic1 H
-   2804  ffd8		       c8		      .byte.b	#$C8	;  Trafic2 L
-   2805  ffd9		       00		      .byte.b	#$00	;  Trafic2 H
-   2806  ffda		       86		      .byte.b	#$86	;  Trafic3 L
-   2807  ffdb		       00		      .byte.b	#$00	;  Trafic3 H
-   2808  ffdc		       44		      .byte.b	#$44	;  Trafic4 L
-   2809  ffdd		       00		      .byte.b	#$00	;  Trafic4 H
-   2810  ffde
-   2811  fffc					      org	$FFFC
-   2812  fffc		       00 f0		      .word.w	BeforeStart
-   2813  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)
+   2779  ff83							; Original Car
+   2780  ff83							; .byte #%00000000 ; Easist way to stop drawing
+   2781  ff83							; .byte #%01111110
+   2782  ff83							; .byte #%00100100
+   2783  ff83							; .byte #%10111101
+   2784  ff83							; .byte #%00111100
+   2785  ff83							; .byte #%10111101
+   2786  ff83							; .byte #%00111100
+   2787  ff83							; Car variant posted by KevinMos3 (AtariAge), thanks
+   2788  ff83		       00		      .byte.b	#%00000000	; Easist way to stop drawing
+   2789  ff84		       bd		      .byte.b	#%10111101
+   2790  ff85		       7e		      .byte.b	#%01111110
+   2791  ff86		       5a		      .byte.b	#%01011010
+   2792  ff87		       66		      .byte.b	#%01100110
+   2793  ff88		       bd		      .byte.b	#%10111101
+   2794  ff89		       3c		      .byte.b	#%00111100
+   2795  ff8a		       00 00 00 00*	      ds	GAMEPLAY_AREA - 2
+   2796  ffca
+   2797  ffca
+   2798  ffca				   TrafficSpeeds
+   2799  ffca		       00		      .byte.b	#$00	;  Trafic0 L
+   2800  ffcb		       00		      .byte.b	#$00	;  Trafic0 H
+   2801  ffcc		       0a		      .byte.b	#$0A	;  Trafic1 L
+   2802  ffcd		       01		      .byte.b	#$01	;  Trafic1 H
+   2803  ffce		       e6		      .byte.b	#$E6	;  Trafic2 L
+   2804  ffcf		       00		      .byte.b	#$00	;  Trafic2 H
+   2805  ffd0		       c2		      .byte.b	#$C2	;  Trafic3 L
+   2806  ffd1		       00		      .byte.b	#$00	;  Trafic3 H
+   2807  ffd2		       9e		      .byte.b	#$9E	;  Trafic4 L
+   2808  ffd3		       00		      .byte.b	#$00	;  Trafic4 H
+   2809  ffd4				   TrafficSpeedsHighDelta
+   2810  ffd4		       00		      .byte.b	#$00	;  Trafic0 L
+   2811  ffd5		       00		      .byte.b	#$00	;  Trafic0 H
+   2812  ffd6		       0a		      .byte.b	#$0A	;  Trafic1 L
+   2813  ffd7		       01		      .byte.b	#$01	;  Trafic1 H
+   2814  ffd8		       c8		      .byte.b	#$C8	;  Trafic2 L
+   2815  ffd9		       00		      .byte.b	#$00	;  Trafic2 H
+   2816  ffda		       86		      .byte.b	#$86	;  Trafic3 L
+   2817  ffdb		       00		      .byte.b	#$00	;  Trafic3 H
+   2818  ffdc		       44		      .byte.b	#$44	;  Trafic4 L
+   2819  ffdd		       00		      .byte.b	#$00	;  Trafic4 H
+   2820  ffde
+   2821  fffc					      org	$FFFC
+   2822  fffc		       00 f0		      .word.w	BeforeStart
+   2823  fffe		       00 f0		      .word.w	BeforeStart	; Can be used for subrotine (BRK)

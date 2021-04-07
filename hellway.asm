@@ -2768,7 +2768,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C2 + #FONT_OFFSET
-	.byte #<C1 + #FONT_OFFSET 
+	.byte #<C2 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
@@ -2776,14 +2776,24 @@ EndStaticText
 
 CarSprite ; Upside down
 	ds 6
+	; Original Car
+	; .byte #%00000000 ; Easist way to stop drawing
+	; .byte #%01111110
+	; .byte #%00100100
+	; .byte #%10111101
+	; .byte #%00111100
+	; .byte #%10111101
+	; .byte #%00111100
+	; Car variant posted by KevinMos3 (AtariAge), thanks
 	.byte #%00000000 ; Easist way to stop drawing
-	.byte #%01111110
-	.byte #%00100100
 	.byte #%10111101
-	.byte #%00111100
+	.byte #%01111110
+	.byte #%01011010
+	.byte #%01100110
 	.byte #%10111101
 	.byte #%00111100
 	ds GAMEPLAY_AREA - 2
+
 	
 TrafficSpeeds
 	.byte #$00;  Trafic0 L
