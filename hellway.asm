@@ -21,6 +21,8 @@ CAR_MAX_SPEED_H = $02
 CAR_MAX_SPEED_L = $80
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
+CAR_START_LINE = 14 ; Exclusive
+
 ACCELERATE_SPEED = 1
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
@@ -81,6 +83,8 @@ QR_CODE_LINE_HEIGHT = 7
 QR_CODE_BACKGROUNG = $0F
 QR_CODE_COLOR = $00
 QR_CODE_SIZE = 25
+
+CURRENT_CAR_MASK = %00000011; 4 cars
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -108,6 +112,9 @@ TrafficOffset4 = $A0; Traffic 1 $A1 $A2 (24 bit) $A3 is cache
 CheckpointBcd0 = $A4
 CheckpointBcd1 = $A5
 StartSWCHB = $A6 ; Used for Score, so it cannot be cheated.
+CarSpritePointerL = $A7
+CarSpritePointerH = $A8
+CurrentCarId = $A9
 
 ;Temporary variables, multiple uses
 Tmp0 = $B0
@@ -167,10 +174,14 @@ ParallaxCache2=$F0 ; to F8
 BeforeStart ;All variables that are kept on game reset or select
 	LDY #0
 	STY SwitchDebounceCounter
+	STY CurrentDifficulty
+	STY GameStatus
 	LDY #16
 	STY GameMode
 	LDY #%11100000 ; Default Parallax
 	STY ParallaxMode
+	LDY #CURRENT_CAR_MASK ; Also the max id.
+	STY CurrentCarId
 
 Start
 	SEI	
@@ -184,6 +195,12 @@ ClearMem
 	CPX #GameMode
 	BEQ SkipClean
 	CPX #ParallaxMode
+	BEQ SkipClean
+	CPX #CurrentCarId
+	BEQ SkipClean
+	CPX #CurrentDifficulty
+	BEQ SkipClean
+	CPX #GameStatus
 	BEQ SkipClean
 	STA 0,X		
 SkipClean	
@@ -216,8 +233,30 @@ SettingTrafficOffsets; Time sensitive with player H position
 	INX
 
 CallConfigureDifficulty
+	CPX CurrentDifficulty; Checks change on dificulty Switches
+	BNE StoreCurrentDifficulty; Do not change car
+	LDA GameStatus
+	BNE StoreCurrentDifficulty ; Do not change car for a game running reset
+NextCar
+	LDY CurrentCarId
+	INY
+	TYA
+	AND #CURRENT_CAR_MASK ; Cycles 4 values...
+	STA CurrentCarId
+StoreCurrentDifficulty
 	STX CurrentDifficulty
 	JSR ConfigureDifficulty
+
+ConfigureCarSprite
+	LDY CurrentCarId
+	LDA CarIdToSpriteAddressL,Y
+	STA CarSpritePointerL
+	LDA CarIdToSpriteAddressH,Y
+	STA CarSpritePointerH
+
+SetGameNotRunning
+	LDA #0
+	STA GameStatus
 
 ConfigureOneSecondTimer
 	LDA #ONE_SECOND_FRAMES
@@ -1053,11 +1092,14 @@ WaitAnotherScoreLine
 PrepareForTraffic
 	JSR ClearPF ; 32
 
-	LDA #%00110001 ; Score mode
-	STA CTRLPF
+	STA WSYNC
+	STA WSYNC
+
+	LDA #%00110001 ; 2 Score mode
+	STA CTRLPF ;3
 	
 	LDA TrafficColor ;2
-	STA COLUPF
+	STA COLUPF ;3
 	
 	LDA #PLAYER1_COLOR ;2
 	STA COLUP1 ;3
@@ -1067,8 +1109,13 @@ PrepareForTraffic
 
 	LDY #GAMEPLAY_AREA ;2; (Score)
 
-	STA WSYNC
-	STA WSYNC
+	JSR ClearPF ; 32 Useless, but get to wait 32 cycles
+
+	SLEEP 14
+	
+	LDA Tmp3 ;3
+	STA COLUBK ;3
+	JMP DrawCache ;3 Skips the first WSYNC, so the last background line can be draw to the end
 
 ;main scanline loop...
 ScanLoop 
@@ -1076,18 +1123,17 @@ ScanLoop
 
 ;Start of next line!			
 DrawCache ;63 Is the last line going to the top of the next frame?
-	;Supper wastefull, but I had 17 cycles, This only avoids the score line to finish a litle earlier...
-	LDA Tmp3 ;3
-	STA COLUBK ;3
-
 	LDA PF0Cache ;3
 	STA PF0	     ;3
 
-	LDA CarSprite,Y ;4 ;Very fast, in the expense of rom space
-	STA GRP0      ;3   ;put it as graphics now
-	
 	LDA PF1Cache ;3
 	STA PF1	     ;3
+
+	CPY #CAR_START_LINE ;2 ;Saves memory and still fast
+	BCS SkipDrawCar;2
+	LDA (CarSpritePointerL),Y ;5 ;Very fast, in the expense of rom space
+	STA GRP0      ;3   ;put it as graphics now
+SkipDrawCar
 	
 	LDA GRP1Cache ;3
 	STA GRP1      ;3
@@ -1189,7 +1235,7 @@ AfterEorOffsetWithCarry4 ;17
 	STA ENAM1Cache	;3
 FinishDrawTraffic4
 
-DrawTraffic0; 15
+DrawTraffic0; 20
 	TYA ;2
 	AND #%00000111 ;2
 	TAX ;2
@@ -1973,8 +2019,11 @@ DrawGameVersionLeft
 	TAX
 	LDA FontLookup,X ;4
 	STA ScoreD0 ;3
-	LDA #<Pipe + FONT_OFFSET
-	STA ScoreD1
+
+	LDA CurrentCarId
+	TAX
+	LDA FontLookup,X ;4
+	STA ScoreD1 ;3
 
 	LDA StartSWCHB
 	AND #%01000000 ; P0 difficulty
@@ -2767,32 +2816,48 @@ LeonardoTextRight
 VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
-	.byte #<C2 + #FONT_OFFSET
-	.byte #<C2 + #FONT_OFFSET 
+	.byte #<C3 + #FONT_OFFSET
+	.byte #<C0 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
 EndStaticText
 
-CarSprite ; Upside down
-	ds 6
-	; Original Car
-	; .byte #%00000000 ; Easist way to stop drawing
-	; .byte #%01111110
-	; .byte #%00100100
-	; .byte #%10111101
-	; .byte #%00111100
-	; .byte #%10111101
-	; .byte #%00111100
-	; Car variant posted by KevinMos3 (AtariAge), thanks
-	.byte #%00000000 ; Easist way to stop drawing
+CarSprite0 ; Upside down, Original Car
+	ds 7
+	.byte #%01111110
+	.byte #%00100100
+	.byte #%10111101
+	.byte #%00111100
+	.byte #%10111101
+	.byte #%00111100
+
+CarSprite1 ; Car variant posted by KevinMos3 (AtariAge), thanks!
+	ds 7
 	.byte #%10111101
 	.byte #%01111110
 	.byte #%01011010
 	.byte #%01100110
 	.byte #%10111101
 	.byte #%00111100
-	ds GAMEPLAY_AREA - 2
+
+CarSprite2 ; Car variant posted by TIX (AtariAge), his normal car, thanks!
+	ds 7
+	.byte #%01111110
+	.byte #%10100101
+	.byte #%01000010
+	.byte #%01000010
+	.byte #%10111101
+	.byte #%01111110
+
+CarSprite3 ; Car variant posted by TIX (AtariAge), dragster, thanks!
+	ds 7
+	.byte #%00111100
+	.byte #%11011011
+	.byte #%11011011
+	.byte #%00111100
+	.byte #%01011010
+	.byte #%00111100
 
 TrafficSpeeds
 	.byte #$00;  Trafic0 L
@@ -2816,6 +2881,19 @@ TrafficSpeedsHighDelta
 	.byte #$00;  Trafic3 H
 	.byte #$44;  Trafic4 L
 	.byte #$00;  Trafic4 H
+
+CarIdToSpriteAddressL
+	.byte #<CarSprite0
+	.byte #<CarSprite1
+	.byte #<CarSprite2
+	.byte #<CarSprite3
+
+CarIdToSpriteAddressH
+	.byte #>CarSprite0
+	.byte #>CarSprite1
+	.byte #>CarSprite2
+	.byte #>CarSprite3
+
 
 	org $FFFC
 		.word BeforeStart

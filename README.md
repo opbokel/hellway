@@ -32,7 +32,11 @@ The game is over when the time is over and the car is stopped. The score turns w
     * 3 - AB = Intense Traffic, Purple (+ 40 seconds)
     * 4 - AA = Rush Hour, White (ish) (+ 45 seconds)
     
-* Game Reset: Restarts the the current game mode and apply the difficulty switches.
+* Game Reset: Restarts the current game mode and applies the difficulty switches. If the game is stopped and there is no change do the difficulty switches, it will cycle through the cars.
+    * Car 0 - Car with spoiler.
+    * Car 1 - Hatchback.
+    * Car 2 - Sedan.
+    * Car 3 - Dragster.
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
 
@@ -91,8 +95,8 @@ Gives you a detailed statistics of the game session:
 * H: The number of times you hit another car.
 * C: Total number of checkpoints.
 * Last line is a unique identifier of the version of the game and the configuration played, making it easier to to compare scores among friends and online, and also for archiving your scores, it reads like this:
-GameMode (0 to F) | Difficulty Switch 1 (B - A) Difficulty Switch 2 (B - A) | Game Version. 
-Example: E|AB|1.10
+GameMode (0 to F), Car Type, Difficulty Switch 1 (B - A), Difficulty Switch 2 (B - A), | Game Version. 
+Example: E2AB|1.30
 
 * Holding the fire button allows you to see the traffic passing by (like in the previous version).
 
