@@ -32,7 +32,7 @@ The game is over when the time is over and the car is stopped. The score turns w
     * 3 - AB = Intense Traffic, Purple (+ 40 seconds)
     * 4 - AA = Rush Hour, White (ish) (+ 45 seconds)
     
-* Game Reset: Restarts the current game mode and applies the difficulty switches. If the game is stopped and there is no change do the difficulty switches, it will cycle through the cars.
+* Game Reset: Restarts the current game mode and applies the difficulty switches. If the game is stopped and there is no changes to the difficulty switches, it will cycle through the cars.
     * Car 0 - Car with spoiler.
     * Car 1 - Hatchback.
     * Car 2 - Sedan.
