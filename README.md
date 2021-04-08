@@ -95,7 +95,7 @@ Gives you a detailed statistics of the game session:
 * H: The number of times you hit another car.
 * C: Total number of checkpoints.
 * Last line is a unique identifier of the version of the game and the configuration played, making it easier to to compare scores among friends and online, and also for archiving your scores, it reads like this:
-GameMode (0 to F), Car Type, Difficulty Switch 1 (B - A), Difficulty Switch 2 (B - A), | Game Version. 
+GameMode (0 to F), Car Type (0 to 3), Difficulty Switch 1 (B - A), Difficulty Switch 2 (B - A), | Game Version. 
 Example: E2AB|1.30
 
 * Holding the fire button allows you to see the traffic passing by (like in the previous version).
