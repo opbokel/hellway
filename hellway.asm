@@ -23,7 +23,11 @@ CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
 CAR_START_LINE = 14 ; Exclusive
 
-ACCELERATE_SPEED = 1
+CAR_ID_DEFAULT = 0
+CAR_ID_HATCHBACK = 1
+CAR_ID_SEDAN = 2
+CAR_ID_DRAGSTER = 3
+
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
@@ -512,7 +516,8 @@ IncreaseCarSpeed
 ;Adds speed
 	CLC
 	LDA Player0SpeedL
-	ADC #ACCELERATE_SPEED
+	LDY CurrentCarId
+	ADC CarIdToAccelerateSpeed,Y
 	STA Player0SpeedL
 	LDA Player0SpeedH
 	ADC #0
@@ -686,6 +691,13 @@ SkipResetPlayerPosition
 PrepareReadXAxis
 	LDX #0
 	LDY Player0X
+MakeDragsterTurnSlow
+	LDA CurrentCarId
+	CMP #CAR_ID_DRAGSTER
+	BNE BeginReadLeft
+	LDA FrameCount0
+	AND #%00000001
+	BEQ StoreHMove ; Ignore movement on odd frames for dragster
 BeginReadLeft
 	BEQ SkipMoveLeft ; We do not move after maximum
 	LDA #%01000000	;Left
@@ -1098,7 +1110,7 @@ PrepareForTraffic
 	LDA #%00110001 ; 2 Score mode
 	STA CTRLPF ;3
 	
-	LDA TrafficColor ;2
+	LDA TrafficColor ;3
 	STA COLUPF ;3
 	
 	LDA #PLAYER1_COLOR ;2
@@ -1115,7 +1127,8 @@ PrepareForTraffic
 	
 	LDA Tmp3 ;3
 	STA COLUBK ;3
-	JMP DrawCache ;3 Skips the first WSYNC, so the last background line can be draw to the end
+	JMP DrawCache ;3 Skips the first WSYNC, so the last background line can be draw to the end.
+	;The first loop never drans a car, so it is fine this jump uses 3 cycles of the next line.
 
 ;main scanline loop...
 ScanLoop 
@@ -2893,6 +2906,12 @@ CarIdToSpriteAddressH
 	.byte #>CarSprite1
 	.byte #>CarSprite2
 	.byte #>CarSprite3
+
+CarIdToAccelerateSpeed
+	.byte #1
+	.byte #1
+	.byte #1
+	.byte #2
 
 
 	org $FFFC
