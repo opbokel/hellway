@@ -7,15 +7,14 @@
 5.CYCLES                 0002              (R )
 6.CYCLES                 000e              (R )
 7.CYCLES                 0018              (R )
-ACCELERATE_SPEED         0001              (R )
 Acelerates               f1ee                  
-AddCheckpointBcd         f3b8                  
-AddsTheResult            f244                  
+AddCheckpointBcd         f3c9                  
+AddsTheResult            f247                  
 AesTable                 fe00              (R )
-AfterEorOffsetWithCarry  f5a7              (R )
-AfterEorOffsetWithCarry2 f5c2              (R )
-AfterEorOffsetWithCarry3 f5dd              (R )
-AfterEorOffsetWithCarry4 f5f8              (R )
+AfterEorOffsetWithCarry  f5b8              (R )
+AfterEorOffsetWithCarry2 f5d3              (R )
+AfterEorOffsetWithCarry3 f5ee              (R )
+AfterEorOffsetWithCarry4 f609              (R )
 AUDC0                    0015              (R )
 AUDC1                    0016              (R )
 AUDF0                    0017              (R )
@@ -23,12 +22,12 @@ AUDF1                    0018              (R )
 AUDV0                    0019              (R )
 AUDV1                    001a              (R )
 BACKGROUND_COLOR         0003              (R )
-BcdScore                 f26d                  
+BcdScore                 f270                  
 BeforeStart              f000              (R )
-BeginReadLeft            f2f4                  
-BeginReadRight           f304                  
+BeginReadLeft            f305                  
+BeginReadRight           f315                  
 BLACK                    0000                  
-BlackAndWhiteScoreBg     f4f4              (R )
+BlackAndWhiteScoreBg     f505              (R )
 BorderType               00ca                  
 Break                    f1ad              (R )
 BREAK_SPEED              000a              (R )
@@ -46,21 +45,21 @@ C7                       fd23              (R )
 C8                       fd28              (R )
 C9                       fd2d              (R )
 CA                       fd32              (R )
-CalculateDefaultBorder   f802                  
-CalculateOffsetCache     f261              (R )
-CalculateParallax0       f7bc                  
-CalculateParallax1       f7d4                  
-CalculateParallax1Offset f32b                  
-CalculateParallax2       f7ec                  
-CalculateParallax2Offset f345                  
-CalculateVerticalParallax0 f871                  
-CalculateVerticalParallax1 f88c                  
-CalculateVerticalParallax2 f8a9                  
+CalculateDefaultBorder   f813                  
+CalculateOffsetCache     f264              (R )
+CalculateParallax0       f7cd                  
+CalculateParallax1       f7e5                  
+CalculateParallax1Offset f33c                  
+CalculateParallax2       f7fd                  
+CalculateParallax2Offset f356                  
+CalculateVerticalParallax0 f882                  
+CalculateVerticalParallax1 f89d                  
+CalculateVerticalParallax2 f8ba                  
 CallConfigureDifficulty  f060              (R )
 CallDrawQrCode           f183                  
-CallWaitForVblankEnd     f522              (R )
+CallWaitForVblankEnd     f533              (R )
 CAR_ID_DEFAULT           0000                  
-CAR_ID_DRAGSTER          0003                  
+CAR_ID_DRAGSTER          0003              (R )
 CAR_ID_HATCHBACK         0001                  
 CAR_ID_SEDAN             0002                  
 CAR_MAX_SPEED_H          0002              (R )
@@ -68,6 +67,7 @@ CAR_MAX_SPEED_L          0080              (R )
 CAR_MIN_SPEED_H          0000              (R )
 CAR_MIN_SPEED_L          0000              (R )
 CAR_START_LINE           000e              (R )
+CarIdToAccelerateSpeed   ffcd              (R )
 CarIdToSpriteAddressH    ffc9              (R )
 CarIdToSpriteAddressL    ffc5              (R )
 CarSprite0               ff7d              (R )
@@ -83,7 +83,7 @@ CE                       fd46              (R )
 CF                       fd4b              (R )
 CG                       fd50              (R )
 CH                       fd55              (R )
-CheckIfAlreadyMaxSpeed   f20a                  
+CheckIfAlreadyMaxSpeed   f20d                  
 CheckMinSpeed            f1d2                  
 CHECKPOINT_INTERVAL      0010              (R )
 CHECKPOINT_TIME_INTENSE  0028              (R )
@@ -94,15 +94,15 @@ CheckpointBcd0           00a4              (R )
 CheckpointBcd1           00a5              (R )
 CheckpointText           ff00              (R )
 CheckpointTime           00c2              (R )
-CheckRandomDifficulty    f771              (R )
-ChooseTextSide           f3f6              (R )
+CheckRandomDifficulty    f782              (R )
+ChooseTextSide           f407              (R )
 CI                       fd64              (R )
 CK                       fd5a              (R )
 CL                       fd5f              (R )
-ClearAll                 f6ee              (R )
+ClearAll                 f6ff              (R )
 ClearMem                 f01b              (R )
-ClearPF                  f700              (R )
-ClearPFSkipLDA0          f702                  
+ClearPF                  f711              (R )
+ClearPFSkipLDA0          f713                  
 CM                       fd69              (R )
 CN                       fd6e              (R )
 CO                       fd73              (R )
@@ -116,25 +116,25 @@ COLUP1                   0007              (R )
 COLUPF                   0008              (R )
 CompareLBreakSpeed       f1da              (R )
 ConfigureCarSprite       f075                  
-ConfigureDifficulty      f73b              (R )
-ConfigureIntenseTraffic  f75c              (R )
-ConfigureLightTraffic    f74a              (R )
+ConfigureDifficulty      f74c              (R )
+ConfigureIntenseTraffic  f76d              (R )
+ConfigureLightTraffic    f75b              (R )
 ConfigureOneSecondTimer  f085                  
-ConfigurePFForScore      f4f8                  
-ConfigureRegularTraffic  f753              (R )
-ConfigureRushHourTraffic f765              (R )
-ContinueBcdScore         f275                  
-ContinueBorderTac        f86d              (R )
-ContinueDefaultBorderLoop f819                  
+ConfigurePFForScore      f509                  
+ConfigureRegularTraffic  f764              (R )
+ConfigureRushHourTraffic f776              (R )
+ContinueBcdScore         f278                  
+ContinueBorderTac        f87e              (R )
+ContinueDefaultBorderLoop f82a                  
 ContinueGameSelect       f15f              (R )
-ContinueHorizontalParallaxLoop f7fe                  
-ContinueQrCode           fb52              (R )
-ContinueVerticalParallaxLoop f8c1              (R )
+ContinueHorizontalParallaxLoop f80f                  
+ContinueQrCode           fb63              (R )
+ContinueVerticalParallaxLoop f8d2              (R )
 ContinueWithGameLogic    f193              (R )
-CountBcdColision         f2b0                  
+CountBcdColision         f2b3                  
 CountdownTimer           00ba              (R )
 CountFrame               f17d                  
-CountGlideTimeBcd        f6bb                  
+CountGlideTimeBcd        f6cc                  
 CP                       fd78              (R )
 CR                       fd7d              (R )
 CS                       fd82              (R )
@@ -157,98 +157,98 @@ CXPPMM                   0007              (R )
 CY                       fd91              (R )
 CZ                       fd9b              (R )
 DecreaseSpeed            f1c5                  
-DecrementCollision       f2d6                  
+DecrementCollision       f2d9                  
 DecrementSwitchDebounceCounter f17b              (R )
-DefaultBorderLoop        f802              (R )
-DefaultBorderMode        f36f                  
-DefaultOffsets           f783              (R )
+DefaultBorderLoop        f813              (R )
+DefaultBorderMode        f380                  
+DefaultOffsets           f794              (R )
 DeterministicGame        f138              (R )
-Digit0Distance           f40d                  
-Digit0Speed              f4a1                  
-Digit0Timer              f487                  
-Digit1Distance           f419                  
-Digit1Speed              f4ad                  
-Digit1Timer              f491                  
-Digit2Distance           f423                  
-Digit3Distance           f42f                  
-DistanceOverflowDigit    f439                  
-DividePlayerSpeedBy4     f317                  
+Digit0Distance           f41e                  
+Digit0Speed              f4b2                  
+Digit0Timer              f498                  
+Digit1Distance           f42a                  
+Digit1Speed              f4be                  
+Digit1Timer              f4a2                  
+Digit2Distance           f434                  
+Digit3Distance           f440                  
+DistanceOverflowDigit    f44a                  
+DividePlayerSpeedBy4     f328                  
 Dot                      fdaa              (R )
-DrawBcdScoreLeft         f9f9                  
-DrawBcdScoreRight        fac7                  
-DrawCache                f56e              (R )
-DrawCheckpointCountLeft  fa67                  
-DrawCheckpointCountRight fb05                  
-DrawDistanceExtraDigit   f446              (R )
-DrawGameOverScoreLine    f9e7              (R )
-DrawGameOverScreenLeft   f9f4              (R )
-DrawGameOverScreenRight  fac2              (R )
-DrawGameVersionLeft      fa7e                  
-DrawGlideTimeRight       fae7                  
-DrawGlideTimerLeft       fa39                  
-DrawHitCountLeft         fa50                  
-DrawHitCountRight        faf6                  
-DrawQrCode               fb35              (R )
-DrawScoreD0              f949                  
-DrawScoreD1              f952                  
-DrawScoreD2              f95f                  
-DrawScoreD3              f96c                  
-DrawScoreD4              f979                  
-DrawScoreHud             f525                  
-DrawTimerLeft            fa1c                  
-DrawTimerRight           fad8                  
-DrawTraffic0             f604                  
-DrawTraffic1             f598                  
-DrawTraffic2             f5b3                  
-DrawTraffic3             f5ce                  
-DrawTraffic4             f5e9                  
-DrawVersionRight         fb14                  
+DrawBcdScoreLeft         fa0a                  
+DrawBcdScoreRight        fad8                  
+DrawCache                f57f              (R )
+DrawCheckpointCountLeft  fa78                  
+DrawCheckpointCountRight fb16                  
+DrawDistanceExtraDigit   f457              (R )
+DrawGameOverScoreLine    f9f8              (R )
+DrawGameOverScreenLeft   fa05              (R )
+DrawGameOverScreenRight  fad3              (R )
+DrawGameVersionLeft      fa8f                  
+DrawGlideTimeRight       faf8                  
+DrawGlideTimerLeft       fa4a                  
+DrawHitCountLeft         fa61                  
+DrawHitCountRight        fb07                  
+DrawQrCode               fb46              (R )
+DrawScoreD0              f95a                  
+DrawScoreD1              f963                  
+DrawScoreD2              f970                  
+DrawScoreD3              f97d                  
+DrawScoreD4              f98a                  
+DrawScoreHud             f536                  
+DrawTimerLeft            fa2d                  
+DrawTimerRight           fae9                  
+DrawTraffic0             f615                  
+DrawTraffic1             f5a9                  
+DrawTraffic2             f5c4                  
+DrawTraffic3             f5df                  
+DrawTraffic4             f5fa                  
+DrawVersionRight         fb25                  
 ENABL                    001f              (R )
 ENABLCache               0085              (R )
 ENAM0                    001d              (R )
 ENAM0Cache               0086              (R )
 ENAM1                    001e              (R )
 ENAM1Cache               0087              (R )
-EndCheckpointBcd         f3c7                  
-EndClearAll              f70f                  
-EndCountBcdColision      f2c5                  
-EndCountGlideTimeBcd     f6ce              (R )
-EndDrawDistance          f450              (R )
-EndExactlyEverySecond    f6e6              (R )
-EndLeftSound             f658              (R )
-EndLoadAll               f72c                  
-EndNextDifficulty        f783                  
-EndProcessingBorder      f384              (R )
-EndQrCodeLoop            fb8b                  
+EndCheckpointBcd         f3d8                  
+EndClearAll              f720                  
+EndCountBcdColision      f2c8                  
+EndCountGlideTimeBcd     f6df              (R )
+EndDrawDistance          f461              (R )
+EndExactlyEverySecond    f6f7              (R )
+EndLeftSound             f669              (R )
+EndLoadAll               f73d                  
+EndNextDifficulty        f794                  
+EndProcessingBorder      f395              (R )
+EndQrCodeLoop            fb9c                  
 EndRandomizeGame         f13b              (R )
 EndReadSwitches          f17d              (R )
-EndRightSound            f6ac              (R )
+EndRightSound            f6bd              (R )
 EndStaticText            ff7d                  
 EngineBaseFrequence      fdd5              (R )
-EngineOff                f654              (R )
+EngineOff                f665              (R )
 EngineSoundType          fdcf              (R )
-EorOffsetWithCarry       f5a5              (R )
-EorOffsetWithCarry2      f5c0              (R )
-EorOffsetWithCarry3      f5db              (R )
-EorOffsetWithCarry4      f5f6              (R )
+EorOffsetWithCarry       f5b6              (R )
+EorOffsetWithCarry2      f5d1              (R )
+EorOffsetWithCarry3      f5ec              (R )
+EorOffsetWithCarry4      f607              (R )
 EverySecond              f193                  
-ExactlyEverySecond       f6ac                  
+ExactlyEverySecond       f6bd                  
 Exclamation              fda5              (R )
-FinalizeDrawGameOver     fb25              (R )
-FinishBcdScore           f290              (R )
-FinishDecrementCollision f2e1              (R )
-FinishDrawTraffic1       f5b3              (R )
-FinishDrawTraffic2       f5ce              (R )
-FinishDrawTraffic3       f5e9              (R )
-FinishDrawTraffic4       f604              (R )
-FinishResetPlayerSize    f2e7              (R )
-FinishScanLoop           f616              (R )
+FinalizeDrawGameOver     fb36              (R )
+FinishBcdScore           f293              (R )
+FinishDecrementCollision f2e4              (R )
+FinishDrawTraffic1       f5c4              (R )
+FinishDrawTraffic2       f5df              (R )
+FinishDrawTraffic3       f5fa              (R )
+FinishDrawTraffic4       f615              (R )
+FinishResetPlayerSize    f2ea              (R )
+FinishScanLoop           f627              (R )
 Font                     fd00              (R )
 FONT_OFFSET              0004              (R )
 FontLookup               fdbe              (R )
 FrameCount0              008c              (R )
 FrameCount1              008d              (R )
-FullBorderTac            f862              (R )
+FullBorderTac            f873              (R )
 GameMode                 00c5              (R )
 GameModeSelect           f14d                  
 GAMEPLAY_AREA            0042              (R )
@@ -262,21 +262,21 @@ GRP0Cache                0080
 GRP1                     001c              (R )
 GRP1Cache                0084              (R )
 HALF_TEXT_SIZE           0005              (R )
-HasBorder                f80a                  
-HasBorder0               f7c4                  
-HasBorder1               f7dc                  
-HasBorder2               f7f4                  
-HasBorderTac             f84b              (R )
-HasEmptySpace            f80f              (R )
-HasEmptySpace0           f7cc              (R )
-HasEmptySpace1           f7e4              (R )
-HasEmptySpace2           f7f9              (R )
-HasNoVerticalLine0       f884              (R )
-HasNoVerticalLine1       f8a1              (R )
-HasNoVerticalLine2       f8b9              (R )
-HasVerticalLine0         f879                  
-HasVerticalLine1         f894                  
-HasVerticalLine2         f8b1                  
+HasBorder                f81b                  
+HasBorder0               f7d5                  
+HasBorder1               f7ed                  
+HasBorder2               f805                  
+HasBorderTac             f85c              (R )
+HasEmptySpace            f820              (R )
+HasEmptySpace0           f7dd              (R )
+HasEmptySpace1           f7f5              (R )
+HasEmptySpace2           f80a              (R )
+HasNoVerticalLine0       f895              (R )
+HasNoVerticalLine1       f8b2              (R )
+HasNoVerticalLine2       f8ca              (R )
+HasVerticalLine0         f88a                  
+HasVerticalLine1         f8a5                  
+HasVerticalLine2         f8c2                  
 HellwayLeftText          ff05              (R )
 HellwayRightText         ff0a              (R )
 HitCountBcd0             00cb              (R )
@@ -288,13 +288,13 @@ HMM1                     0023              (R )
 HMOVE                    002a              (R )
 HMP0                     0020              (R )
 HMP1                     0021                  
-HorizontalParallaxLoop   f7b4              (R )
-HorizontalParallaxMode   f381              (R )
+HorizontalParallaxLoop   f7c5              (R )
+HorizontalParallaxMode   f392              (R )
 HPositioning             f089                  
 IncreaseCarSpeed         f1fd              (R )
-IncreaseTotalTimerBcd    f6ce                  
+IncreaseTotalTimerBcd    f6df                  
 INITIAL_COUNTDOWN_TIME   005a              (R )
-InitUpdateOffsets        f21e                  
+InitUpdateOffsets        f221                  
 INPT0                    0008                  
 INPT1                    0009                  
 INPT2                    000a                  
@@ -302,36 +302,37 @@ INPT3                    000b
 INPT4                    000c              (R )
 INPT5                    000d                  
 INTIM                    0284              (R )
-IsCheckpoint             f3a5              (R )
-IsGameOver               f392                  
-IsTimeOver               f3da                  
+IsCheckpoint             f3b6              (R )
+IsGameOver               f3a3                  
+IsTimeOver               f3eb                  
 IvonneDateLeft           ff5a              (R )
 IvonneDateRight          ff5f                  
 IvonneTextLeft           ff50              (R )
 IvonneTextRight          ff55                  
-JumpSkipTimeOver         f3d4              (R )
-LeftScoreOn              f507                  
-LeftScoreOnGameOver      f53d              (R )
-LeftScoreWrite           f3ff              (R )
-LeftSound                f62c                  
+JumpSkipTimeOver         f3e5              (R )
+LeftScoreOn              f518                  
+LeftScoreOnGameOver      f54e              (R )
+LeftScoreWrite           f410              (R )
+LeftSound                f63d                  
 LeonardoTextLeft         ff6e              (R )
 LeonardoTextRight        ff73                  
-LoadAll                  f70f              (R )
+LoadAll                  f720              (R )
 macro.h                  0000 ????         (R )
 MainLoop                 f0c0              (R )
+MakeDragsterTurnSlow     f2f3                  
 MAX_GAME_MODE            0010              (R )
-MuteRightSound           f6a8              (R )
+MuteRightSound           f6b9              (R )
 NextCar                  f068                  
 NextCheckpoint           00d7              (R )
-NextDifficulty           f72c              (R )
+NextDifficulty           f73d              (R )
 NO_ILLEGAL_OPCODES       0001              (R )
-NoCollision              f2d6              (R )
+NoCollision              f2d9              (R )
 NUSIZ0                   0004              (R )
 NUSIZ1                   0005              (R )
 ONE_SECOND_FRAMES        003c              (R )
 OneSecondConter          00cf              (R )
 OpbText                  ff0f              (R )
-OverScanWait             f6e6              (R )
+OverScanWait             f6f7              (R )
 OverText                 ff1e              (R )
 PaperArtTextLeft         ff64              (R )
 PaperArtTextRight        ff69                  
@@ -348,9 +349,9 @@ PF1Cache                 0082              (R )
 PF2                      000f              (R )
 PF2Cache                 0083              (R )
 Pipe                     fda0              (R )
-PlayBeforeCheckpoint     f695              (R )
-PlayCheckpoint           f683              (R )
-PlayColision             f674              (R )
+PlayBeforeCheckpoint     f6a6              (R )
+PlayCheckpoint           f694              (R )
+PlayColision             f685              (R )
 Player0SpeedH            008f              (R )
 Player0SpeedL            008e              (R )
 Player0X                 00b9              (R )
@@ -361,40 +362,40 @@ PolvinhosDateLeft        ff46              (R )
 PolvinhosDateRight       ff4b                  
 PolvinhosTextLeft        ff3c              (R )
 PolvinhosTextRight       ff41                  
-PrepareForTraffic        f542                  
-PrepareNextUpdateLoop    f267                  
-PrepareOverscan          f621              (R )
-PrepareReadXAxis         f2f0                  
-PrepareTachometerBorderLoop f81d              (R )
-PrintArtLeft             f90c              (R )
-PrintCheckpoint          f453              (R )
-PrintCreditsLeft         f46e              (R )
-PrintCreditsRight        f4d1              (R )
-PrintEasterEgg           f8c5              (R )
-PrintEasterEggCondition  f3e6                  
-PrintEasterEggText       f933              (R )
-PrintGameMode            f470              (R )
-PrintGameOver            f4d9              (R )
-PrintHellwayLeft         f463              (R )
-PrintHellwayRight        f4c6              (R )
-PrintIvonneDateLeft      f91b              (R )
-PrintIvonneLeft          f907              (R )
-PrintLastLeftDecimalDigits f9c5              (R )
-PrintLeonardoLeft        f920              (R )
-PrintOverText            f4e2              (R )
-PrintPolvinhosDateLeft   f916              (R )
-PrintPolvinhosLeft       f902              (R )
-PrintRightDecimalDigits  f98f              (R )
-PrintRightIntro          f4d3              (R )
-PrintScore               f937              (R )
-PrintStartGame           f45b              (R )
-PrintStaticText          f796              (R )
-PrintZeldaDateLeft       f911              (R )
-PrintZeldaLeft           f8fd                  
-PrintZerosLeft           f9de              (R )
-ProcessBorder            f35f                  
-ProcessPrintEasterEgg    f925              (R )
-ProcessScoreFontColor    f384                  
+PrepareForTraffic        f553                  
+PrepareNextUpdateLoop    f26a                  
+PrepareOverscan          f632              (R )
+PrepareReadXAxis         f301              (R )
+PrepareTachometerBorderLoop f82e              (R )
+PrintArtLeft             f91d              (R )
+PrintCheckpoint          f464              (R )
+PrintCreditsLeft         f47f              (R )
+PrintCreditsRight        f4e2              (R )
+PrintEasterEgg           f8d6              (R )
+PrintEasterEggCondition  f3f7                  
+PrintEasterEggText       f944              (R )
+PrintGameMode            f481              (R )
+PrintGameOver            f4ea              (R )
+PrintHellwayLeft         f474              (R )
+PrintHellwayRight        f4d7              (R )
+PrintIvonneDateLeft      f92c              (R )
+PrintIvonneLeft          f918              (R )
+PrintLastLeftDecimalDigits f9d6              (R )
+PrintLeonardoLeft        f931              (R )
+PrintOverText            f4f3              (R )
+PrintPolvinhosDateLeft   f927              (R )
+PrintPolvinhosLeft       f913              (R )
+PrintRightDecimalDigits  f9a0              (R )
+PrintRightIntro          f4e4              (R )
+PrintScore               f948              (R )
+PrintStartGame           f46c              (R )
+PrintStaticText          f7a7              (R )
+PrintZeldaDateLeft       f922              (R )
+PrintZeldaLeft           f90e                  
+PrintZerosLeft           f9ef              (R )
+ProcessBorder            f370                  
+ProcessPrintEasterEgg    f936              (R )
+ProcessScoreFontColor    f395                  
 QR_CODE_BACKGROUNG       000f              (R )
 QR_CODE_COLOR            0000              (R )
 QR_CODE_LINE_HEIGHT      0007              (R )
@@ -403,8 +404,8 @@ QrCode1                  fc00              (R )
 QrCode2                  fc19              (R )
 QrCode3                  fc32              (R )
 QrCode4                  fc4b              (R )
-QrCodeLoop               fb5f              (R )
-RandomDificulty          f777                  
+QrCodeLoop               fb70              (R )
+RandomDificulty          f788                  
 RandomizeGame            f107                  
 ReadDpadParallax         f154                  
 ReadSwitches             f13b                  
@@ -413,24 +414,24 @@ REFP1                    000c
 RESBL                    0014              (R )
 ResetGameMode            f170              (R )
 ResetMinSpeed            f1e3              (R )
-ResetOneSecondCounter    f6e1                  
-ResetPlayerPosition      f2e7                  
-ResetPlayerSize          f2e1                  
-ResetScoreFontColor      f38e              (R )
-ResetToMaxSpeed          f216              (R )
+ResetOneSecondCounter    f6f2                  
+ResetPlayerPosition      f2ea                  
+ResetPlayerSize          f2e4                  
+ResetScoreFontColor      f39f              (R )
+ResetToMaxSpeed          f219              (R )
 RESM0                    0012              (R )
 RESM1                    0013              (R )
 RESMP0                   0028                  
 RESMP1                   0029                  
 RESP0                    0010              (R )
 RESP1                    0011              (R )
-ReturnFromNextDifficulty f782              (R )
-RightScoreOn             f516              (R )
-RightScoreWrite          f47d              (R )
-RightScoreWriteEnd       f4e7              (R )
-RightSound               f658                  
+ReturnFromNextDifficulty f793              (R )
+RightScoreOn             f527              (R )
+RightScoreWrite          f48e              (R )
+RightScoreWriteEnd       f4f8              (R )
+RightSound               f669                  
 RSYNC                    0003                  
-ScanLoop                 f56c              (R )
+ScanLoop                 f57d              (R )
 SCORE_BACKGROUND_COLOR   00a0              (R )
 SCORE_FONT_COLOR         00f9              (R )
 SCORE_FONT_COLOR_BAD     0044              (R )
@@ -440,7 +441,7 @@ SCORE_FONT_COLOR_OVER    000c              (R )
 SCORE_FONT_COLOR_START   00c8              (R )
 SCORE_FONT_HOLD_CHANGE   00ff              (R )
 SCORE_SIZE               0005              (R )
-ScoreBackgroundColor     f4e7                  
+ScoreBackgroundColor     f4f8                  
 ScoreBcd0                00b4              (R )
 ScoreBcd1                00b5              (R )
 ScoreBcd2                00b6              (R )
@@ -452,49 +453,49 @@ ScoreD3                  00d3              (R )
 ScoreD4                  00d4              (R )
 ScoreFontColor           00d5              (R )
 ScoreFontColorHoldChange 00d6              (R )
-ScoreLoop                f93b              (R )
+ScoreLoop                f94c              (R )
 SCREEN_SIZE              0048              (R )
 SetGameNotRunning        f081                  
 SetGameRunning           f0f0              (R )
 SettingTrafficOffsets    f038                  
-SkipAccelerate           f21e              (R )
+SkipAccelerate           f221              (R )
 SkipAccelerateIfBreaking f1eb              (R )
 SkipBreak                f1ee              (R )
 SkipClean                f035              (R )
-SkipDrawCar              f57e              (R )
-SkipDrawTraffic0         f610                  
+SkipDrawCar              f58f              (R )
+SkipDrawTraffic0         f621                  
 SkipEverySecondAction    f19f              (R )
 SkipGameSelect           f178              (R )
 SkipGameStart            f107              (R )
 SkipIncFC1               f183              (R )
-SkipIsCheckpoint         f3da              (R )
-SkipIsTimeOver           f3e6              (R )
-SkipMoveLeft             f304              (R )
-SkipMoveRight            f313              (R )
+SkipIsCheckpoint         f3eb              (R )
+SkipIsTimeOver           f3f7              (R )
+SkipMoveLeft             f315              (R )
+SkipMoveRight            f324              (R )
 SkipReset                f14d              (R )
-SkipResetPlayerPosition  f2f0              (R )
-SkipScoreFontColor       f392              (R )
-SkipSetColisionSpeed     f2cd              (R )
-SkipUpdateLogic          f35f              (R )
-Sleep32Lines             fbb3              (R )
-Sleep4Lines              fba3              (R )
-Sleep8Lines              fbac              (R )
+SkipResetPlayerPosition  f2f3              (R )
+SkipScoreFontColor       f3a3              (R )
+SkipSetColisionSpeed     f2d0              (R )
+SkipUpdateLogic          f370              (R )
+Sleep32Lines             fbc4              (R )
+Sleep4Lines              fbb4              (R )
+Sleep8Lines              fbbd              (R )
 Space                    fdb9              (R )
 Start                    f014              (R )
 StartGame                f0d5                  
 StartSWCHB               00a6              (R )
 StaticText               ff00              (R )
-StoreBorder              f811              (R )
+StoreBorder              f822              (R )
 StoreCurrentDifficulty   f070              (R )
 StoreGameMode            f172              (R )
-StoreGameOverText        f4e4              (R )
-StoreHMove               f313              (R )
-StoreParallax0           f7d1              (R )
-StoreParallax1           f7e9              (R )
-StoreParallax2           f7fb              (R )
-StoreReversedQrCode      fb4e              (R )
-StoreTrafficChance       f76b              (R )
-Subroutines              f6ee                  
+StoreGameOverText        f4f5              (R )
+StoreHMove               f324              (R )
+StoreParallax0           f7e2              (R )
+StoreParallax1           f7fa              (R )
+StoreParallax2           f80c              (R )
+StoreReversedQrCode      fb5f              (R )
+StoreTrafficChance       f77c              (R )
+Subroutines              f6ff                  
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
@@ -502,12 +503,12 @@ SWCHB                    0282              (R )
 SwitchDebounceCounter    00bc              (R )
 SWITCHES_DEBOUNCE_TIME   001e              (R )
 T1024T                   0297                  
-TachometerBorderLoop     f833              (R )
+TachometerBorderLoop     f844              (R )
 TachometerGearLookup     fdeb              (R )
-TachometerMode           f37b              (R )
+TachometerMode           f38c              (R )
 TachometerSizeLookup1    fddb              (R )
 TachometerSizeLookup2    fde3              (R )
-TestCollision            f290                  
+TestCollision            f293                  
 TestIsGameRunning        f18c              (R )
 TIA_BASE_ADDRESS         0000              (R )
 TIA_BASE_READ_ADDRESS    0000              (R )
@@ -545,9 +546,9 @@ TrafficOffset3           009c              (R )
 TrafficOffset4           00a0              (R )
 TrafficSpeeds            ffb1              (R )
 TrafficSpeedsHighDelta   ffbb              (R )
-TranformIntoRightText    f92e              (R )
+TranformIntoRightText    f93f              (R )
 Triangle                 fdb4              (R )
-UpdateOffsets            f22e              (R )
+UpdateOffsets            f231              (R )
 VBLANK                   0001              (R )
 vcs.h                    0000 ????         (R )
 VDELBL                   0027                  
@@ -557,13 +558,13 @@ VERSION_COLOR            0049              (R )
 VERSION_MACRO            006d                  
 VERSION_VCS              006a                  
 VersionText              ff78              (R )
-VerticalParallaxLoop     f871              (R )
-VerticalParallaxMode     f375              (R )
+VerticalParallaxLoop     f882              (R )
+VerticalParallaxMode     f386              (R )
 VSYNC                    0000              (R )
-WaitAnotherScoreLine     f540              (R )
-WaitForVblankEnd         fb99              (R )
-WhileScanLoop            f610                  
-WriteDistance            f40d                  
+WaitAnotherScoreLine     f551              (R )
+WaitForVblankEnd         fbaa              (R )
+WhileScanLoop            f621                  
+WriteDistance            f41e                  
 WSYNC                    0002              (R )
 YearText                 ff14              (R )
 ZeldaDateLeft            ff32              (R )

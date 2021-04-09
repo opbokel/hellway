@@ -28,7 +28,6 @@ CAR_ID_HATCHBACK = 1
 CAR_ID_SEDAN = 2
 CAR_ID_DRAGSTER = 3
 
-ACCELERATE_SPEED = 1
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
@@ -517,7 +516,8 @@ IncreaseCarSpeed
 ;Adds speed
 	CLC
 	LDA Player0SpeedL
-	ADC #ACCELERATE_SPEED
+	LDY CurrentCarId
+	ADC CarIdToAccelerateSpeed,Y
 	STA Player0SpeedL
 	LDA Player0SpeedH
 	ADC #0
@@ -682,6 +682,15 @@ ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina 
 	LDX #$C0	;Move car left 4 color clocks, to center the stretch (-4)
 	JMP StoreHMove
 SkipResetPlayerPosition
+
+MakeDragsterTurnSlow
+	LDA CurrentCarId
+	CMP #CAR_ID_DRAGSTER
+	BNE PrepareReadXAxis
+	LDX #0
+	LDA FrameCount0
+	AND #%00000001
+	BEQ StoreHMove ; Ignore movement on odd frames for dragster
 
 ; for left and right, we're gonna 
 ; set the horizontal speed, and then do
@@ -2899,6 +2908,12 @@ CarIdToSpriteAddressH
 	.byte #>CarSprite1
 	.byte #>CarSprite2
 	.byte #>CarSprite3
+
+CarIdToAccelerateSpeed
+	.byte #1
+	.byte #1
+	.byte #1
+	.byte #2
 
 
 	org $FFFC
