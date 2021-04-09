@@ -28,6 +28,7 @@ CAR_ID_HATCHBACK = 1
 CAR_ID_SEDAN = 2
 CAR_ID_DRAGSTER = 3
 
+ACCELERATE_SPEED = 1
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
@@ -516,8 +517,7 @@ IncreaseCarSpeed
 ;Adds speed
 	CLC
 	LDA Player0SpeedL
-	LDY CurrentCarId
-	ADC CarIdToAccelerateSpeed,Y
+	ADC #ACCELERATE_SPEED
 	STA Player0SpeedL
 	LDA Player0SpeedH
 	ADC #0
@@ -691,13 +691,6 @@ SkipResetPlayerPosition
 PrepareReadXAxis
 	LDX #0
 	LDY Player0X
-MakeDragsterTurnSlow
-	LDA CurrentCarId
-	CMP #CAR_ID_DRAGSTER
-	BNE BeginReadLeft
-	LDA FrameCount0
-	AND #%00000001
-	BEQ StoreHMove ; Ignore movement on odd frames for dragster
 BeginReadLeft
 	BEQ SkipMoveLeft ; We do not move after maximum
 	LDA #%01000000	;Left
@@ -2906,12 +2899,6 @@ CarIdToSpriteAddressH
 	.byte #>CarSprite1
 	.byte #>CarSprite2
 	.byte #>CarSprite3
-
-CarIdToAccelerateSpeed
-	.byte #1
-	.byte #1
-	.byte #1
-	.byte #2
 
 
 	org $FFFC
