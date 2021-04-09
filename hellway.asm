@@ -67,7 +67,6 @@ PLAYER_0_MAX_X = $36 ; Going left will underflow to FF, so it only have to be le
 INITIAL_COUNTDOWN_TIME = 90; Seconds +-
 CHECKPOINT_INTERVAL = $10 ; Acts uppon TrafficOffset0 + 3
 TIMEOVER_BREAK_SPEED = 1
-TIMEOVER_BREAK_INTERVAL = %00000011 ; Every 4 frames
 
 SWITCHES_DEBOUNCE_TIME = 30 ; Frames
 
@@ -451,8 +450,9 @@ BreakOnTimeOver ; Uses LDX as the breaking speed
 	LDX #0
 	LDA CountdownTimer
 	BNE Break
+	LDY CurrentCarId
 	LDA FrameCount0
-	AND #TIMEOVER_BREAK_INTERVAL
+	AND CarIdToTimeoverBreakInterval,Y
 	BNE Break 
 	LDX #TIMEOVER_BREAK_SPEED
 	
@@ -506,6 +506,14 @@ SkipBreak
 Acelerates
 	LDA CountdownTimer
 	BEQ SkipAccelerate; cannot accelerate if timer is zero
+HalfAccelerationForSedan
+	LDA CurrentCarId
+	CMP #CAR_ID_SEDAN
+	BNE ContinueAccelerateTest
+	LDA FrameCount0
+	AND #%00000011
+	BEQ SkipAccelerate 
+ContinueAccelerateTest
 	LDA INPT4 ;3
 	BPL IncreaseCarSpeed ; Test button and then up, both accelerate.
 	LDA #%00010000	;UP in controller
@@ -2914,6 +2922,12 @@ CarIdToAccelerateSpeed
 	.byte #1
 	.byte #1
 	.byte #2
+
+CarIdToTimeoverBreakInterval ; Glide
+	.byte #%00000011 ;Every 4 frames
+	.byte #%00000011 ;Every 4 frames
+	.byte #%00001111 ;Every 16 frames
+	.byte #%00000011 ;Every 4 frames
 
 
 	org $FFFC
