@@ -18,7 +18,7 @@ TRAFFIC_LINE_COUNT = 5
 ;16 bit precision
 ;640 max speed!
 CAR_MAX_SPEED_H = $02
-CAR_MAX_SPEED_L = $80
+
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
 CAR_START_LINE = 14 ; Exclusive
@@ -118,6 +118,7 @@ StartSWCHB = $A6 ; Used for Score, so it cannot be cheated.
 CarSpritePointerL = $A7
 CarSpritePointerH = $A8
 CurrentCarId = $A9
+AccelerateBuffer = $AA ; Chnage speed on buffer overflow.
 
 ;Temporary variables, multiple uses
 Tmp0 = $B0
@@ -140,12 +141,13 @@ TimeBcd0 = $BD
 TimeBcd1 = $BE
 TimeBcd2 = $BF
 
-GameStatus = $C0 ; Not zero is running! No need to make it byte a flag for now.
+GameStatus = $C0 ; Not zero is running! No need to make it a bit flag for now.
 TrafficChance = $C1
 CheckpointTime = $C2
 TrafficColor = $C3
 CurrentDifficulty = $C4
-GameMode = $C5 ; Bit 0 controls fixed levels, bit 1 rand positions
+GameMode = $C5 ; Bit 0 controls fixed levels, bit 1 random positions, 
+				;Bit 2 speed delta, Bit 3 random traffic 
 
 ParallaxOffset1 = $C6 ; C7 
 ParallaxOffset2 = $C8 ; C9
@@ -173,7 +175,7 @@ ParallaxCache=$D8 ; to $DF
 ParallaxCache2=$F0 ; to F8
 
 
-;generic start up stuff, put zero in all...
+;generic start up stuff, put zero in almost all...
 BeforeStart ;All variables that are kept on game reset or select
 	LDY #0
 	STY SwitchDebounceCounter
@@ -506,13 +508,7 @@ SkipBreak
 Acelerates
 	LDA CountdownTimer
 	BEQ SkipAccelerate; cannot accelerate if timer is zero
-HalfAccelerationForSedan
-	LDA CurrentCarId
-	CMP #CAR_ID_SEDAN
-	BNE ContinueAccelerateTest
-	LDA FrameCount0
-	AND #%00000011
-	BEQ SkipAccelerate 
+
 ContinueAccelerateTest
 	LDA INPT4 ;3
 	BPL IncreaseCarSpeed ; Test button and then up, both accelerate.
@@ -521,30 +517,40 @@ ContinueAccelerateTest
 	BNE SkipAccelerate
 
 IncreaseCarSpeed
+	LDX #2
+	LDY CurrentCarId
+IncreaseCarSpeedLoop
 ;Adds speed
 	CLC
-	LDA Player0SpeedL
-	LDY CurrentCarId
+	LDA AccelerateBuffer
 	ADC CarIdToAccelerateSpeed,Y
-	STA Player0SpeedL
-	LDA Player0SpeedH
-	ADC #0
-	STA Player0SpeedH
+	STA AccelerateBuffer
+	BCC ContinueIncreaseSpeedLoop ; Not enought in the buffer to change speed
+	INC Player0SpeedL
+	BNE ContinueIncreaseSpeedLoop ; When turns Zero again, increase MSB
+	INC Player0SpeedH
+ContinueIncreaseSpeedLoop
+	DEX
+	BNE IncreaseCarSpeedLoop
+SkipIncreaseCarSpeed
 
 CheckIfAlreadyMaxSpeed
+	LDA Player0SpeedH
 	CMP #CAR_MAX_SPEED_H
 	BCC SkipAccelerate ; less than my max speed
 	BNE ResetToMaxSpeed ; Not equal, so if I am less, and not equal, I am more!
 	;High bit is max, compare the low
+	LDY CurrentCarId
 	LDA Player0SpeedL
-	CMP #CAR_MAX_SPEED_L
+	CMP CarIdToMaxSpeedL,Y
 	BCC SkipAccelerate ; High bit is max, but low bit is not
 	;BEQ SkipAccelerate ; Optimize best case, but not worse case
 
 ResetToMaxSpeed ; Speed is more, or is already max
 	LDA #CAR_MAX_SPEED_H
 	STA Player0SpeedH
-	LDA #CAR_MAX_SPEED_L
+	LDY CurrentCarId
+	LDA CarIdToMaxSpeedL,Y
 	STA Player0SpeedL
 SkipAccelerate
 
@@ -647,7 +653,7 @@ TestCollision;
 CountBcdColision
 	LDA ScoreFontColor ; Do not count colisions on game over.
 	CMP #SCORE_FONT_COLOR_OVER
-	BEQ SkipSetColisionSpeed
+	BEQ SkipSetColisionSpeedL
 	SED ;2
 	CLC ;2
 	LDA HitCountBcd0 ;3
@@ -658,11 +664,15 @@ CountBcdColision
 	STA HitCountBcd1 ;3
 	CLD ;2
 EndCountBcdColision
-	LDA #COLLISION_SPEED_L ;
+	LDA Player0SpeedH
+	BNE SetColisionSpeedL ; Never skips setting colision speed if high byte > 0
+	LDA #COLLISION_SPEED_L
 	CMP Player0SpeedL
-	BCS SkipSetColisionSpeed
+	BCS SkipSetColisionSpeedL
+SetColisionSpeedL
+	LDA #COLLISION_SPEED_L ; Needs optimization!
 	STA Player0SpeedL
-SkipSetColisionSpeed	
+SkipSetColisionSpeedL	
 	LDA #0
 	STA Player0SpeedH
 	LDX #$40	;Move car left 4 color clocks, to center the stretch (+4)	
@@ -691,7 +701,7 @@ ResetPlayerPosition ;For 1 frame, he will not colide, but will have the origina 
 	JMP StoreHMove
 SkipResetPlayerPosition
 
-MakeDragsterTurnSlow
+MakeDragsterTurnSlow ; Only car diff that does not use a table.
 	LDA CurrentCarId
 	CMP #CAR_ID_DRAGSTER
 	BNE PrepareReadXAxis
@@ -1653,6 +1663,9 @@ PrepareTachometerBorderLoop
 	LSR
 	AND #%00000111
 	STA Tmp1 ; RPM
+	LDX CurrentCarId ; Y cannot be destroyed here
+	LDA CarIdToMaxGear,X
+	STA Tmp2 ; Max Gear
 
 TachometerBorderLoop
 	TYA
@@ -1667,7 +1680,7 @@ TachometerBorderLoop
 	STA ParallaxCache2,Y
 	JMP ContinueBorderTac
 HasBorderTac
-	LDA #5
+	LDA Tmp2 ; Max Gear
 	CMP Tmp0 ; Only on max speed
 	BEQ FullBorderTac
 	LDX Tmp1
@@ -2918,16 +2931,28 @@ CarIdToSpriteAddressH
 	.byte #>CarSprite3
 
 CarIdToAccelerateSpeed
-	.byte #1
-	.byte #1
-	.byte #1
-	.byte #2
+	.byte #128
+	.byte #192
+	.byte #96
+	.byte #192
 
 CarIdToTimeoverBreakInterval ; Glide
 	.byte #%00000011 ;Every 4 frames
 	.byte #%00000011 ;Every 4 frames
 	.byte #%00001111 ;Every 16 frames
 	.byte #%00000011 ;Every 4 frames
+
+CarIdToMaxSpeedL
+	.byte #$80
+	.byte #$00 ; One less gear
+	.byte #$80
+	.byte #$80 
+
+CarIdToMaxGear
+	.byte #5
+	.byte #4 ; One less gear
+	.byte #5
+	.byte #5
 
 
 	org $FFFC
