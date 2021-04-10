@@ -51,7 +51,7 @@ The game is over when the time is over and the car is stopped. The score turns w
         * Accelaration: * 
         * Gliding:      * * *
 
-    * Car 3 - Dragster.
+    * Car 3 - Dragster:
         * Max Speed:    * * *
         * Handling:     *
         * Accelaration: * * *
