@@ -28,6 +28,8 @@ CAR_ID_HATCHBACK = 1
 CAR_ID_SEDAN = 2
 CAR_ID_DRAGSTER = 3
 
+DRAGSTER_TURN_MASK = %00000001;
+
 BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
@@ -707,8 +709,8 @@ MakeDragsterTurnSlow ; Only car diff that does not use a table.
 	BNE PrepareReadXAxis
 	LDX #0
 	LDA FrameCount0
-	AND #%00000001
-	BEQ StoreHMove ; Ignore movement on odd frames for dragster
+	AND #DRAGSTER_TURN_MASK
+	BEQ StoreHMove ; Ignore movement on some frames
 
 ; for left and right, we're gonna 
 ; set the horizontal speed, and then do

@@ -179,6 +179,7 @@ Digit3Distance           f458
 DistanceOverflowDigit    f462                  
 DividePlayerSpeedBy4     f340                  
 Dot                      fdaa              (R )
+DRAGSTER_TURN_MASK       0001              (R )
 DrawBcdScoreLeft         fa29                  
 DrawBcdScoreRight        faf7                  
 DrawCache                f597              (R )
