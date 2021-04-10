@@ -36,25 +36,25 @@ The game is over when the time is over and the car is stopped. The score turns w
     * Car 0 - Car with spoiler:
         * Max Speed:    * * *
         * Handling:     * * *
-        * Accelaration: * *
+        * Acceleration: * *
         * Gliding:      * *
 
     * Car 1 - Hatchback:
         * Max Speed:    * *
         * Handling:     * * *
-        * Accelaration: * * *
+        * Acceleration: * * *
         * Gliding:      * *
 
     * Car 2 - Sedan:
         * Max Speed:    * * *
         * Handling:     * * *
-        * Accelaration: * 
+        * Acceleration: * 
         * Gliding:      * * *
 
     * Car 3 - Dragster:
         * Max Speed:    * * *
         * Handling:     *
-        * Accelaration: * * *
+        * Acceleration: * * *
         * Gliding:      * * 
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
