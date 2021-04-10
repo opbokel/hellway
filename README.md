@@ -1,4 +1,4 @@
-# Hellway V1.30 (Digital Release, cartridge comming soon)
+# Hellway V1.35 (Digital Release, cartridge comming soon)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -33,10 +33,29 @@ The game is over when the time is over and the car is stopped. The score turns w
     * 4 - AA = Rush Hour, White (ish) (+ 45 seconds)
     
 * Game Reset: Restarts the current game mode and applies the difficulty switches. If the game is stopped and there is no changes to the difficulty switches, it will cycle through the cars.
-    * Car 0 - Car with spoiler.
-    * Car 1 - Hatchback.
-    * Car 2 - Sedan.
+    * Car 0 - Car with spoiler:
+        Max Speed:    * * *
+        Handling:     * * *
+        Accelaration: * *
+        Gliding:      * *
+
+    * Car 1 - Hatchback:
+        Max Speed:    * *
+        Handling:     * * *
+        Accelaration: * * *
+        Gliding:      * *
+
+    * Car 2 - Sedan:
+        Max Speed:    * * *
+        Handling:     * * *
+        Accelaration: * 
+        Gliding:      * * *
+
     * Car 3 - Dragster.
+        Max Speed:    * * *
+        Handling:     *
+        Accelaration: * * *
+        Gliding:      * * 
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
 
