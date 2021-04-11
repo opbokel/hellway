@@ -31,7 +31,7 @@ BLACK                    0000
 BlackAndWhiteScoreBg     f51d              (R )
 BorderType               00ca                  
 Break                    f1b0              (R )
-BREAK_SPEED              000a              (R )
+BREAK_SPEED              000c              (R )
 BreakNonZero             f1c2              (R )
 BreakOnTimeOver          f19f                  
 BreakWhileAccelerating   f1c0              (R )
@@ -89,10 +89,10 @@ CH                       fd55              (R )
 CheckIfAlreadyMaxSpeed   f217                  
 CheckMinSpeed            f1d5                  
 CHECKPOINT_INTERVAL      0010              (R )
-CHECKPOINT_TIME_INTENSE  0028              (R )
-CHECKPOINT_TIME_LIGHT    001e              (R )
-CHECKPOINT_TIME_REGULAR  0023              (R )
-CHECKPOINT_TIME_RUSH_HOUR 002d              (R )
+CHECKPOINT_TIME_INTENSE  0027              (R )
+CHECKPOINT_TIME_LIGHT    001d              (R )
+CHECKPOINT_TIME_REGULAR  0022              (R )
+CHECKPOINT_TIME_RUSH_HOUR 002c              (R )
 CheckpointBcd0           00a4              (R )
 CheckpointBcd1           00a5              (R )
 CheckpointText           ff00              (R )

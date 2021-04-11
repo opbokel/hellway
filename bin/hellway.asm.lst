@@ -405,24 +405,24 @@
      30  f000
      31  f000		       00 01	   DRAGSTER_TURN_MASK =	%00000001	;
      32  f000
-     33  f000		       00 0a	   BREAK_SPEED =	10
+     33  f000		       00 0c	   BREAK_SPEED =	12
      34  f000							;For now, will use in all rows until figure out if make it dynamic or not.
      35  f000		       00 f8	   TRAFFIC_1_MASK =	%11111000	;Min car size... Maybe make different per track
      36  f000
      37  f000		       00 0e	   TRAFFIC_CHANCE_LIGHT =	14
-     38  f000		       00 1e	   CHECKPOINT_TIME_LIGHT =	30
+     38  f000		       00 1d	   CHECKPOINT_TIME_LIGHT =	29
      39  f000		       00 d4	   TRAFFIC_COLOR_LIGHT =	$D4
      40  f000
      41  f000		       00 18	   TRAFFIC_CHANCE_REGULAR =	24
-     42  f000		       00 23	   CHECKPOINT_TIME_REGULAR =	35
+     42  f000		       00 22	   CHECKPOINT_TIME_REGULAR =	34
      43  f000		       00 34	   TRAFFIC_COLOR_REGULAR =	$34
      44  f000
      45  f000		       00 22	   TRAFFIC_CHANCE_INTENSE =	34
-     46  f000		       00 28	   CHECKPOINT_TIME_INTENSE =	40
+     46  f000		       00 27	   CHECKPOINT_TIME_INTENSE =	39
      47  f000		       00 79	   TRAFFIC_COLOR_INTENSE =	$79
      48  f000
      49  f000		       00 2c	   TRAFFIC_CHANCE_RUSH_HOUR =	44
-     50  f000		       00 2d	   CHECKPOINT_TIME_RUSH_HOUR =	45
+     50  f000		       00 2c	   CHECKPOINT_TIME_RUSH_HOUR =	44
      51  f000		       00 09	   TRAFFIC_COLOR_RUSH_HOUR =	$09
      52  f000
      53  f000		       00 03	   BACKGROUND_COLOR =	$03	;Grey
@@ -948,10 +948,10 @@
     466  f1b5		       d0 0b		      BNE	BreakNonZero
     467  f1b7		       a5 0c		      LDA	INPT4	;3
     468  f1b9		       10 05		      BPL	BreakWhileAccelerating
-    469  f1bb		       a2 0a		      LDX	#BREAK_SPEED
+    469  f1bb		       a2 0c		      LDX	#BREAK_SPEED
     470  f1bd		       4c c2 f1 	      JMP	BreakNonZero
     471  f1c0				   BreakWhileAccelerating		; Allow better control while breaking.
-    472  f1c0		       a2 05		      LDX	#BREAK_SPEED / 2
+    472  f1c0		       a2 06		      LDX	#(BREAK_SPEED / 2)
     473  f1c2
     474  f1c2				   BreakNonZero
     475  f1c2		       e0 00		      CPX	#0
@@ -2015,22 +2015,22 @@
    1502  f773
    1503  f773				   ConfigureLightTraffic
    1504  f773		       a2 0e		      LDX	#TRAFFIC_CHANCE_LIGHT
-   1505  f775		       a0 1e		      LDY	#CHECKPOINT_TIME_LIGHT
+   1505  f775		       a0 1d		      LDY	#CHECKPOINT_TIME_LIGHT
    1506  f777		       a9 d4		      LDA	#TRAFFIC_COLOR_LIGHT
    1507  f779		       4c 94 f7 	      JMP	StoreTrafficChance
    1508  f77c				   ConfigureRegularTraffic
    1509  f77c		       a2 18		      LDX	#TRAFFIC_CHANCE_REGULAR
-   1510  f77e		       a0 23		      LDY	#CHECKPOINT_TIME_REGULAR
+   1510  f77e		       a0 22		      LDY	#CHECKPOINT_TIME_REGULAR
    1511  f780		       a9 34		      LDA	#TRAFFIC_COLOR_REGULAR
    1512  f782		       4c 94 f7 	      JMP	StoreTrafficChance
    1513  f785				   ConfigureIntenseTraffic
    1514  f785		       a2 22		      LDX	#TRAFFIC_CHANCE_INTENSE
-   1515  f787		       a0 28		      LDY	#CHECKPOINT_TIME_INTENSE
+   1515  f787		       a0 27		      LDY	#CHECKPOINT_TIME_INTENSE
    1516  f789		       a9 79		      LDA	#TRAFFIC_COLOR_INTENSE
    1517  f78b		       4c 94 f7 	      JMP	StoreTrafficChance
    1518  f78e				   ConfigureRushHourTraffic
    1519  f78e		       a2 2c		      LDX	#TRAFFIC_CHANCE_RUSH_HOUR
-   1520  f790		       a0 2d		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
+   1520  f790		       a0 2c		      LDY	#CHECKPOINT_TIME_RUSH_HOUR
    1521  f792		       a9 09		      LDA	#TRAFFIC_COLOR_RUSH_HOUR
    1522  f794
    1523  f794				   StoreTrafficChance
