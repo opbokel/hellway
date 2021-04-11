@@ -1,4 +1,4 @@
-# Hellway V1.35 (Digital Release, cartridge comming soon)
+# Hellway V1.36 (Digital Release, cartridge comming soon)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
@@ -21,16 +21,16 @@ The top of the screen shows the distance traveled, and also serves as a score. T
 
 Every checkpoint (0x100) you receive more time, and the score and the car turn green. This will make you invincible for a few seconds. You will receive an audio alert just before it.
 
-If the time is over the score and the car turns red, but you still can reach a checkpoint, since the car slowly decelerates.
+If the time is over the score and the car turns red, but you still can reach a checkpoint, since the car slowly decelerates. You will start receive an audio alert 10 seconds before the timer is over.
 
 The game is over when the time is over and the car is stopped. The score turns white.
 
 ## Switches
 * Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants regarding color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme. It might have slightly different effects depending on the game mode. The time added per checkpoint also varies.
-    * 0 - BB = Light traffic, Green (+ 30 seconds)
-    * 1 - BA = Regular traffic, Red (ish) (+ 35 seconds)
-    * 3 - AB = Intense Traffic, Purple (+ 40 seconds)
-    * 4 - AA = Rush Hour, White (ish) (+ 45 seconds)
+    * 0 - BB = Light traffic, Green (+ 29 seconds)
+    * 1 - BA = Regular traffic, Red (ish) (+ 34 seconds)
+    * 3 - AB = Intense Traffic, Purple (+ 39 seconds)
+    * 4 - AA = Rush Hour, White (ish) (+ 44 seconds)
     
 * Game Reset: Restarts the current game mode and applies the difficulty switches. If the game is stopped and there is no changes to the difficulty switches, it will cycle through the cars.
     * Car 0 - Car with spoiler:

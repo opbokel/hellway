@@ -14,6 +14,8 @@ COLLISION_FRAMES = $FF; 4,5 seconds
 SCORE_FONT_HOLD_CHANGE = $FF; 4,5 seconds
 COLLISION_SPEED_L = $10;
 
+WARN_TIME_ENDING = 10 ; Exclusive
+
 TRAFFIC_LINE_COUNT = 5
 ;16 bit precision
 ;640 max speed!
@@ -1332,7 +1334,7 @@ EngineOff
 EndLeftSound
 
 
-RightSound ; 56 More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
+RightSound ; 70 More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
 	LDA ScoreFontColor ;3
 	CMP #SCORE_FONT_COLOR_OVER ;2
 	BEQ MuteRightSound ;2 A little bit of silence, since you will be run over all the time
@@ -1346,7 +1348,11 @@ RightSound ; 56 More speed = smaller frequency divider. Just getting speed used 
 	SBC TrafficOffset0 + 2 ;3
 	CMP #$02 ;2
 	BCC PlayBeforeCheckpoint ;4
-	JMP MuteRightSound
+	LDA CountdownTimer ; 3
+	BEQ MuteRightSound ;2
+	CMP #WARN_TIME_ENDING ;2
+	BCC PlayWarnTimeEnding ;4
+	JMP MuteRightSound ;3
 PlayColision
 	LDA #31
 	STA AUDF1
@@ -1372,6 +1378,20 @@ PlayBeforeCheckpoint
 	LDA FrameCount0 ;3
 	AND #%00011100 ;2
 	ORA #%00000011;2
+	STA AUDF1 ;3
+	LDA #12 ;2
+	STA AUDC1 ;3
+	LDA #3 ;2
+	STA AUDV1 ;3
+	JMP EndRightSound ;3
+
+PlayWarnTimeEnding
+	LDA FrameCount0 ;3
+	AND #%00000100 ;2
+	BEQ MuteRightSound ;2 Bip at regular intervals
+	CLC ;2
+	LDA #10 ;2
+	ADC CountdownTimer
 	STA AUDF1 ;3
 	LDA #12 ;2
 	STA AUDC1 ;3
@@ -2156,56 +2176,6 @@ FinalizeDrawGameOver
 	JSR Sleep32Lines
 	JMP PrepareOverscan
 
-DrawQrCode
-	LDX #QR_CODE_BACKGROUNG ;2
-	LDY #QR_CODE_COLOR ;2
-	LDA #%00000001 ; Mirror playfield
-	STA CTRLPF
-	JSR ClearAll ; To be 100 sure!
-	LDA SWCHB
-	AND #%00001000 ; If Black and white, this will make A = 0
-	BEQ StoreReversedQrCode
-	STX COLUBK
-	STY COLUPF
-	JMP ContinueQrCode
-StoreReversedQrCode
-	STX COLUPF
-	STY COLUBK
-
-ContinueQrCode
-	LDY #QR_CODE_SIZE - 1
-	LDX #QR_CODE_LINE_HEIGHT
-	JSR WaitForVblankEnd
-	JSR Sleep8Lines
-	JSR Sleep4Lines
-
-QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a-simple-display-timing-diagram/
-	STA WSYNC
-	LDA QrCode1,Y ; 4
-	STA PF1  ;3
-	LDA QrCode2,Y ;4
-	STA PF2 ;3
-	SLEEP 27 ; 
-	LDA QrCode3,Y ;4
-	STA PF2 ;3 Write ends at cycle 48 exactly!
-	LDA QrCode4,Y ; 4
-	STA PF1  ;3
-
-	DEX ;2
-	BNE QrCodeLoop ;2
-	LDX #QR_CODE_LINE_HEIGHT ;2
-	DEY ;2
-	BPL QrCodeLoop ;4
-
-EndQrCodeLoop
-	STA WSYNC ;
-	LDA #0
-	STA PF1  ;3
-	STA PF2  ;3
-
-	JSR Sleep32Lines
-	JMP PrepareOverscan
-
 WaitForVblankEnd
 	LDA INTIM	
 	BNE WaitForVblankEnd ;Is there a better way?	
@@ -2341,6 +2311,58 @@ QrCode4
 	.byte #%00001011
 	.byte #%00001000
 	.byte #%00001111
+
+; Moved here because of rom space.
+; The only SBR in constants space
+DrawQrCode
+	LDX #QR_CODE_BACKGROUNG ;2
+	LDY #QR_CODE_COLOR ;2
+	LDA #%00000001 ; Mirror playfield
+	STA CTRLPF
+	JSR ClearAll ; To be 100 sure!
+	LDA SWCHB
+	AND #%00001000 ; If Black and white, this will make A = 0
+	BEQ StoreReversedQrCode
+	STX COLUBK
+	STY COLUPF
+	JMP ContinueQrCode
+StoreReversedQrCode
+	STX COLUPF
+	STY COLUBK
+
+ContinueQrCode
+	LDY #QR_CODE_SIZE - 1
+	LDX #QR_CODE_LINE_HEIGHT
+	JSR WaitForVblankEnd
+	JSR Sleep8Lines
+	JSR Sleep4Lines
+
+QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a-simple-display-timing-diagram/
+	STA WSYNC
+	LDA QrCode1,Y ; 4
+	STA PF1  ;3
+	LDA QrCode2,Y ;4
+	STA PF2 ;3
+	SLEEP 27 ; 
+	LDA QrCode3,Y ;4
+	STA PF2 ;3 Write ends at cycle 48 exactly!
+	LDA QrCode4,Y ; 4
+	STA PF1  ;3
+
+	DEX ;2
+	BNE QrCodeLoop ;2
+	LDX #QR_CODE_LINE_HEIGHT ;2
+	DEY ;2
+	BPL QrCodeLoop ;4
+
+EndQrCodeLoop
+	STA WSYNC ;
+	LDA #0
+	STA PF1  ;3
+	STA PF2  ;3
+
+	JSR Sleep32Lines
+	JMP PrepareOverscan
     
 	org $FD00
 Font	
@@ -2855,7 +2877,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C3 + #FONT_OFFSET
-	.byte #<C5 + #FONT_OFFSET 
+	.byte #<C6 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
