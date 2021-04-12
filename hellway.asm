@@ -92,6 +92,11 @@ QR_CODE_COLOR = $00
 QR_CODE_SIZE = 25
 
 CURRENT_CAR_MASK = %00000011; 4 cars
+
+;43 default, one less line 2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
+VBLANK_TIMER = 41
+;Almost no game processing with QR code. This gives bleading space by reducing vblank (Still acceptable limits)
+VBLANK_TIMER_QR_CODE = 26 ; 22 lines 
 	
 GRP0Cache = $80
 PF0Cache = $81
@@ -316,8 +321,16 @@ MainLoop
 	STA WSYNC
 	STA WSYNC					;Apply Movement, must be done after a WSYNC
 	STA HMOVE  ;2
+ConfigVBlankTimer
+	LDA GameMode
+	CMP #MAX_GAME_MODE
+	BEQ SetVblankTimerQrCode
+	LDA #VBLANK_TIMER
+	JMP SetVblankTimer
+SetVblankTimerQrCode
+	LDA #VBLANK_TIMER_QR_CODE
+SetVblankTimer
 	STA WSYNC ;3
-	LDA #41 ;43 default, one less line 2 We start the drawing cycle after 36 lines, because drawing is delayed by one line. 
 	STA TIM64T ;3	
 	LDA #0 ;2
 	STA VSYNC ;3	
@@ -2178,8 +2191,8 @@ FinalizeDrawGameOver
 
 WaitForVblankEnd
 	LDA INTIM	
-	BNE WaitForVblankEnd ;Is there a better way?	
-	STA WSYNC ; Seems wastefull, can I live killing vblank midline? 
+	BNE WaitForVblankEnd	
+	STA WSYNC
 	STA VBLANK
 	RTS	
 
@@ -2202,7 +2215,7 @@ Sleep32Lines
 	JSR Sleep8Lines
 	RTS
 
-;ALL CONSTANTS FROM HERE, ALIGN TO AVOID CARRY
+;ALL CONSTANTS FROM HERE (The QrCode routine is the only exception), ALIGN TO AVOID CARRY
 	org $FC00
 QrCode1
 	.byte #%00011111
@@ -2335,7 +2348,8 @@ ContinueQrCode
 	LDX #QR_CODE_LINE_HEIGHT
 	JSR WaitForVblankEnd
 	JSR Sleep8Lines
-	JSR Sleep4Lines
+	JSR Sleep8Lines
+	JSR Sleep8Lines
 
 QrCodeLoop ;Assync mirroed playfield, https://atariage.com/forums/topic/149228-a-simple-display-timing-diagram/
 	STA WSYNC
@@ -2877,7 +2891,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C3 + #FONT_OFFSET
-	.byte #<C6 + #FONT_OFFSET 
+	.byte #<C7 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
