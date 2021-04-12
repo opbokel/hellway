@@ -3431,7 +3431,7 @@
    2877  ff78		       09		      .byte.b	#<C1 + #FONT_OFFSET
    2878  ff79		       ae		      .byte.b	#<Dot + #FONT_OFFSET
    2879  ff7a		       13		      .byte.b	#<C3 + #FONT_OFFSET
-   2880  ff7b		       1d		      .byte.b	#<C5 + #FONT_OFFSET
+   2880  ff7b		       22		      .byte.b	#<C6 + #FONT_OFFSET
    2881  ff7c		       b8		      .byte.b	#<Triangle + #FONT_OFFSET
    2882  ff7d
    2883  ff7d
