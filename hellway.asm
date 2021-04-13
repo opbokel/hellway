@@ -19,7 +19,7 @@ WARN_TIME_ENDING = 10 ; Exclusive
 TRAFFIC_LINE_COUNT = 5
 ;16 bit precision
 ;640 max speed!
-CAR_MAX_SPEED_H = $02
+CAR_MAX_SPEED_H = $02; L is in a table
 
 CAR_MIN_SPEED_H = 0
 CAR_MIN_SPEED_L = 0
@@ -481,7 +481,8 @@ Break
 	BNE BreakNonZero
 	LDA INPT4 ;3
 	BPL BreakWhileAccelerating
-	LDX #BREAK_SPEED
+	LDY Player0SpeedH
+	LDX BreakSpeedTable,Y ; Different break speeds depending on speed.
 	JMP BreakNonZero
 BreakWhileAccelerating ; Allow better control while breaking.
 	LDX #(BREAK_SPEED / 2)
@@ -2891,7 +2892,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C3 + #FONT_OFFSET
-	.byte #<C7 + #FONT_OFFSET 
+	.byte #<C8 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
@@ -2991,6 +2992,11 @@ CarIdToMaxGear
 	.byte #4 ; One less gear
 	.byte #5
 	.byte #5
+
+BreakSpeedTable ; Uses Speed H byte as index
+	.byte #(BREAK_SPEED - 4)
+	.byte #(BREAK_SPEED - 2)
+	.byte #BREAK_SPEED
 
 
 	org $FFFC
