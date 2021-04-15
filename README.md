@@ -1,4 +1,4 @@
-# Hellway V1.38 (Digital Release, cartridge comming soon)
+# Hellway V1.39 (Digital Release, cartridge comming soon)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
