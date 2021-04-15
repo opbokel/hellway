@@ -1526,44 +1526,27 @@ NextDifficulty
 	STA CurrentDifficulty
 
 ConfigureDifficulty
-	LDA CurrentDifficulty 
-	BEQ ConfigureLightTraffic
-	CMP #1
-	BEQ ConfigureRegularTraffic
-	CMP #2
-	BEQ ConfigureIntenseTraffic
-	JMP ConfigureRushHourTraffic
-
-ConfigureLightTraffic 
-	LDX #TRAFFIC_CHANCE_LIGHT
-	LDY #CHECKPOINT_TIME_LIGHT
-	LDA #TRAFFIC_COLOR_LIGHT
-	JMP StoreTrafficChance
-ConfigureRegularTraffic
-	LDX #TRAFFIC_CHANCE_REGULAR
-	LDY #CHECKPOINT_TIME_REGULAR
-	LDA #TRAFFIC_COLOR_REGULAR
-	JMP StoreTrafficChance
-ConfigureIntenseTraffic
-	LDX #TRAFFIC_CHANCE_INTENSE
-	LDY #CHECKPOINT_TIME_INTENSE
-	LDA #TRAFFIC_COLOR_INTENSE
-	JMP StoreTrafficChance
-ConfigureRushHourTraffic
-	LDX #TRAFFIC_CHANCE_RUSH_HOUR
-	LDY #CHECKPOINT_TIME_RUSH_HOUR
-	LDA #TRAFFIC_COLOR_RUSH_HOUR
-
-StoreTrafficChance
-	STX TrafficChance
-	STY CheckpointTime
+	LDY CurrentDifficulty ;Needed, not always NextDifficulty is entrypoint
+	LDA TrafficChanceTable,Y
+	STA TrafficChance
+	LDA TrafficColorTable,Y
 	STA TrafficColor
+
+	LDA GameMode;
+	AND #%00000001
+	BEQ UseNextDifficultyTime
+	JMP StoreDifficultyTime
+UseNextDifficultyTime
+	INY
+StoreDifficultyTime
+	LDA TrafficTimeTable,Y
+	STA CheckpointTime
 
 CheckRandomDifficulty
 	LDA GameMode
 	AND #%00001000 ; Random difficulties
 	BEQ ReturnFromNextDifficulty
-RandomDificulty
+RandomDifficulty
 	LDX FrameCount0
 	LDA AesTable,X
 	EOR TrafficChance
@@ -2892,7 +2875,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C3 + #FONT_OFFSET
-	.byte #<C8 + #FONT_OFFSET 
+	.byte #<C9 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
@@ -2997,6 +2980,25 @@ BreakSpeedTable ; Uses Speed H byte as index
 	.byte #(BREAK_SPEED - 4)
 	.byte #(BREAK_SPEED - 2)
 	.byte #BREAK_SPEED
+
+TrafficColorTable
+	.byte #TRAFFIC_COLOR_LIGHT
+	.byte #TRAFFIC_COLOR_REGULAR
+	.byte #TRAFFIC_COLOR_INTENSE
+	.byte #TRAFFIC_COLOR_RUSH_HOUR
+
+TrafficChanceTable
+	.byte #TRAFFIC_CHANCE_LIGHT
+	.byte #TRAFFIC_CHANCE_REGULAR
+	.byte #TRAFFIC_CHANCE_INTENSE
+	.byte #TRAFFIC_CHANCE_RUSH_HOUR
+
+TrafficTimeTable
+	.byte #CHECKPOINT_TIME_LIGHT
+	.byte #CHECKPOINT_TIME_REGULAR
+	.byte #CHECKPOINT_TIME_INTENSE
+	.byte #CHECKPOINT_TIME_RUSH_HOUR
+	.byte #CHECKPOINT_TIME_LIGHT ; For cycling, makes code easier
 
 
 	org $FFFC

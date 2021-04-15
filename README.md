@@ -26,7 +26,8 @@ If the time is over the score and the car turns red, but you still can reach a c
 The game is over when the time is over and the car is stopped. The score turns white.
 
 ## Switches
-* Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The constants regarding color, time and traffic are still subject to fine tuning. I tried to reduce eye strain in the color scheme. It might have slightly different effects depending on the game mode. The time added per checkpoint also varies.
+* Difficulty switches: They change the traffic intensity and color. The switches form a binary number representing intensity. The more traffic it has, the more time you gain on checkpoints. The time added is of the level you are entering, not of the level you passed (which are the same for fixed traffic intensity modes).  
+
     * 0 - BB = Light traffic, Green (+ 29 seconds)
     * 1 - BA = Regular traffic, Red (ish) (+ 34 seconds)
     * 3 - AB = Intense Traffic, Purple (+ 39 seconds)
