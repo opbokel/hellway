@@ -127,7 +127,9 @@ StartSWCHB = $A6 ; Used for Score, so it cannot be cheated.
 CarSpritePointerL = $A7
 CarSpritePointerH = $A8
 CurrentCarId = $A9
-AccelerateBuffer = $AA ; Chnage speed on buffer overflow.
+AccelerateBuffer = $AA ; Change speed on buffer overflow.
+TextSide = $AB
+TextFlickerMode = $AC
 
 ;Temporary variables, multiple uses
 Tmp0 = $B0
@@ -181,7 +183,7 @@ ScoreFontColorHoldChange=$D6
 NextCheckpoint=$D7
 
 ParallaxCache=$D8 ; to $DF
-ParallaxCache2=$F0 ; to F8
+ParallaxCache2=$F0 ; to F7
 
 
 ;generic start up stuff, put zero in almost all...
@@ -319,6 +321,18 @@ MainLoop
 	LDA #2
 	STA VSYNC	
 	STA WSYNC
+
+CalculateTextSide ; Here because it is a waste of cycles not to put anything
+	LDA #%00000001
+	BIT TextFlickerMode
+	BEQ TextSideFrameZero
+	AND FrameCount1
+	JMP StoreTextSize
+TextSideFrameZero
+	AND FrameCount0
+StoreTextSize	
+	STA TextSide
+
 	STA WSYNC					;Apply Movement, must be done after a WSYNC
 	STA HMOVE  ;2
 ConfigVBlankTimer
@@ -436,9 +450,9 @@ DecrementSwitchDebounceCounter
 EndReadSwitches
 	
 CountFrame	
-	INC FrameCount0 ; 5 Used to alternate lines
+	INC FrameCount0 ; 5
 	BNE SkipIncFC1 ; 2 When it is zero again should increase the MSB
-	INC FrameCount1 ; 5 Still not used
+	INC FrameCount1 ; 5 
 SkipIncFC1
 
 CallDrawQrCode
@@ -454,7 +468,6 @@ TestIsGameRunning
 	JMP SkipUpdateLogic
 ContinueWithGameLogic
 
-
 EverySecond ; 64 frames to be more precise
 	LDA #%00111111
 	AND FrameCount0
@@ -464,6 +477,16 @@ EverySecond ; 64 frames to be more precise
 	DEC CountdownTimer
 SkipEverySecondAction
 
+ChangeTextFlickerMode
+	LDA SwitchDebounceCounter
+	BNE EndChangeTextFlickerMode
+	LDA SWCHB
+	AND #%00000010 ;Game select
+	BNE EndChangeTextFlickerMode
+	INC TextFlickerMode
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+EndChangeTextFlickerMode
 
 BreakOnTimeOver ; Uses LDX as the breaking speed
 	LDX #0
@@ -912,9 +935,8 @@ PrintEasterEggCondition
 ;Could be done during on vblank to save this comparisson time (before draw score), 
 ;but I am saving vblank cycles for now, in case of 2 players.
 ChooseTextSide ; 
-	LDA FrameCount0 ;3
-	AND #%00000001 ;2
-	BEQ LeftScoreWrite ; Half of the screen with the correct colors.
+	LDA TextSide ;3
+	BNE LeftScoreWrite ; Half of the screen with the correct colors.
 	JMP RightScoreWrite 
 
 LeftScoreWrite
@@ -1096,9 +1118,8 @@ ConfigurePFForScore
 	JSR ClearAll
 	LDA #%00000010 ; Score mode
 	STA CTRLPF
-	LDA FrameCount0 ;3
-	AND #%00000001 ;2
-	BEQ RightScoreOn ; Half of the screen with the correct colors.
+	LDA TextSide ;3
+	BNE RightScoreOn ; Half of the screen with the correct colors.
 LeftScoreOn
 	LDA ScoreFontColor
 	STA COLUP1
@@ -1129,9 +1150,8 @@ DrawScoreHud
 	LDA ScoreFontColor
 	CMP #SCORE_FONT_COLOR_OVER
 	BNE WaitAnotherScoreLine
-	LDA FrameCount0 ;3
-	AND #%00000001 ;2
-	BEQ LeftScoreOnGameOver
+	LDA TextSide ;3
+	BNE LeftScoreOnGameOver
 	JMP DrawGameOverScreenRight
 LeftScoreOnGameOver
 	JMP DrawGameOverScreenLeft
@@ -1549,7 +1569,7 @@ CheckRandomDifficulty
 RandomDifficulty
 	LDX FrameCount0
 	LDA AesTable,X
-	EOR TrafficChance
+	;EOR TrafficChance, no need, lets make life simple
 	AND #%00111111
 	STA TrafficChance
 	
@@ -2874,8 +2894,8 @@ LeonardoTextRight
 VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
-	.byte #<C3 + #FONT_OFFSET
-	.byte #<C9 + #FONT_OFFSET 
+	.byte #<C4 + #FONT_OFFSET
+	.byte #<C2 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
@@ -2977,7 +2997,7 @@ CarIdToMaxGear
 	.byte #5
 
 BreakSpeedTable ; Uses Speed H byte as index
-	.byte #(BREAK_SPEED - 4)
+	.byte #(BREAK_SPEED - 3)
 	.byte #(BREAK_SPEED - 2)
 	.byte #BREAK_SPEED
 

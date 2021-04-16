@@ -1,11 +1,14 @@
-# Hellway V1.39 (Digital Release, cartridge comming soon)
+# Hellway V1.42 (Digital Release, cartridge comming soon)
 
 ## Introduction
 An Atari 2600 game, the objective is to travel the maximum distance possible, given the time limit. The game is done in 6502 assembly, and has no intention to use bankswitch or any enhancement chip, respecting the limitations of the time and a 4k ROM which the vast majority of games of the time had.
 
 It can be played online at https://javatari.org/?ROM=https://github.com/opbokel/hellway/raw/master/bin/hellway.asm.bin
 
-Or downloaded as a emulator compatible binnary (in the bin folder). The code will be kept open.
+or downloaded as a emulator compatible binnary (in the bin folder). The code will be kept open.
+
+You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
+
 
 ## License
 Feel free to download, play, burn to a cartridge and have fun. The only restriction is to not sell it in order to make profit. If no profit is made or it is fully donated, I am ok with it. If you do any derivative work, please give the proper credits.
@@ -60,7 +63,7 @@ The game is over when the time is over and the car is stopped. The score turns w
 
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
 
-* Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. The game mode is in the top left corner:
+* Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. Modes 0 and 2 should give you the MOST BALANCED EXPERIENCE, regardless of the select car or difficulty switch positions. The game mode is in the top left corner:
     * Mode 0 = Default mode, traffic level changes every checkpoint, and keep cycling. The difficulty switches define only the starting traffic intensity.
     * Mode 1 = Similar to Mode 0, but the traffic level defined by the switches does not change.
     * Mode 2 = Mode 0 + Randomized traffic lines.
@@ -94,6 +97,8 @@ It much easier to read it as a binary number (like linux file permissions). Each
 
 Deterministic game modes (0,1,4,5) will always generate the same sequence of cars for each line.
 
+If game select is pressed during gameplay, it will draw all text alternating between left and right every 4 seconds. Because of hardware constraints, all text in the game flicker at 30hz, this removes the flickering. The main reason is to allow the screen to be captured no matter what combination of camera and monitor you are using by taking two distinct pictures. This also helps with emulators that do not emulate phosphor mode.
+
 ## Border Effects
 While in the title screen it is possible to change what the border of the screen looks like by pressing the D-pad:
 * Up (default) => Basic strip pattern.
@@ -122,5 +127,5 @@ Example: E2AB|1.30
 
 
 ## Closing Thoughts
-A very special thanks to all the AtariAge community. You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
+A very special thanks to all the AtariAge community. 
 
