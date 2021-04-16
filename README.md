@@ -64,6 +64,7 @@ The game is over when the time is over and the car is stopped. The score turns w
 * TV Type (Color / BW): Changes between the default background color and a black background. A completely black background offers better contrast and might work better on Black and White televisions, but can be hard on the eyes. The main reason for this feature is to provide accessibility for people with color blindness or other disabilities. This can be changed anytime during gameplay. It also reverses the QR code color.
 
 * Game Select: Changes the game mode, this must be done before starting the game (or after a reset) while the title is displayed. Modes 0 and 2 should give you the MOST BALANCED EXPERIENCE, regardless of the select car or difficulty switch positions. The game mode is in the top left corner:
+
     * Mode 0 = Default mode, traffic level changes every checkpoint, and keep cycling. The difficulty switches define only the starting traffic intensity.
     * Mode 1 = Similar to Mode 0, but the traffic level defined by the switches does not change.
     * Mode 2 = Mode 0 + Randomized traffic lines.
@@ -81,8 +82,6 @@ The game is over when the time is over and the car is stopped. The score turns w
     * Mode E = Mode 6 + Random traffic intensity every checkpoint.
     * Mode F = Mode 7 + Random traffic intensity every checkpoint.
     * Mode G = QR code
-
-Mode 0 tries to offer the most balanced experience.
 
 Bigger speed difference between traffic lines makes the game a little harder, with opportunities for overtaking opening and closing much faster and changing lines is more difficult. 
 
