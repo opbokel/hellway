@@ -32,7 +32,7 @@ CAR_ID_DRAGSTER = 3
 
 DRAGSTER_TURN_MASK = %00000001;
 
-BREAK_SPEED = 12
+BREAK_SPEED = 10
 ;For now, will use in all rows until figure out if make it dynamic or not.
 TRAFFIC_1_MASK = %11111000 ;Min car size... Maybe make different per track
 
@@ -130,6 +130,7 @@ CurrentCarId = $A9
 AccelerateBuffer = $AA ; Change speed on buffer overflow.
 TextSide = $AB
 TextFlickerMode = $AC
+Gear = $AD
 
 ;Temporary variables, multiple uses
 Tmp0 = $B0
@@ -504,11 +505,11 @@ Break
 	BNE BreakNonZero
 	LDA INPT4 ;3
 	BPL BreakWhileAccelerating
-	LDY Player0SpeedH
-	LDX BreakSpeedTable,Y ; Different break speeds depending on speed.
+	LDY Gear
+	LDX GearToBreakSpeedTable,Y ; Different break speeds depending on speed.
 	JMP BreakNonZero
 BreakWhileAccelerating ; Allow better control while breaking.
-	LDX #(BREAK_SPEED / 2)
+	LDX (#BREAK_SPEED / 2)
 
 BreakNonZero
 	CPX #0
@@ -833,6 +834,14 @@ CalculateParallax2Offset ; 6/8 speed
 
 SkipUpdateLogic ; Continue here if not paused
 
+CalculateGear
+	LDA Player0SpeedL  ;3
+	AND #%10000000      ;2
+	ORA Player0SpeedH   ;3
+	CLC                 ;2
+	ROL                 ;2
+	ADC #0 ; 2 Places the possible carry produced by ROL
+	STA Gear
 
 ProcessBorder ;Can be optimized (probably)
 	LDY #PARALLAX_SIZE - 1 ; Used by all SBRs
@@ -1338,16 +1347,10 @@ PrepareOverscan
 	LDA #6 ; 2 more lines before overscan (was 37)...
 	STA TIM64T	
 
-LeftSound ;58
+LeftSound ;41
 	LDA CountdownTimer ;3
 	BEQ EngineOff      ;2
-	LDA Player0SpeedL  ;3
-	AND #%10000000      ;2
-	ORA Player0SpeedH   ;3
-	CLC                 ;2
-	ROL                 ;2
-	ADC #0 ; 2 Places the possible carry produced by ROL
-	TAX ;2
+	LDX Gear
 	LDA Player0SpeedL ;3
 	LSR ;2
 	LSR ;2
@@ -1368,7 +1371,7 @@ EngineOff
 EndLeftSound
 
 
-RightSound ; 70 More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
+RightSound ; 71 More speed = smaller frequency divider. Just getting speed used MSB. (0 to 23)
 	LDA ScoreFontColor ;3
 	CMP #SCORE_FONT_COLOR_OVER ;2
 	BEQ MuteRightSound ;2 A little bit of silence, since you will be run over all the time
@@ -1425,7 +1428,7 @@ PlayWarnTimeEnding
 	BEQ MuteRightSound ;2 Bip at regular intervals
 	CLC ;2
 	LDA #10 ;2
-	ADC CountdownTimer
+	ADC CountdownTimer ;2
 	STA AUDF1 ;3
 	LDA #12 ;2
 	STA AUDC1 ;3
@@ -1689,13 +1692,6 @@ ContinueDefaultBorderLoop
 
 PrepareTachometerBorderLoop
 	LDA Player0SpeedL
-	AND #%10000000
-	ORA Player0SpeedH
-	CLC
-	ROL
-	ADC #0
-	STA Tmp0 ; Gear
-	LDA Player0SpeedL
 	LSR
 	LSR
 	LSR
@@ -1712,7 +1708,7 @@ TachometerBorderLoop
 	ADC TrafficOffset0 + 1
 	AND #%00000100
 	BEQ HasBorderTac
-	LDX Tmp0
+	LDX Gear
 	LDA TachometerGearLookup,X
 	STA ParallaxCache,Y
 	LDA #0
@@ -1720,7 +1716,7 @@ TachometerBorderLoop
 	JMP ContinueBorderTac
 HasBorderTac
 	LDA Tmp2 ; Max Gear
-	CMP Tmp0 ; Only on max speed
+	CMP Gear ; Only on max speed
 	BEQ FullBorderTac
 	LDX Tmp1
 	LDA TachometerSizeLookup1,X
@@ -2895,7 +2891,7 @@ VersionText
 	.byte #<C1 + #FONT_OFFSET
 	.byte #<Dot + #FONT_OFFSET
 	.byte #<C4 + #FONT_OFFSET
-	.byte #<C2 + #FONT_OFFSET 
+	.byte #<C3 + #FONT_OFFSET 
 	.byte #<Triangle + #FONT_OFFSET
 
 
@@ -2996,10 +2992,13 @@ CarIdToMaxGear
 	.byte #5
 	.byte #5
 
-BreakSpeedTable ; Uses Speed H byte as index
-	.byte #(BREAK_SPEED - 3)
-	.byte #(BREAK_SPEED - 2)
-	.byte #BREAK_SPEED
+GearToBreakSpeedTable
+	.byte #(BREAK_SPEED - 1)
+	.byte #(BREAK_SPEED - 1)
+	.byte #(BREAK_SPEED + 0)
+	.byte #(BREAK_SPEED + 0)
+	.byte #(BREAK_SPEED + 2)
+	.byte #(BREAK_SPEED + 2)
 
 TrafficColorTable
 	.byte #TRAFFIC_COLOR_LIGHT
