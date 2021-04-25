@@ -214,7 +214,7 @@ Start
 	LDX #$FF	
 	TXS	
 
-	LDX #128 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
+	LDX #128
 CleanMem 
 	CPX #SwitchDebounceCounter
 	BEQ SkipClean
@@ -238,7 +238,7 @@ CleanTia
 	STA 0,X		
 SkipCleanTia	
 	DEX
-	CPX #03
+	CPX #03 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
 	BNE CleanTia
 
 	LDA #233
