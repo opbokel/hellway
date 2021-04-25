@@ -201,12 +201,21 @@ BeforeStart ;All variables that are kept on game reset or select
 	STY CurrentCarId
 
 Start
+	LDA #2
+	STA VSYNC
+	STA WSYNC
+	STA WSYNC
+	STA WSYNC
+	LDA #0 ;2
+	STA VSYNC ;3
+
 	SEI	
 	CLD 	
 	LDX #$FF	
 	TXS	
-	LDA #0		
-ClearMem 
+
+	LDX #128 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
+CleanMem 
 	CPX #SwitchDebounceCounter
 	BEQ SkipClean
 	CPX #GameMode
@@ -221,9 +230,20 @@ ClearMem
 	BEQ SkipClean
 	STA 0,X		
 SkipClean	
+	INX
+	BNE CleanMem	
+
+	LDX #64
+CleanTia
+	STA 0,X		
+SkipCleanTia	
 	DEX
-	BNE ClearMem	
-	
+	CPX #03
+	BNE CleanTia
+
+	LDA #233
+	STA TIM64T ;3	
+
 ;Setting some variables...
 
 SettingTrafficOffsets; Time sensitive with player H position
@@ -314,10 +334,10 @@ HPositioning
 	STA WSYNC ; Time is irrelevant before sync to TV, ROM space is not!
 	STA HMCLR
 
-	;SLEEP 24
-	;STA HMCLR
+WaitResetToEnd
+	LDA INTIM	
+	BNE WaitResetToEnd
 
-;VSYNC time
 MainLoop
 	LDA #2
 	STA VSYNC	
@@ -350,35 +370,6 @@ SetVblankTimer
 	LDA #0 ;2
 	STA VSYNC ;3	
 
-;Read Fire Button before, will make it start the game for now.
-StartGame
-	LDA INPT4 ;3
-	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
-	LDA GameStatus ;3
-	ORA SwitchDebounceCounter ; Do not start during debounce
-	BNE SkipGameStart
-	LDA GameMode
-	CMP #MAX_GAME_MODE
-	BNE SetGameRunning
-	LDA #0
-	STA GameMode
-	LDA #SWITCHES_DEBOUNCE_TIME
-	STA SwitchDebounceCounter
-	JMP SkipGameStart
-SetGameRunning 
-	INC GameStatus
-	LDA #0;
-	STA FrameCount0
-	STA FrameCount1
-	LDA #10
-	STA AUDV0
-	LDA #SCORE_FONT_COLOR_START
-	STA ScoreFontColor
-	LDA #SCORE_FONT_HOLD_CHANGE
-	STA ScoreFontColorHoldChange
-	JMP SkipIncFC1 ; Make the worse case stable
-SkipGameStart
-
 RandomizeGame
 	LDA GameStatus ;Could be merge with code block bellow
 	BNE EndRandomizeGame
@@ -407,48 +398,6 @@ DeterministicGame
 	JSR DefaultOffsets
 
 EndRandomizeGame
-
-ReadSwitches
-	LDX SwitchDebounceCounter
-	BNE DecrementSwitchDebounceCounter
-	LDA #%00000001
-	BIT SWCHB
-	BNE SkipReset 
-	LDA #SWITCHES_DEBOUNCE_TIME
-	STA SwitchDebounceCounter
-	JMP Start
-SkipReset
-
-GameModeSelect
-	LDA GameStatus ;We don't read game select while running and save precious cycles
-	BNE SkipGameSelect
-	JSR ConfigureDifficulty ; Keeps randomizing dificulty for modes 8 to F, also resets it for other modes
-ReadDpadParallax
-	LDA SWCHA
-	AND #%11110000
-	CMP #%11110000 ; 1 means it is not on that direction 
-	BEQ ContinueGameSelect ; We do not change parallax while gamepad is centered!
-	STA ParallaxMode
-ContinueGameSelect
-	LDA #%00000010
-	BIT SWCHB
-	BNE SkipGameSelect
-	LDX GameMode
-	CPX #MAX_GAME_MODE
-	BEQ ResetGameMode
-	INX
-	JMP StoreGameMode
-ResetGameMode
-	LDX #0
-StoreGameMode
-	STX GameMode
-	LDA #SWITCHES_DEBOUNCE_TIME
-	STA SwitchDebounceCounter
-SkipGameSelect
-	JMP EndReadSwitches
-DecrementSwitchDebounceCounter
-	DEC SwitchDebounceCounter
-EndReadSwitches
 	
 CountFrame	
 	INC FrameCount0 ; 5
@@ -931,6 +880,47 @@ IsTimeOver
 	LDA #SCORE_FONT_COLOR_BAD
 	STA ScoreFontColor
 SkipIsTimeOver
+
+ExactlyEverySecond ; 88 Here to use this nice extra cycles of the 5 scanlines
+	LDA GameStatus ;3
+	BEQ EndExactlyEverySecond ; 2 Count only while game running
+	LDA ScoreFontColor ;3
+	CMP #SCORE_FONT_COLOR_OVER ;2
+	BEQ EndExactlyEverySecond ;2
+	DEC OneSecondConter ;5
+	BNE EndExactlyEverySecond ;2
+
+	SED ;2 BCD Operations after this point
+CountGlideTimeBcd
+	LDA ScoreFontColor ;3
+	CMP #SCORE_FONT_COLOR_BAD ;2
+	BNE EndCountGlideTimeBcd ;2
+	CLC ;2
+	LDA GlideTimeBcd0 ;3
+	ADC #1 ;3
+	STA GlideTimeBcd0 ;3
+	LDA GlideTimeBcd1 ;3
+	ADC #0 ;2
+	STA GlideTimeBcd1 ;3
+EndCountGlideTimeBcd
+IncreaseTotalTimerBcd
+	CLC ;2
+	LDA TimeBcd0 ;3
+	ADC #1 ;2
+	STA TimeBcd0 ;3
+	LDA TimeBcd1 ;3
+	ADC #0 ;2
+	STA TimeBcd1 ;3
+	LDA TimeBcd2 ;3
+	ADC #0 ;2
+	STA TimeBcd2 ;3
+
+ResetOneSecondCounter
+	CLD ;2
+	LDA #ONE_SECOND_FRAMES ;3
+	STA OneSecondConter ;3
+
+EndExactlyEverySecond
 
 PrintEasterEggCondition
 	LDA FrameCount1
@@ -1441,51 +1431,85 @@ MuteRightSound
 	STA AUDV1
 EndRightSound
 
-ExactlyEverySecond ; 88 Here to use this nice extra cycles of the 5 scanlines
+;Read Fire Button before, will make it start the game for now.
+StartGame
+	LDA INPT4 ;3
+	BMI SkipGameStart ;2 ;not pressed the fire button in negative in bit 7
 	LDA GameStatus ;3
-	BEQ EndExactlyEverySecond ; 2 Count only while game running
-	LDA ScoreFontColor ;3
-	CMP #SCORE_FONT_COLOR_OVER ;2
-	BEQ EndExactlyEverySecond ;2
-	DEC OneSecondConter ;5
-	BNE EndExactlyEverySecond ;2
+	ORA SwitchDebounceCounter ; Do not start during debounce
+	BNE SkipGameStart
+	LDA GameMode
+	CMP #MAX_GAME_MODE
+	BNE SetGameRunning
+	LDA #0
+	STA GameMode
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+	JMP SkipGameStart
+SetGameRunning 
+	INC GameStatus
+	LDA #0;
+	STA FrameCount0
+	STA FrameCount1
+	LDA #10
+	STA AUDV0
+	LDA #SCORE_FONT_COLOR_START
+	STA ScoreFontColor
+	LDA #SCORE_FONT_HOLD_CHANGE
+	STA ScoreFontColorHoldChange
+SkipGameStart
 
-	SED ;2 BCD Operations after this point
-CountGlideTimeBcd
-	LDA ScoreFontColor ;3
-	CMP #SCORE_FONT_COLOR_BAD ;2
-	BNE EndCountGlideTimeBcd ;2
-	CLC ;2
-	LDA GlideTimeBcd0 ;3
-	ADC #1 ;3
-	STA GlideTimeBcd0 ;3
-	LDA GlideTimeBcd1 ;3
-	ADC #0 ;2
-	STA GlideTimeBcd1 ;3
-EndCountGlideTimeBcd
-IncreaseTotalTimerBcd
-	CLC ;2
-	LDA TimeBcd0 ;3
-	ADC #1 ;2
-	STA TimeBcd0 ;3
-	LDA TimeBcd1 ;3
-	ADC #0 ;2
-	STA TimeBcd1 ;3
-	LDA TimeBcd2 ;3
-	ADC #0 ;2
-	STA TimeBcd2 ;3
+ReadSwitches
+	LDX SwitchDebounceCounter
+	BNE DecrementSwitchDebounceCounter
+	LDA #%00000001
+	BIT SWCHB
+	BNE SkipReset 
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+	JMP OverScanWaitBeforeReset
+SkipReset
 
-ResetOneSecondCounter
-	CLD ;2
-	LDA #ONE_SECOND_FRAMES ;3
-	STA OneSecondConter ;3
-
-EndExactlyEverySecond
+GameModeSelect
+	LDA GameStatus ;We don't read game select while running and save precious cycles
+	BNE SkipGameSelect
+	JSR ConfigureDifficulty ; Keeps randomizing dificulty for modes 8 to F, also resets it for other modes
+ReadDpadParallax
+	LDA SWCHA
+	AND #%11110000
+	CMP #%11110000 ; 1 means it is not on that direction 
+	BEQ ContinueGameSelect ; We do not change parallax while gamepad is centered!
+	STA ParallaxMode
+ContinueGameSelect
+	LDA #%00000010
+	BIT SWCHB
+	BNE SkipGameSelect
+	LDX GameMode
+	CPX #MAX_GAME_MODE
+	BEQ ResetGameMode
+	INX
+	JMP StoreGameMode
+ResetGameMode
+	LDX #0
+StoreGameMode
+	STX GameMode
+	LDA #SWITCHES_DEBOUNCE_TIME
+	STA SwitchDebounceCounter
+SkipGameSelect
+	JMP EndReadSwitches
+DecrementSwitchDebounceCounter
+	DEC SwitchDebounceCounter
+EndReadSwitches
 
 OverScanWait
 	LDA INTIM	
 	BNE OverScanWait ;Is there a better way?	
 	JMP MainLoop      
+
+OverScanWaitBeforeReset
+	LDA INTIM	
+	BNE OverScanWaitBeforeReset ;Is there a better way?	
+	JMP Start   
 
 Subroutines
 
