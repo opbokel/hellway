@@ -233,12 +233,12 @@ SkipClean
 	INX
 	BNE CleanMem	
 
-	LDX #64
+	LDX #04 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK)
 CleanTia
 	STA 0,X		
 SkipCleanTia	
-	DEX
-	CPX #03 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
+	INX
+	CPX #64 
 	BNE CleanTia
 
 	LDA #233

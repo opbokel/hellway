@@ -608,12 +608,12 @@
     233  f043		       e8		      INX
     234  f044		       d0 e3		      BNE	CleanMem
     235  f046
-    236  f046		       a2 40		      LDX	#64
+    236  f046		       a2 04		      LDX	#04	; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK)
     237  f048				   CleanTia
     238  f048		       95 00		      STA	0,X
     239  f04a				   SkipCleanTia
-    240  f04a		       ca		      DEX
-    241  f04b		       e0 03		      CPX	#03	; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
+    240  f04a		       e8		      INX
+    241  f04b		       e0 40		      CPX	#64
     242  f04d		       d0 f9		      BNE	CleanTia
     243  f04f
     244  f04f		       a9 e9		      LDA	#233
