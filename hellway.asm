@@ -236,7 +236,6 @@ SkipClean
 	LDX #04 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK)
 CleanTia
 	STA 0,X		
-SkipCleanTia	
 	INX
 	CPX #64 
 	BNE CleanTia

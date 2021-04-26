@@ -478,7 +478,6 @@ SkipAccelerate           f20e              (R )
 SkipAccelerateIfBreaking f1c9              (R )
 SkipBreak                f1cc              (R )
 SkipClean                f043              (R )
-SkipCleanTia             f04a                  
 SkipDrawCar              f5c2              (R )
 SkipDrawTraffic0         f654                  
 SkipEverySecondAction    f166              (R )
