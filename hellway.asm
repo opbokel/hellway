@@ -214,7 +214,7 @@ Start
 	LDX #$FF	
 	TXS	
 
-	LDX #128
+	LDX #68 ; Skips (VSYNC, RSYNC, WSYNC, VBLANK), TIA is mirrored on 64 - 127
 CleanMem 
 	CPX #SwitchDebounceCounter
 	BEQ SkipClean
@@ -231,16 +231,9 @@ CleanMem
 	STA 0,X		
 SkipClean	
 	INX
-	BNE CleanMem	
+	BNE CleanMem
 
-	LDX #04 ; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK)
-CleanTia
-	STA 0,X		
-	INX
-	CPX #64 
-	BNE CleanTia
-
-	LDA #233
+	LDA #213
 	STA TIM64T ;3	
 
 ;Setting some variables...
