@@ -3012,7 +3012,7 @@ GearToBreakSpeedTable
 	.byte #(BREAK_SPEED - 1)
 	.byte #(BREAK_SPEED - 1)
 	.byte #(BREAK_SPEED + 0)
-	.byte #(BREAK_SPEED + 0)
+	.byte #(BREAK_SPEED + 1)
 	.byte #(BREAK_SPEED + 2)
 	.byte #(BREAK_SPEED + 2)
 

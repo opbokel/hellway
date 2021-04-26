@@ -3566,7 +3566,7 @@
    3012  ffdd		       09		      .byte.b	#(BREAK_SPEED - 1)
    3013  ffde		       09		      .byte.b	#(BREAK_SPEED - 1)
    3014  ffdf		       0a		      .byte.b	#(BREAK_SPEED + 0)
-   3015  ffe0		       0a		      .byte.b	#(BREAK_SPEED + 0)
+   3015  ffe0		       0b		      .byte.b	#(BREAK_SPEED + 1)
    3016  ffe1		       0c		      .byte.b	#(BREAK_SPEED + 2)
    3017  ffe2		       0c		      .byte.b	#(BREAK_SPEED + 2)
    3018  ffe3
