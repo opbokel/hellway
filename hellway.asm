@@ -747,7 +747,7 @@ DividePlayerSpeedBy4
 	ORA Tmp1
 	STA Tmp0 ; Division Result
 
-CalculateParallax1Offset ; 7/8 speed
+CalculateParallax1Offset ; 3/4 speed
 	SEC
 	LDA Player0SpeedL
 	SBC Tmp0
@@ -764,7 +764,7 @@ CalculateParallax1Offset ; 7/8 speed
 	ADC Tmp3
 	STA ParallaxOffset1 + 1
 
-CalculateParallax2Offset ; 6/8 speed
+CalculateParallax2Offset ; 2/4 speed
 	SEC
 	LDA Tmp2
 	SBC Tmp0

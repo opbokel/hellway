@@ -589,7 +589,7 @@
     214  f024		       a2 ff		      LDX	#$FF
     215  f026		       9a		      TXS
     216  f027
-    217  f027		       a2 80		      LDX	#128	; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
+    217  f027		       a2 80		      LDX	#128
     218  f029				   CleanMem
     219  f029		       e0 bc		      CPX	#SwitchDebounceCounter
     220  f02b		       f0 16		      BEQ	SkipClean
@@ -613,7 +613,7 @@
     238  f048		       95 00		      STA	0,X
     239  f04a				   SkipCleanTia
     240  f04a		       ca		      DEX
-    241  f04b		       e0 03		      CPX	#03
+    241  f04b		       e0 03		      CPX	#03	; Skips graphics addresses (VSYNC, RSYNC, WSYNC, VBLANK )
     242  f04d		       d0 f9		      BNE	CleanTia
     243  f04f
     244  f04f		       a9 e9		      LDA	#233
@@ -1229,7 +1229,7 @@
     747  f32b		       05 b1		      ORA	Tmp1
     748  f32d		       85 b0		      STA	Tmp0	; Division Result
     749  f32f
-    750  f32f				   CalculateParallax1Offset		; 7/8 speed
+    750  f32f				   CalculateParallax1Offset		; 3/4 speed
     751  f32f		       38		      SEC
     752  f330		       a5 8e		      LDA	Player0SpeedL
     753  f332		       e5 b0		      SBC	Tmp0
@@ -1246,7 +1246,7 @@
     764  f345		       65 b3		      ADC	Tmp3
     765  f347		       85 c7		      STA	ParallaxOffset1 + 1
     766  f349
-    767  f349				   CalculateParallax2Offset		; 6/8 speed
+    767  f349				   CalculateParallax2Offset		; 2/4 speed
     768  f349		       38		      SEC
     769  f34a		       a5 b2		      LDA	Tmp2
     770  f34c		       e5 b0		      SBC	Tmp0
