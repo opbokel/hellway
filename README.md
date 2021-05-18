@@ -9,6 +9,7 @@ or downloaded as a emulator compatible binnary (in the bin folder). The code wil
 
 You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
 
+Trailer: https://www.youtube.com/watch?v=FnLFaKNxdbw
 
 ## License
 Feel free to download, play, burn to a cartridge and have fun. The only restriction is to not sell it in order to make profit. If no profit is made or it is fully donated, I am ok with it. If you do any derivative work, please give the proper credits.
@@ -18,7 +19,7 @@ I will sell physical copies in the near future and donate every profit I make to
 ## Instructions
 The game starts with a QR code, pointing to this repo at the moment. It can be dismissed by pressing fire or game select. Expect improved functionalities in the future. An updated high score and a mobile optimized quick manual are exemples. It can be shown again by cycling through the game modes.
 
-Every track has its own speed, and the car generation is deterministic. Accelerating and breaking are equally important.
+Every track has its own speed, and the car generation is deterministic. Accelerating and braking are equally important.
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
 
@@ -108,8 +109,8 @@ While in the title screen it is possible to change what the border of the screen
  
 ## Controls
 * The button starts the game and accelerates.
-* Up also accelerates, down breaks, and you can move left to right.
-* It is possible to break and accelerate at the same time, this will break with half intensity (Heel-and-toe).
+* Up also accelerates, down brakes, and you can move left to right.
+* It is possible to brake and accelerate at the same time, this will brake with half intensity (Heel-and-toe).
 
 ## Game Over Screen
 Gives you a detailed statistics of the game session:
