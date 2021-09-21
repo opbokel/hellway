@@ -9,7 +9,7 @@ or downloaded as a emulator compatible binnary (in the bin folder). The code wil
 
 You can get the most recent updates about Hellway in https://atariage.com/forums/topic/316402-hellway-an-atari-2600-homebrew-with-love/
 
-A fork supporting PlusCart and online score submission can be found at: https://github.com/Al-Nafuur/hellway (Made by AtariAge user Al_Nafuur). It might be merged here in the future. HighScores from PlusCart (and online compatible emulator): https://highscore.firmaplus.de/?game_id=35
+A fork supporting PlusCart and online score submission can be found at: https://github.com/Al-Nafuur/hellway (Made by AtariAge user Al_Nafuur). HighScores from PlusCart (and online compatible emulator): https://highscore.firmaplus.de/?game_id=35
 
 Trailer: https://www.youtube.com/watch?v=FnLFaKNxdbw
 
