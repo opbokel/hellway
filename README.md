@@ -23,7 +23,7 @@ I will sell physical copies in the near future and donate every profit I make to
 ## Instructions
 The game starts with a QR code with quick interactive reference guide. It can be dismissed by pressing fire or game select. It can be shown again by cycling through the game modes.
 
-Every track has its own speed, and the car generation is deterministic. Accelerating and braking are equally important.
+Every lane has its own speed, and the car generation is deterministic. Accelerating and braking are equally important.
 
 The top of the screen shows the distance traveled, and also serves as a score. The second field is how much time left, and the third, is your current speed all in hexadecimal.
 
